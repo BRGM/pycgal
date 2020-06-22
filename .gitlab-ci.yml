@@ -1,0 +1,45 @@
+image: ${CI_REGISTRY}/${CI_GROUP_SUBREGISTRY}/${CI_BUILD_ENVIRONMENT_IMAGE}
+
+stages:
+  - check-format
+  - build
+  - test
+
+check:
+  stage: check-format
+  tags:
+    - docker
+  #only:
+  #  - merge_requests
+  script:
+    # We could check format only for merge requests
+    # using only merge_requests
+    # and CI_MERGE_REQUEST_SOURCE_BRANCH_SHA and CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
+    # variables but the latest are not correclyt set
+    - git fetch origin master
+    - merge_base=$(git merge-base origin/master HEAD)
+    - changed_files=$(git diff --no-ext-diff --name-only ${merge_base}...HEAD)
+    - echo "Changed files:" ${changed_files}
+    - pre-commit run --files ${changed_files}
+
+build:
+  stage: build
+  tags:
+    - docker
+  script:
+    - python3 setup.py bdist_wheel
+  artifacts:
+    paths:
+    - dist/
+    expose_as: wheel
+    when: on_success
+
+test:
+  stage: test
+  tags:
+    - docker
+  before_script:
+    - pip3 install dist/pyCGAL-*.whl
+  script:
+    # We have to cd to the test directory not to import local mCGAL folder
+    - cd test && python3 -m pytest .

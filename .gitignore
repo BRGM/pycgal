@@ -1,0 +1,45 @@
+# back-up files
+*~
+*.bak
+*.orig
+
+# compiled python files
+*.py[cod]
+*.egg-info
+*.so
+
+# debugger files
+*.pdb
+
+# binary directory
+__pycache__*
+build*
+_skbuild/*
+dist/*
+
+# file setup.sh is a conda recipe requirement
+!build.sh
+
+# IDE config
+*.kdev*
+.kdev*
+.vscode*
+.atom*
+
+# CMake
+CMakeLists.txt.user*
+CMakeCache.txt
+CMakeFiles*
+Makefile
+cmake_install.cmake
+
+# OS temp
+.DS_Store
+.ini
+
+# test outputs
+*.png
+
+# numpy and/or paraview
+*.npz
+*.vtu
