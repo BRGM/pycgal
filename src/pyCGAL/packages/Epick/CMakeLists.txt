@@ -3,8 +3,6 @@ file(RELATIVE_PATH PYCGAL_PACKAGE_PATH ${PYCGAL_PACKAGES_DIR}
 )
 string(REPLACE "/" "_" PYCGAL_PACKAGE_NAME ${PYCGAL_PACKAGE_PATH})
 string(REPLACE "/" "::" PYCGAL_PACKAGE_NAMESPACE ${PYCGAL_PACKAGE_PATH})
-message(STATUS "Path:" ${PYCGAL_PACKAGE_PATH})
-message(STATUS "Namespace:" ${PYCGAL_PACKAGE_NAMESPACE})
 
 file(STRINGS ModulesList.txt PYCGAL_MODULES)
 
@@ -26,8 +24,9 @@ foreach(module_name ${PYCGAL_MODULES})
       ${PYCGAL_SOURCE_TEMPLATE_DIR}/wrapping_code.cpp.template ${wrap_source}
     )
   endif()
-  # set(target_name ${PYCGAL_PACKAGE_NAME}_${module_name})
-  pybind11_add_module(${module_name} ${module_source} ${wrap_source})
-  target_include_directories(${module_name} PUBLIC ${PYCGAL_INCLUDE_DIR})
-  install(TARGETS ${module_name} DESTINATION ${PYCGAL_PACKAGE_PATH})
+  set(target_name ${PYCGAL_PACKAGE_NAME}_${module_name})
+  pybind11_add_module(${target_name} ${module_source} ${wrap_source})
+  target_include_directories(${target_name} PUBLIC ${PYCGAL_INCLUDE_DIR})
+  set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${module_name})
+  install(TARGETS ${target_name} DESTINATION ${PYCGAL_PACKAGE_PATH})
 endforeach()
