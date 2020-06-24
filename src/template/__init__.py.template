@@ -1,0 +1,11 @@
+from importlib import import_module
+
+from . import _impl
+
+
+def __getattr__(name):
+    try:
+        m = getattr(_impl, name)
+    except AttributeError:
+        m = import_module(f"{__name__}._impl.{name}")
+    return getattr(m, name)

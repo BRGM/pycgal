@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-from pycgal.Epick.core import Point_3, Vector_3, as_array
+from pycgal.Epick import Point_3, Vector_3, as_array
 
 
 @pytest.mark.parametrize("PointLike", [Point_3, Vector_3])
