@@ -1,3 +1,3 @@
-set(PYCGAL_MODULES Point_3 Vector_3)
+set(PYCGAL_MODULES Point_3 Surface_mesh Vector_3)
 
 pycgal_add_package()
