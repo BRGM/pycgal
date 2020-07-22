@@ -1,2 +1,0 @@
-Point_3
-Vector_3

@@ -5,8 +5,6 @@ function(pycgal_add_package)
   string(REPLACE "/" "_" PYCGAL_PACKAGE_NAME ${PYCGAL_PACKAGE_PATH})
   string(REPLACE "/" "::" PYCGAL_PACKAGE_NAMESPACE ${PYCGAL_PACKAGE_PATH})
 
-  file(STRINGS ModulesList.txt PYCGAL_MODULES)
-
   foreach(module_name ${PYCGAL_MODULES})
     # file(MAKE_DIRECTORY .generated) - not necessary in source directory
     message(STATUS "Read: " ${module_name})
