@@ -1,25 +1,43 @@
 // The purpose of this file is too define the module wrapping code
-// on a per-package basis
+// on a per-package per-object basis
+// It is automatically generated at configuration time
+// only if (and only if) it does not already exist
 
-// This is the generic definition of wrapping utilities
+#include <pyCGAL/typedefs.h>
+
+// generic definition of wrapping utilities
+// can be commented out if you don't use it (cf. option 2 below)
 #include <pyCGAL/wrap/@PYCGAL_CGAL_PACKAGE_PATH@@PYCGAL_CLASS_NAME@.h>
 
-// This is the per package definition of CGAL object
+// per package definition of wrapped object
 #include <pyCGAL/packages/@PYCGAL_PACKAGE_PATH@/@PYCGAL_CLASS_NAME@.h>
 
-using namespace pyCGAL::@PYCGAL_PACKAGE_NAMESPACE@;
+PYBIND11_MODULE(@PYCGAL_CLASS_NAME@, module) {
 
-// There are two options here, either use the default wrapping
-// code from: pyCGAL/wrap/@PYCGAL_CGAL_PACKAGE_PATH@@PYCGAL_CLASS_NAME@.h
-template typename pyCGAL::Wrapper<@PYCGAL_CLASS_NAME@>::pybind_class
-pyCGAL::Wrapper<@PYCGAL_CLASS_NAME@>::wrap(py::module&);
+  // There are several options here
 
-/**
-// Either comment the previous line and define a specific wrapping code here
-typename pyCGAL::Wrapper<@PYCGAL_CLASS_NAME@>::pybind_class
-pyCGAL::Wrapper<@PYCGAL_CLASS_NAME@>::wrap(py::module& module) {
+  /**/
 
-    Specific wrapping code here...
+  // Option 1: use the default wrapping code from: pyCGAL/wrap/@PYCGAL_CGAL_PACKAGE_PATH@@PYCGAL_CLASS_NAME@.h
+  pyCGAL::wrap_class(pyCGAL::WrapTraits<pyCGAL::@PYCGAL_PACKAGE_NAMESPACE@::@PYCGAL_CLASS_NAME@>{}, module);
 
+  /**/
+
+  /**
+
+  // Otion 2: comment the previous block and just write your wrapping code below...
+  // Just proceed as you would usually do with pybind11
+
+  namespace py = pybind11;
+
+  // might help to shorten object names
+  using namespace pyCGAL::@PYCGAL_PACKAGE_NAMESPACE@;
+
+  // Your code can be also by a mix of both options e.g.:
+  auto pyclass = pyCGAL::wrap_class(pyCGAL::WrapTraits<@PYCGAL_CLASS_NAME@>{}, module);
+  pyclass.def("say_hello", []() {
+    py::print("Hello from @PYCGAL_PACKAGE_NAMESPACE@::@PYCGAL_CLASS_NAME@");
+  });
+
+  /**/
 }
-/**/
