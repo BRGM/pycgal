@@ -45,7 +45,7 @@ setup(
     description="minimal CGAL wrap with pybind11",
     author="brgm",
     license="GPL v.3",
-    packages=["pycgal",] + pycgal_packages,
+    packages=["pycgal", "pycgal/test"] + pycgal_packages,
     # FIXME: it might be more robust to use git
     #        to copy tracked files to default _skbuild directory
     cmake_install_dir="pycgal",

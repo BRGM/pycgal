@@ -41,5 +41,5 @@ test:
   before_script:
     - pip3 install dist/pyCGAL-*.whl
   script:
-    # We have to cd to the test directory not to import local mCGAL folder
-    - cd test && python3 -m pytest .
+    # We have to cd to the test directory not to import installed pycgal package
+    - cd pycgal/test && python3 -m pytest .
