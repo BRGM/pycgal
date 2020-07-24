@@ -43,7 +43,7 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   //        Memory Error Bad allocation at run time for big meshes
   //        depending on the python version... Is it linked to direct
   //        contiguous allocation on the heap?
-  typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class pyclass =
+  typename Wrap::py_class pyclass =
       py::class_<Surface_mesh>(module, "Surface_mesh");
   pyclass.def(py::init<>());
   pyclass.def(py::init<const Surface_mesh&>());
