@@ -9,7 +9,7 @@ namespace py = pybind11;
 namespace pyCGAL {
 namespace wrap {
 namespace utils {
-namespace Surface_mesh {
+namespace SM {
 
 template <typename Surface_mesh>
 auto make_mesh(utils::Coordinates_array<typename Surface_mesh::Point>& vertices,
@@ -19,7 +19,7 @@ auto make_mesh(utils::Coordinates_array<typename Surface_mesh::Point>& vertices,
   return mesh;
 }
 
-}  // namespace Surface_mesh
+}  // namespace SM
 }  // namespace utils
 }  // namespace wrap
 }  // namespace pyCGAL

@@ -10,7 +10,7 @@
 namespace pyCGAL {
 namespace wrap {
 namespace utils {
-namespace Surface_mesh {
+namespace SM {
 
 template <typename Surface_mesh>
 void add_homogeneous_faces(Surface_mesh& mesh, py::buffer faces,
@@ -49,7 +49,7 @@ void extend_mesh(
                           vmap);
 }
 
-}  // namespace Surface_mesh
+}  // namespace SM
 }  // namespace utils
 }  // namespace wrap
 }  // namespace pyCGAL

@@ -13,7 +13,7 @@ template <typename Point>
 typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
     WrapTraits<CGAL::Surface_mesh<Point>>, py::module& module) {
   namespace wutils = wrap::utils;
-  namespace SMU = wutils::Surface_mesh;
+  namespace SMU = wutils::SM;
 
   using Wrap = WrapTraits<CGAL::Surface_mesh<Point>>;
   using Surface_mesh = typename Wrap::cpp_type;

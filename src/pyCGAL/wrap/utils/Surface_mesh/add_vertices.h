@@ -7,7 +7,7 @@
 namespace pyCGAL {
 namespace wrap {
 namespace utils {
-namespace Surface_mesh {
+namespace SM {
 
 template <typename Surface_mesh>
 auto add_vertices(Surface_mesh& mesh,
@@ -25,7 +25,7 @@ auto add_vertices(Surface_mesh& mesh,
   return vmap;
 }
 
-}  // namespace Surface_mesh
+}  // namespace SM
 }  // namespace utils
 }  // namespace wrap
 }  // namespace pyCGAL
