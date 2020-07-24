@@ -16,4 +16,7 @@ struct WrapTraits {
 template <typename Class>
 typename WrapTraits<Class>::py_class wrap_class(WrapTraits<Class>, py::module&);
 
+template <typename Algorithm>
+void wrap_algorithm(Algorithm, py::module&);
+
 }  // namespace pyCGAL
