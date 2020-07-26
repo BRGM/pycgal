@@ -70,7 +70,9 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("degree",
               py::overload_cast<Face_index>(&Surface_mesh::degree, py::const_));
 
-  pyclass.def("extend", &SMU::extend_mesh<Surface_mesh>);
+  pyclass.def("extend", &SMU::extend_mesh<Surface_mesh>, py::arg("vertices"),
+              py::arg("all_faces"), py::arg("reverse_on_failure") = false,
+              py::arg("throw_on_failure") = true);
   pyclass.def("as_arrays", &SMU::as_arrays<Surface_mesh>);
 
   return pyclass;
