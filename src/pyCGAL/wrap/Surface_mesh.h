@@ -73,6 +73,7 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("extend", &SMU::extend_mesh<Surface_mesh>, py::arg("vertices"),
               py::arg("all_faces"), py::arg("reverse_on_failure") = false,
               py::arg("throw_on_failure") = true);
+  pyclass.def("centroids", &SMU::centroids<Surface_mesh>);
   pyclass.def("as_arrays", &SMU::as_arrays<Surface_mesh>);
 
   return pyclass;

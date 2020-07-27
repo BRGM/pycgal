@@ -42,4 +42,4 @@ test:
     - pip3 install dist/pyCGAL-*.whl
   script:
     # We have to cd to the test directory not to import installed pycgal package
-    - cd pycgal/test && python3 -m pytest .
+    - cd test && python3 -m pytest .

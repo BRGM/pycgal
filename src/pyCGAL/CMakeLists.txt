@@ -1,1 +1,10 @@
 add_subdirectory(packages)
+
+foreach(name gog bbox)
+  set(target_name ${name})
+  set(module_name ${name})
+  set(module_sources ${name}.cpp)
+  pybind11_add_module(${target_name} ${module_sources})
+  set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${module_name})
+  install(TARGETS ${target_name} DESTINATION .)
+endforeach()

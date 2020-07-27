@@ -14,7 +14,6 @@ def test_meshes():
         (square_vertices, square),
         (all_vertices, [square, triangles]),
     ]:
-        print()
         mesh = Surface_mesh(vertices, faces)
         print(
             f"mesh with {mesh.number_of_vertices()} vertices and {mesh.number_of_faces()} faces"
@@ -26,5 +25,19 @@ def test_meshes():
         print(mesh.as_arrays())
 
 
+def test_centroids():
+
+    for vertices, faces in [
+        (all_vertices, triangles),
+        (square_vertices, square),
+    ]:
+        mesh = Surface_mesh(vertices, faces)
+        centroids = np.array(
+            [np.mean(vertices[np.array(face_nodes)], axis=0) for face_nodes in faces]
+        )
+        assert np.allclose(mesh.centroids(), centroids)
+
+
 if __name__ == "__main__":
     test_meshes()
+    test_centroids()
