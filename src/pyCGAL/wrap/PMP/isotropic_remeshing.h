@@ -22,8 +22,8 @@ void wrap_algorithm(PMP::isotropic_remeshing<PolygonMesh, FaceRange>,
          py::object face_group, const bool do_project) {
         if (!CGAL::is_triangle_mesh(mesh))
           throw std::runtime_error("Only triangle meshes can be remeshed!");
-        auto params =
-            CGAL::Polygon_mesh_processing::parameters::do_project(do_project);
+        auto params = CGAL::Polygon_mesh_processing::parameters::all_default();
+        params.do_project(do_project);
         const FaceRange& face_range = face_group.is_none()
                                           ? faces(mesh)
                                           : face_group.cast<const FaceRange&>();
