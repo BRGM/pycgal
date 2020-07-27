@@ -12,9 +12,13 @@ template <typename Kernel>
 typename WrapTraits<CGAL::Point_3<Kernel>>::py_class wrap_class(
     WrapTraits<CGAL::Point_3<Kernel>>, py::module& module) {
   using Wrap = WrapTraits<CGAL::Point_3<Kernel>>;
-  return wrap::utils::wrap_point_like<typename Wrap::cpp_type,
+  using Point = typename Wrap::cpp_type;
+  typename Wrap::py_class pyclass =
+      wrap::utils::wrap_point_like<Point,
                                       CGAL::Vector_3<Kernel>>(module,
                                                               "Point_3");
+  pyclass.def("bbox", &Point::bbox);
+  return pyclass;
 }
 
 }  // namespace pyCGAL
