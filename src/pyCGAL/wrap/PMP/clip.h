@@ -29,7 +29,7 @@ void wrap_algorithm(PMP::clip<TriangleMesh, Plane_3>, py::module& module) {
         params.throw_on_self_intersection(throw_on_self_intersection);
         params.clip_volume(clip_volume);
         params.use_compact_clipper(use_compact_clipper);
-        CGAL::Polygon_mesh_processing::clip(mesh, plane, params);
+        return CGAL::Polygon_mesh_processing::clip(mesh, plane, params);
       },
       py::arg("mesh").none(false), py::arg("plane").none(false),
       py::arg("throw_on_self_intersection") = false,
