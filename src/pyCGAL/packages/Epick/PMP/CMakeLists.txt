@@ -1,6 +1,6 @@
 # Define module elements here You will have to speficy a cpp file for each of
 # the elements list
-set(module_elements isotropic_remeshing triangulate_faces stitch_borders
+set(module_elements clip isotropic_remeshing triangulate_faces stitch_borders
                     utilities
 )
 
