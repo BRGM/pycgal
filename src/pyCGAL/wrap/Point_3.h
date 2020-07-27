@@ -14,9 +14,8 @@ typename WrapTraits<CGAL::Point_3<Kernel>>::py_class wrap_class(
   using Wrap = WrapTraits<CGAL::Point_3<Kernel>>;
   using Point = typename Wrap::cpp_type;
   typename Wrap::py_class pyclass =
-      wrap::utils::wrap_point_like<Point,
-                                      CGAL::Vector_3<Kernel>>(module,
-                                                              "Point_3");
+      wrap::utils::wrap_point_like<Point, CGAL::Vector_3<Kernel>>(module,
+                                                                  "Point_3");
   pyclass.def("bbox", &Point::bbox);
   return pyclass;
 }
