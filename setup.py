@@ -41,7 +41,7 @@ with Path("./PackagesList.txt").open() as f:
 
 setup(
     name="pyCGAL",
-    version="0.1.0",
+    version="0.1.1",
     description="minimal CGAL wrap with pybind11",
     author="brgm",
     license="GPL v.3",
