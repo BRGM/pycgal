@@ -44,10 +44,18 @@ def test_properties():
     )  # mangled named... TODO:replace mangled names using detail::TName
 
     flag, created = mesh.add_edge_property("e:flag", dtype="b")
-    # a = np.array(flag) : this will throw a C++ exception (TODO: convert this to python)
+    # a = np.array(flag) : this will throw a C++ exception (TODO: convert the exception to python)
     # because of underlyning storage
+    flag_copy = flag.copy_as_array()
+    print(flag_copy)
     # TODO: iterate correctly over boolean array
-    # TODO: add as_array() member to generate a copy
+
+    print("f:removed:", mesh.face_property("f:removed").copy_as_array())
+    for k, f in enumerate(mesh.faces()):
+        if k % 2 == 0:
+            print("Remmove", f)
+            mesh.remove_face(f)
+    print("f:removed:", mesh.face_property("f:removed").copy_as_array())
 
     assert "some_property" in mesh.edge_properties()
     mesh.remove_property(prop)

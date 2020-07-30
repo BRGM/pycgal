@@ -1,10 +1,12 @@
 #pragma once
 
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 
 #include <optional>
 #include <tuple>
 #include <variant>
+
 namespace py = pybind11;
 
 #include "../Coordinates_array.h"
@@ -100,6 +102,19 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         [&mesh](auto alternative) { mesh.remove_property_map(alternative); },
         map);
   }
+  py::object copy_as_array() {
+    return std::visit(
+        [](auto alternative) {
+          using value_type = typename decltype(alternative)::value_type;
+          const std::size_t n =
+              std::distance(alternative.begin(), alternative.end());
+          py::array_t<value_type, py::array::c_style> res{n};
+          std::copy(alternative.begin(), alternative.end(),
+                    reinterpret_cast<value_type*>(res.request().ptr));
+          return py::object{res};
+        },
+        map);
+  }
 };
 
 template <typename SurfaceMesh, typename IndexType>
@@ -167,6 +182,7 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
   pyholder.def("__setitem__", &holder::set);
   pyholder.def_buffer(&holder::buffer_info);
   pyholder.def("__iter__", &holder::make_iterator);
+  pyholder.def("copy_as_array", &holder::copy_as_array);
 
   pymesh.def(("add_" + location_name + "_property").c_str(),
              [](Surface_mesh& mesh, const std::string& name, const char dtype) {

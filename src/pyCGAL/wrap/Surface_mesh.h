@@ -69,6 +69,9 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
                                                         py::const_));
   pyclass.def("degree",
               py::overload_cast<Face_index>(&Surface_mesh::degree, py::const_));
+  pyclass.def("remove_vertex", &Surface_mesh::remove_vertex);
+  pyclass.def("remove_edge", &Surface_mesh::remove_edge);
+  pyclass.def("remove_face", &Surface_mesh::remove_face);
 
   pyclass.def("has_garbage", &Surface_mesh::has_garbage);
   pyclass.def("collect_garbage",
