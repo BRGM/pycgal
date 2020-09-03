@@ -16,4 +16,4 @@ all_vertices = np.array(
 
 square = np.array([[0, 1, 2, 3]])
 square_vertices = all_vertices[np.unique(square)]
-triangles = np.array([[0, 3, 4], [1, 0, 5], [3, 1, 6], [3, 2, 7],])
+triangles = np.array([[5, 1, 0], [6, 2, 1], [7, 3, 2], [4, 0, 3],])
