@@ -5,5 +5,6 @@
 #include "Surface_mesh/as_arrays.h"
 #include "Surface_mesh/centroids.h"
 #include "Surface_mesh/extend_mesh.h"
+#include "Surface_mesh/io.h"
 #include "Surface_mesh/make_mesh.h"
 #include "Surface_mesh/property_maps.h"

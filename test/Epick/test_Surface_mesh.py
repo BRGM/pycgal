@@ -38,6 +38,23 @@ def test_centroids():
         assert np.allclose(mesh.centroids(), centroids)
 
 
+def test_io():
+    for k, (vertices, faces) in enumerate(
+        [
+            (all_vertices, triangles),
+            (square_vertices, square),
+            (all_vertices, [square, triangles]),
+        ]
+    ):
+        mesh = Surface_mesh(vertices, faces)
+        filename = f"mesh{k}.off"
+        mesh.write_off(filename)
+        mesh = Surface_mesh()
+        mesh.read_off(filename)
+        mesh = Surface_mesh.from_off(filename)
+
+
 if __name__ == "__main__":
     test_meshes()
     test_centroids()
+    test_io()

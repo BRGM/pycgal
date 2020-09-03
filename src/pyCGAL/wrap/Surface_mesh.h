@@ -83,6 +83,14 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("centroids", &SMU::centroids<Surface_mesh>);
   pyclass.def("as_arrays", &SMU::as_arrays<Surface_mesh>);
 
+  pyclass.def("read_off", &SMU::read_off<Point>);
+  pyclass.def("write_off", &SMU::write_off<Point>);
+  pyclass.def_static("from_off", [](const std::string& filename) {
+    auto p = std::make_unique<Surface_mesh>();
+    SMU::read_off(*p, filename);
+    return p;
+  });
+
   SMU::wrap_property_map<Vertex_index>(module, pyclass, "vertex");
   SMU::wrap_property_map<Halfedge_index>(module, pyclass, "halfedge");
   SMU::wrap_property_map<Edge_index>(module, pyclass, "edge");
