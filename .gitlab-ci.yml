@@ -39,7 +39,7 @@ test:
   tags:
     - docker
   before_script:
-    - pip3 install dist/pyCGAL-*.whl
+    - pip3 install dist/pycgal-*.whl
   script:
     # We have to cd to the test directory not to import installed pycgal package
     - cd test && python3 -m pytest .

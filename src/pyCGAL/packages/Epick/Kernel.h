@@ -2,8 +2,6 @@
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 
-namespace pyCGAL {
-namespace Epick {
+namespace pyCGAL::Epick {
 using Kernel = CGAL::Epick;
-}  // namespace Epick
-}  // namespace pyCGAL
+}  // namespace pyCGAL::Epick

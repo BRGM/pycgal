@@ -13,10 +13,17 @@ struct WrapTraits {
   using py_class = py::class_<cpp_type>;
 };
 
+template <typename EnumType>
+struct CGALEnum {
+  using enum_type = EnumType;
+  using py_enum = py::enum_<EnumType>;
+};
+
 template <typename Class>
 typename WrapTraits<Class>::py_class wrap_class(WrapTraits<Class>, py::module&);
 
-template <typename Algorithm>
-void wrap_algorithm(Algorithm, py::module&);
+// A generic utility to wrap algorithms, enums...
+template <typename Wrapped>
+void wrap_element(Wrapped, py::module&);
 
 }  // namespace pyCGAL

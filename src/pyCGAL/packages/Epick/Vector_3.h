@@ -4,8 +4,6 @@
 
 #include "Kernel.h"
 
-namespace pyCGAL {
-namespace Epick {
+namespace pyCGAL::Epick {
 using Vector_3 = CGAL::Vector_3<Kernel>;
-}  // namespace Epick
-}  // namespace pyCGAL
+}  // namespace pyCGAL::Epick

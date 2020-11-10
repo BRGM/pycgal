@@ -1,5 +1,7 @@
-set(PYCGAL_MODULES Plane_3 Point_3 Surface_mesh Vector_3)
+set(module_classes Point_2 Vector_2 Point_3 Vector_3 Plane_3)
 
-pycgal_add_package()
+set(module_functions)
 
-add_subdirectory(PMP)
+pycgal_add_core_module(
+  Epick module_classes module_functions LinearGeometryKernel
+)

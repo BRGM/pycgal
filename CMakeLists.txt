@@ -33,6 +33,6 @@ if(NOT pybind11_FOUND) # else fetch it from github
   endif()
 endif()
 
-file(STRINGS PackagesList.txt PYCGAL_PACKAGES)
+set(PYCGAL_PACKAGES core Epick Mesh_2 Polygon_mesh_processing Surface_mesh)
 
 add_subdirectory(src)

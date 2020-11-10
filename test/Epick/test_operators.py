@@ -7,7 +7,3 @@ def test_operators():
     assert V.squared_length() == 2
     assert V == Vector_3(1, 1, 0)
     assert V * Vector_3(0, 0, 1) == 0
-
-
-if __name__ == "__main__":
-    test_operators()
