@@ -4,7 +4,7 @@ import numpy as np
 
 # We need to import Point_3 to display them cf (*) below
 from pycgal.Epick import Point_3
-from pycgal.Surface_mesh import Surface_mesh
+from pycgal.Surface_mesh import Surface_mesh, Edge_index, Edges
 
 
 def test_properties(simple_mesh):
@@ -30,7 +30,10 @@ def test_properties(simple_mesh):
         if k % 3 == 0:
             prop[e] = prop[e] + 0.5
     print(a)
-
+    edges = Edges(mesh.edges())
+    print("Before:", a)
+    prop.set(edges, np.arange(edges.size, dtype="d"))
+    print("After:", a)
     fconnectivity = mesh.face_property("f:connectivity")
     print(
         "some_property type:", prop.property_type()
@@ -49,9 +52,24 @@ def test_properties(simple_mesh):
     # a = np.array(flag) : this will throw a C++ exception (TODO: convert the exception to python)
     # because of underlyning storage
     flag_copy = flag.copy_as_array()
+    assert np.all(np.logical_not(flag_copy))
     print(flag_copy)
     # TODO: iterate correctly over boolean array
-
+    edges = Edges(mesh.edges())
+    flag.set(edges, True)
+    flag_copy = flag.copy_as_array()
+    assert np.all(flag_copy)
+    print(flag_copy)
+    one_of_two = Edges()
+    for e in list(mesh.edges())[::2]:
+        one_of_two.append(e)
+    print("One out of two:", list(one_of_two))
+    flag.set(one_of_two, False)
+    print(flag.copy_as_array())
+    flag.set(True)
+    assert np.all(flag.copy_as_array())
+    flag.fill(False)
+    assert not np.any(flag.copy_as_array())
     print("f:removed:", mesh.face_property("f:removed").copy_as_array())
     for k, f in enumerate(mesh.faces()):
         if k % 2 == 0:

@@ -27,6 +27,11 @@ typename WrapTraits<CGAL::Bbox_3>::py_class wrap_class(WrapTraits<CGAL::Bbox_3>,
   pyclass.def(py::self + py::self);
   pyclass.def(py::self += py::self);
   pyclass.def("dilate", &Bbox_3::dilate);
+  pyclass.def("__str__", [](const Bbox_3& self) {
+    py::str s("Bbox_3: {} < x < {}, {} < y < {}, {} < z < {}");
+    return s.format(self.xmin(), self.xmax(), self.ymin(), self.ymax(),
+                    self.zmin(), self.zmax());
+  });
 
   module.def("do_overlap", py::overload_cast<const Bbox_3&, const Bbox_3&>(
                                &CGAL::do_overlap));

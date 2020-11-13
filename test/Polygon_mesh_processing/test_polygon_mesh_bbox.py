@@ -1,0 +1,15 @@
+from pycgal.core import Bbox_3  # import this to display bounding box
+from pycgal.Surface_mesh import Surface_mesh
+from pycgal.Polygon_mesh_processing import bbox
+
+
+def test_mesh_bounding_box(simple_mesh):
+    for k, (vertices, faces) in enumerate(
+        [
+            (simple_mesh.all_vertices, simple_mesh.triangles),
+            (simple_mesh.square_vertices, simple_mesh.square),
+            (simple_mesh.all_vertices, [simple_mesh.square, simple_mesh.triangles]),
+        ]
+    ):
+        mesh = Surface_mesh(vertices, faces)
+        print(bbox(mesh))

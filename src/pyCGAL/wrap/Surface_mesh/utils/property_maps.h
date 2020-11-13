@@ -9,9 +9,8 @@
 
 namespace py = pybind11;
 
+#include <pyCGAL/wrap/Surface_mesh/Property_capsule.h>
 #include <pyCGAL/wrap/utils/Coordinates_array.h>
-
-#include "extend_mesh.h"
 
 namespace pyCGAL::wrap::utils {
 
@@ -57,6 +56,10 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   template <typename T>
   using Property_map = typename Surface_mesh::template Property_map<Index, T>;
   std::variant<Property_map<Ts>...> map;
+  template <typename T>
+  Property_map<T>* get_underlying_map() {
+    return std::get_if<T>(&map);
+  }
   constexpr std::string property_type() const {
     return std::visit(
         [&](auto alternative) { return TName<decltype(alternative)>::name(); },
@@ -71,6 +74,39 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         [i, &value](auto alternative) {
           using value_type = typename decltype(alternative)::value_type;
           alternative[i] = value.cast<value_type>();
+        },
+        map);
+  }
+  void set(const std::vector<Index>& indices, py::iterable& values) {
+    std::visit(
+        [&indices, &values](auto alternative) {
+          using value_type = typename decltype(alternative)::value_type;
+          auto pi = cbegin(indices);
+          for (auto&& value : values) {
+            assert(pi != cend(indices));
+            alternative[*pi] = value.cast<value_type>();
+            ++pi;
+          }
+        },
+        map);
+  }
+  void set(const std::vector<Index>& indices, py::object& value) {
+    std::visit(
+        [&indices, &value](auto alternative) {
+          using value_type = typename decltype(alternative)::value_type;
+          const auto v = value.cast<value_type>();
+          for (auto&& i : indices) {
+            alternative[i] = v;
+          }
+        },
+        map);
+  }
+  void fill(py::object& value) {
+    std::visit(
+        [&value](auto alternative) {
+          using value_type = typename decltype(alternative)::value_type;
+          const auto v = value.cast<value_type>();
+          std::fill(alternative.begin(), alternative.end(), v);
         },
         map);
   }
@@ -122,7 +158,7 @@ template <typename SurfaceMesh, typename IndexType>
 struct Helper_traits {
   using Surface_mesh = SurfaceMesh;
   using index = IndexType;
-  using alternatives = std::tuple<bool, int, float, double>;
+  using alternatives = pyCGAL::wrap::Surface_mesh::available_property_types;
   using holder = Pmap_holder<Surface_mesh, index, alternatives>;
 };
 
@@ -153,10 +189,10 @@ struct Find_property<Traits, std::tuple<T, Ts...>> {
 
 template <typename Traits, typename T>
 py::tuple add_property_map(typename Traits::Surface_mesh& mesh,
-                           const std::string& name,
-                           const T default_value = T()) {
+                           const std::string& name, py::object& default_value) {
   using Index = typename Traits::index;
-  auto res = mesh.template add_property_map<Index>(name, default_value);
+  const auto value = default_value.is_none() ? T() : default_value.cast<T>();
+  auto res = mesh.template add_property_map<Index>(name, value);
   return py::make_tuple(typename Traits::holder{res.first}, res.second);
 }
 
@@ -176,33 +212,54 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
   using traits = detail::Helper_traits<Surface_mesh, Index>;
   using holder = typename traits::holder;
 
+  using Property_capsule =
+      pyCGAL::wrap::Surface_mesh::Property_capsule<Surface_mesh, Index>;
+
+  py::class_<Property_capsule>(module,
+                               (location_name + "_property_capsule").c_str());
+
   auto pyholder = py::class_<holder>(
       module, (location_name + "_property").c_str(), py::buffer_protocol());
+  pyholder.def(
+      "property_capsule",
+      [](holder& self) { return std::make_unique<Property_capsule>(self.map); },
+      py::keep_alive<0, 1>());
   pyholder.def("property_type", &holder::property_type);
   pyholder.def("__getitem__", &holder::get);
-  pyholder.def("__setitem__", &holder::set);
+  pyholder.def("__setitem__",
+               py::overload_cast<Index, py::object&>(&holder::set));
+  pyholder.def("set", py::overload_cast<Index, py::object&>(&holder::set));
+  pyholder.def("set",
+               py::overload_cast<const std::vector<Index>&, py::iterable&>(
+                   &holder::set));
+  pyholder.def("set", py::overload_cast<const std::vector<Index>&, py::object&>(
+                          &holder::set));
+  pyholder.def("set", &holder::fill);
+  pyholder.def("fill", &holder::fill);
   pyholder.def_buffer(&holder::buffer_info);
   pyholder.def("__iter__", &holder::make_iterator);
   pyholder.def("copy_as_array", &holder::copy_as_array);
 
   pymesh.def(("add_" + location_name + "_property").c_str(),
-             [](Surface_mesh& mesh, const std::string& name, const char dtype) {
+             [](Surface_mesh& mesh, const std::string& name, const char dtype,
+                py::object value) {
                switch (dtype) {
                  case 'b':
-                   return add_property_map<traits, bool>(mesh, name);
+                   add_property_map<traits, bool>(mesh, name, value);
                  case 'i':
-                   return add_property_map<traits, int>(mesh, name);
+                   return add_property_map<traits, int>(mesh, name, value);
                  case 'f':
-                   return add_property_map<traits, float>(mesh, name);
+                   return add_property_map<traits, float>(mesh, name, value);
                  case 'd':
-                   return add_property_map<traits, double>(mesh, name);
+                   return add_property_map<traits, double>(mesh, name, value);
                  default:
                    break;
                }
                assert(false);
                return py::make_tuple(py::none(), false);
              },
-             py::arg("name").none(false), py::arg("dtype") = 'b');
+             py::arg("name").none(false), py::arg("dtype") = 'b',
+             py::arg("value") = py::none());
 
   pymesh.def((location_name + "_property").c_str(),
              &find_property_holder<traits>);

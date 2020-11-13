@@ -4,10 +4,24 @@
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/wrap_index.h>
 #include <pyCGAL/wrap/utils/wrap_range.h>
+#include <pyCGAL/wrap/utils/wrap_stl_container.h>
+
+#include <memory>
 
 #include "utils/Surface_mesh.h"
 
 namespace pyCGAL {
+
+namespace detail {
+template <typename Index, typename Range_type>
+auto index_vector_from_range(Range_type& range)
+    -> std::unique_ptr<std::vector<Index>> {
+  auto v = std::make_unique<std::vector<Index>>();
+  assert(v);
+  v->insert(v->end(), begin(range), end(range));
+  return v;
+}
+}  // namespace detail
 
 template <typename Point>
 typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
@@ -37,6 +51,54 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   wutils::wrap_range<Edge_range>(module, "Edge_range");
   wutils::wrap_range<Face_range>(module, "Face_range");
 
+  // We deactivate buffer interface to prevent mixing indices with constructors
+  auto Vertices_class =
+      wutils::wrap_stl_vector<Vertex_index, Surface_mesh_index>(
+          module, "Vertices", false, false);
+  Vertices_class.def(
+      py::init(&detail::index_vector_from_range<Vertex_index, Vertex_range>));
+  auto Halfedges_class =
+      wutils::wrap_stl_vector<Halfedge_index, Surface_mesh_index>(
+          module, "Halfedges", false, false);
+  Halfedges_class.def(py::init(
+      &detail::index_vector_from_range<Halfedge_index, Halfedge_range>));
+  auto Edges_class = wutils::wrap_stl_vector<Edge_index, Surface_mesh_index>(
+      module, "Edges", false, false);
+  Edges_class.def(
+      py::init(&detail::index_vector_from_range<Edge_index, Edge_range>));
+  Edges_class.def(py::init([](const Surface_mesh& mesh,
+                              const std::vector<Halfedge_index>& halfedges) {
+    auto v = std::make_unique<std::vector<Edge_index>>();
+    assert(v);
+    v->reserve(halfedges.size());
+    for (auto&& h : halfedges) {
+      v->emplace_back(mesh.edge(h));
+    }
+    return v;
+  }));
+  auto Faces_class = wutils::wrap_stl_vector<Face_index, Surface_mesh_index>(
+      module, "Faces", false, false);
+  Faces_class.def(
+      py::init(&detail::index_vector_from_range<Face_index, Face_range>));
+  Faces_class.def(py::init([](const Surface_mesh& mesh,
+                              const std::vector<Halfedge_index>& halfedges,
+                              const bool opposite_faces = false) {
+                    auto v = std::make_unique<std::vector<Face_index>>();
+                    assert(v);
+                    v->reserve(halfedges.size());
+                    if (opposite_faces) {
+                      for (auto&& h : halfedges) {
+                        v->emplace_back(mesh.face(mesh.opposite(h)));
+                      }
+                    } else {
+                      for (auto&& h : halfedges) {
+                        v->emplace_back(mesh.face(h));
+                      }
+                    }
+                    return v;
+                  }),
+                  py::arg("mesh").none(false), py::arg("halfedges").none(false),
+                  py::arg("opposite_faces") = false);
   // FIXME: Weirdly enough trying to reserve memory in init methods using
   //        Surface_mesh::reserve generates
   //        Memory Error Bad allocation at run time for big meshes
@@ -79,6 +141,7 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("extend", &wutils::extend_mesh<Surface_mesh>, py::arg("vertices"),
               py::arg("all_faces"), py::arg("reverse_on_failure") = false,
               py::arg("throw_on_failure") = true);
+  pyclass.def("centroid", &wutils::centroid<Surface_mesh>);
   pyclass.def("centroids", &wutils::centroids<Surface_mesh>);
   pyclass.def("as_arrays", &wutils::as_arrays<Surface_mesh>);
 

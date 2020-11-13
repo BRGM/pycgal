@@ -1,9 +1,22 @@
 #pragma once
 
+#include <CGAL/centroid.h>
 #include <pyCGAL/wrap/utils/Coordinates_array.h>
 #include <pyCGAL/wrap/utils/generic_array.h>
 
 namespace pyCGAL::wrap::utils {
+
+template <typename Surface_mesh>
+inline auto centroid(const Surface_mesh& mesh,
+                     const typename Surface_mesh::Face_index f) ->
+    typename Surface_mesh::Point {
+  using Point = typename Surface_mesh::Point;
+  std::vector<Point> vertices;
+  for (auto&& v : CGAL::vertices_around_face(mesh.halfedge(f), mesh)) {
+    vertices.emplace_back(mesh.point(v));
+  }
+  return CGAL::centroid(begin(vertices), end(vertices));
+}
 
 template <typename Surface_mesh>
 auto centroids(const Surface_mesh& mesh)
@@ -14,19 +27,7 @@ auto centroids(const Surface_mesh& mesh)
   auto centers = make_array_of_array<CGAL_FT<Point>, dim>(result);
   auto p = begin(centers);
   for (auto&& f : mesh.faces()) {
-    auto& C = *p;
-    C.fill(0);
-    CGAL_FT<Point> nv = 0;
-    for (auto&& v : CGAL::vertices_around_face(mesh.halfedge(f), mesh)) {
-      assert(v != mesh.null_vertex());
-      const Point& P = mesh.point(v);
-      for (int i = 0; i < dim; ++i) C[i] += P[i];
-      ++nv;
-    }
-    if (nv > 0) {
-      const auto invnv = 1 / nv;
-      for (int i = 0; i < dim; ++i) C[i] *= invnv;
-    }
+    *(reinterpret_cast<Point*>(p)) = centroid(mesh, f);
     ++p;
   }
   assert(p == end(centers));
