@@ -1,4 +1,4 @@
-image: ${CI_REGISTRY}/${CI_GROUP_SUBREGISTRY}/${CI_BUILD_ENVIRONMENT_IMAGE}
+image: ${CI_BUILD_ENVIRONMENT_IMAGE}
 
 stages:
   - check-format
