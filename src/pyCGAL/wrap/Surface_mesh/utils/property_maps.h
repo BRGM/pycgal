@@ -143,7 +143,7 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
     return std::visit(
         [](auto alternative) {
           using value_type = typename decltype(alternative)::value_type;
-          const std::size_t n =
+          const py::ssize_t n =
               std::distance(alternative.begin(), alternative.end());
           py::array_t<value_type, py::array::c_style> res{n};
           std::copy(alternative.begin(), alternative.end(),

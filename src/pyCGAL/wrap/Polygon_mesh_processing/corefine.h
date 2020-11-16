@@ -42,8 +42,7 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
         }
         CGAL::Polygon_mesh_processing::corefine(tm1, tm2, np1, np2);
       },
-      py::arg("tm1").none(false), py::arg("tm2").none(false),
-      /** FIXME: new in pybind11 2.6.0: py::kw_only(),*/
+      py::arg("tm1").none(false), py::arg("tm2").none(false), py::kw_only(),
       py::arg("edge_is_constrained_map1") = py::none(),
       py::arg("edge_is_constrained_map2") = py::none(),
       py::arg("throw_on_self_intersection") = false);

@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.12.0)
-cmake_policy(VERSION 3.12.0)
+cmake_minimum_required(VERSION 3.14.0)
+cmake_policy(VERSION 3.14.0)
 
 project(pycgal CXX)
 
@@ -20,17 +20,9 @@ if(NOT pybind11_FOUND) # else fetch it from github
   FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    GIT_TAG v2.4.3
+    GIT_TAG v2.6.1
   )
-  if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    FetchContent_GetProperties(pybind11)
-    if(NOT pybind11_POPULATED)
-      FetchContent_Populate(pybind11)
-      add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
-    endif()
-  else()
-    FetchContent_MakeAvailable(pybind11)
-  endif()
+  FetchContent_MakeAvailable(pybind11)
 endif()
 
 set(PYCGAL_PACKAGES core Epick Mesh_2 Polygon_mesh_processing Surface_mesh)

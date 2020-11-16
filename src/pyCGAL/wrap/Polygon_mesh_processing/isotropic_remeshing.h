@@ -55,8 +55,7 @@ void wrap_element(detail::isotropic_remeshing<PolygonMesh, FaceRange>,
             face_range, target_edge_length, mesh, params);
       },
       py::arg("mesh").none(false), py::arg("target_edge_length").none(false),
-      py::arg("face_group") = py::none(),
-      /** FIXME: new in pybind11 2.6.0: py::kw_only(),*/
+      py::arg("face_group") = py::none(), py::kw_only(),
       py::arg("number_of_iterations") = static_cast<unsigned int>(1),
       py::arg("edge_is_constrained_map") = py::none(),
       py::arg("vertex_is_constrained_map") = py::none(),
