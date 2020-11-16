@@ -8,13 +8,10 @@ except ImportError:
     print("Install it running: python -m pip install scikit-build")
     sys.exit(1)
 
+# FIXME: For some strange reason when packages is specified in setup.cfg
+#        compiled modules are not included in the generated wheel.
+#        Is the content of the package directory parsed
+#        after compilation when passed as an argument here?
 setup(
-    name="pycgal",
-    version="0.2.0",
-    description="minimal CGAL wrap with pybind11",
-    author="brgm",
-    license="GPL v.3",
-    url="https://gitlab.brgm.fr/brgm/modelisation-geologique/pycgal",
-    packages=["pycgal"],
-    install_requires=["numpy"],
+    packages=["pycgal",]
 )
