@@ -4,6 +4,7 @@ stages:
   - check
   - build
   - test
+  - deploy
 
 check_version_and_format:
   stage: check
@@ -44,3 +45,27 @@ test:
   script:
     # We have to cd to the test directory not to import installed pycgal package
     - cd test && python3 -m pytest .
+
+deploy-stage:
+  stage: deploy
+  tags:
+    - brgm
+    - docker
+  only:
+    - master
+  script:
+    - twine upload -u ${REGISTRY_NEXUS_USER} -p ${REGISTRY_NEXUS_PASSWORD} --repository-url ${REGISTRY_NEXUS}/pypi-stage/ dist/*
+  when: manual
+
+deploy-release:
+  stage: deploy
+  tags:
+    - brgm
+    - docker
+  only:
+    - tags
+  except:
+    - branches
+  script:
+    - twine upload -u ${REGISTRY_NEXUS_USER} -p ${REGISTRY_NEXUS_PASSWORD} --repository-url ${REGISTRY_NEXUS}/pypi-releases/ dist/*
+  when: manual
