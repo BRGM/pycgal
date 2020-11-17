@@ -126,10 +126,6 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("faces", &Surface_mesh::faces);
   pyclass.def("point", py::overload_cast<Vertex_index>(&Surface_mesh::point,
                                                        py::const_));
-  pyclass.def("degree", py::overload_cast<Vertex_index>(&Surface_mesh::degree,
-                                                        py::const_));
-  pyclass.def("degree",
-              py::overload_cast<Face_index>(&Surface_mesh::degree, py::const_));
   pyclass.def("remove_vertex", &Surface_mesh::remove_vertex);
   pyclass.def("remove_edge", &Surface_mesh::remove_edge);
   pyclass.def("remove_face", &Surface_mesh::remove_face);
@@ -144,6 +140,73 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("centroid", &wutils::centroid<Surface_mesh>);
   pyclass.def("centroids", &wutils::centroids<Surface_mesh>);
   pyclass.def("as_arrays", &wutils::as_arrays<Surface_mesh>);
+
+  pyclass.def("is_valid",
+              py::overload_cast<bool>(&Surface_mesh::is_valid, py::const_),
+              py::arg("verbose") = true);
+  pyclass.def("is_valid", py::overload_cast<Vertex_index>(
+                              &Surface_mesh::is_valid, py::const_));
+  pyclass.def("is_valid", py::overload_cast<Halfedge_index>(
+                              &Surface_mesh::is_valid, py::const_));
+  pyclass.def("is_valid", py::overload_cast<Edge_index>(&Surface_mesh::is_valid,
+                                                        py::const_));
+  pyclass.def("is_valid", py::overload_cast<Face_index>(&Surface_mesh::is_valid,
+                                                        py::const_));
+
+  // Low-Level Connectivity
+  pyclass.def("target", &Surface_mesh::target);
+  pyclass.def("set_target", &Surface_mesh::set_target);
+  pyclass.def("face", &Surface_mesh::face);
+  pyclass.def("set_face", &Surface_mesh::set_face);
+  pyclass.def("next", &Surface_mesh::next);
+  pyclass.def("prev", &Surface_mesh::prev);
+  pyclass.def("set_next", &Surface_mesh::set_next);
+  pyclass.def("halfedge", py::overload_cast<Vertex_index>(
+                              &Surface_mesh::halfedge, py::const_));
+  pyclass.def("set_halfedge", py::overload_cast<Vertex_index, Halfedge_index>(
+                                  &Surface_mesh::set_halfedge));
+  pyclass.def("halfedge", py::overload_cast<Face_index>(&Surface_mesh::halfedge,
+                                                        py::const_));
+  pyclass.def("set_halfedge", py::overload_cast<Face_index, Halfedge_index>(
+                                  &Surface_mesh::set_halfedge));
+  pyclass.def("opposite", &Surface_mesh::opposite);
+
+  // Low - Level Connectivity Convenience Functions
+  pyclass.def("source", &Surface_mesh::source);
+  pyclass.def("next_around_target", &Surface_mesh::next_around_target);
+  pyclass.def("prev_around_target", &Surface_mesh::prev_around_target);
+  pyclass.def("next_around_source", &Surface_mesh::next_around_source);
+  pyclass.def("prev_around_source", &Surface_mesh::prev_around_source);
+  pyclass.def("vertex", &Surface_mesh::vertex);
+  pyclass.def("halfedge", py::overload_cast<Vertex_index, Vertex_index>(
+                              &Surface_mesh::halfedge, py::const_));
+
+  // Switching between Halfedges and Edges
+  pyclass.def("edge", &Surface_mesh::edge);
+  pyclass.def("halfedge", py::overload_cast<Edge_index>(&Surface_mesh::halfedge,
+                                                        py::const_));
+  pyclass.def("halfedge", py::overload_cast<Edge_index, unsigned int>(
+                              &Surface_mesh::halfedge, py::const_));
+
+  // Degree Functions
+  pyclass.def("degree", py::overload_cast<Vertex_index>(&Surface_mesh::degree,
+                                                        py::const_));
+  pyclass.def("degree",
+              py::overload_cast<Face_index>(&Surface_mesh::degree, py::const_));
+
+  // Null Elements
+  pyclass.def_property_readonly("null_vertex", [](const Surface_mesh&) {
+    return Surface_mesh::null_vertex();
+  });
+  pyclass.def_property_readonly("null_face", [](const Surface_mesh&) {
+    return Surface_mesh::null_face();
+  });
+  pyclass.def_property_readonly("null_halfedge", [](const Surface_mesh&) {
+    return Surface_mesh::null_halfedge();
+  });
+  pyclass.def_property_readonly("null_edge", [](const Surface_mesh&) {
+    return Surface_mesh::null_edge();
+  });
 
   pyclass.def("read_off", &wutils::read_off<Point>);
   pyclass.def("write_off", &wutils::write_off<Point>);
