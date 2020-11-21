@@ -245,7 +245,7 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
                 py::object value) {
                switch (dtype) {
                  case 'b':
-                   add_property_map<traits, bool>(mesh, name, value);
+                   return add_property_map<traits, bool>(mesh, name, value);
                  case 'i':
                    return add_property_map<traits, int>(mesh, name, value);
                  case 'f':
