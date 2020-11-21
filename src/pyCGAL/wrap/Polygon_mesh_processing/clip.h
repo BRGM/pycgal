@@ -18,15 +18,16 @@ void wrap_element(detail::clip<TriangleMesh, Plane_3>, py::module& module) {
       [](TriangleMesh& mesh, const Plane_3& plane,
          const bool throw_on_self_intersection, const bool clip_volume,
          const bool use_compact_clipper) {
-#ifndef NDEBUG
         if (!CGAL::is_triangle_mesh(mesh))
           throw std::runtime_error("Only triangle meshes can be clipped!");
-#endif
-        auto params = CGAL::Polygon_mesh_processing::parameters::all_default();
-        params.throw_on_self_intersection(throw_on_self_intersection);
-        params.clip_volume(clip_volume);
-        params.use_compact_clipper(use_compact_clipper);
-        return CGAL::Polygon_mesh_processing::clip(mesh, plane, params);
+
+        namespace pns = CGAL::Polygon_mesh_processing::parameters;
+
+        return CGAL::Polygon_mesh_processing::clip(
+            mesh, plane,
+            pns::throw_on_self_intersection(throw_on_self_intersection)
+                .clip_volume(clip_volume)
+                .use_compact_clipper(use_compact_clipper));
       },
       py::arg("mesh").none(false), py::arg("plane").none(false),
       py::arg("throw_on_self_intersection") = false,

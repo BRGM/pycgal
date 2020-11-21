@@ -11,8 +11,7 @@ namespace pyCGAL::wrap::utils {
 namespace py = pybind11;
 
 template <typename Index, typename T, typename Mesh>
-auto convert_to_property_map(py::object pmap, Mesh& mesh, T default_value)
-    -> std::optional<typename Mesh::template Property_map<Index, T>> {
+auto convert_to_property_map(py::object pmap, Mesh& mesh, T default_value) {
   // It's ok to use std::optional as return types as Property_maps are actually
   // pointers
   using Property_map = typename Mesh::template Property_map<Index, T>;
@@ -49,8 +48,7 @@ auto convert_to_property_map(py::object pmap, Mesh& mesh, T default_value)
 
 template <typename Index, typename Mesh>
 auto convert_to_property_flag(py::object pmap, Mesh& mesh,
-                              const bool default_value = false)
-    -> std::optional<typename Mesh::template Property_map<Index, bool>> {
+                              const bool default_value = false) {
   return convert_to_property_map<Index, bool>(pmap, mesh, default_value);
 }
 

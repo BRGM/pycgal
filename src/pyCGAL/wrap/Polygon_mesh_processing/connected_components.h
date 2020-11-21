@@ -2,6 +2,7 @@
 
 #include <CGAL/Polygon_mesh_processing/connected_components.h>
 #include <pyCGAL/typedefs.h>
+#include <pyCGAL/wrap/utils/named_parameters.h>
 
 #include "detail/connected_components.h"
 #include "utils/property_helpers.h"
@@ -23,14 +24,16 @@ void wrap_element(detail::connected_components<PolygonMesh>,
          py::object edge_is_constrained_map) {
         auto fmap =
             utils::convert_to_property_map<Face_index, int>(fcm, pmesh, 0);
+        assert(fmap);
+
         auto edge_constraints = utils::convert_to_property_flag<Edge_index>(
             edge_is_constrained_map, pmesh);
-        assert(fmap);
+
+        namespace pns = CGAL::Polygon_mesh_processing::parameters;
+
         if (edge_constraints) {
           CGAL::Polygon_mesh_processing::connected_components(
-              pmesh, *fmap,
-              CGAL::Polygon_mesh_processing::parameters::
-                  edge_is_constrained_map(*edge_constraints));
+              pmesh, *fmap, pns::edge_is_constrained_map(*edge_constraints));
         } else {
           CGAL::Polygon_mesh_processing::connected_components(pmesh, *fmap);
         }
