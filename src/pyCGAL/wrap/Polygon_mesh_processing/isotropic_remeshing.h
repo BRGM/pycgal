@@ -3,6 +3,8 @@
 #include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <pyCGAL/typedefs.h>
 
+#include <optional>
+
 #include "detail/isotropic_remeshing.h"
 #include "utils/property_helpers.h"
 
@@ -33,26 +35,66 @@ void wrap_element(detail::isotropic_remeshing<PolygonMesh, FaceRange>,
                 .protect_constraints(protect_constraints)
                 .relax_constraints(relax_constraints)
                 .do_project(do_project);
-        if (!edge_is_constrained_map.is_none()) {
-          using Edge_index = typename PolygonMesh::Edge_index;
-          params.edge_is_constrained_map(
-              *utils::convert_to_property_flag<Edge_index>(
-                  edge_is_constrained_map, mesh));
+        auto edge_constraints =
+            utils::convert_to_property_flag<typename PolygonMesh::Edge_index>(
+                edge_is_constrained_map, mesh);
+        auto vertex_constraints =
+            utils::convert_to_property_flag<typename PolygonMesh::Vertex_index>(
+                vertex_is_constrained_map, mesh);
+        auto face_patches =
+            utils::convert_to_property_map<typename PolygonMesh::Face_index,
+                                           int>(face_patch_map, mesh, 0);
+        // WARNING: the correct handling of BGL Named_parameters needs all these
+        // switches
+        if (edge_constraints) {
+          if (vertex_constraints) {
+            if (face_patches) {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh,
+                  params.edge_is_constrained_map(*edge_constraints)
+                      .vertex_is_constrained_map(*vertex_constraints)
+                      .face_patch_map(*face_patches));
+            } else {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh,
+                  params.edge_is_constrained_map(*edge_constraints)
+                      .vertex_is_constrained_map(*vertex_constraints));
+            }
+          } else {
+            if (face_patches) {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh,
+                  params.edge_is_constrained_map(*edge_constraints)
+                      .face_patch_map(*face_patches));
+            } else {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh,
+                  params.edge_is_constrained_map(*edge_constraints));
+            }
+          }
+        } else {
+          if (face_patches) {
+            if (vertex_constraints) {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh,
+                  params.vertex_is_constrained_map(*vertex_constraints)
+                      .face_patch_map(*face_patches));
+            } else {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh,
+                  params.face_patch_map(*face_patches));
+            }
+          } else {
+            if (vertex_constraints) {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh,
+                  params.vertex_is_constrained_map(*vertex_constraints));
+            } else {
+              CGAL::Polygon_mesh_processing::isotropic_remeshing(
+                  face_range, target_edge_length, mesh, params);
+            }
+          }
         }
-        if (!vertex_is_constrained_map.is_none()) {
-          using Vertex_index = typename PolygonMesh::Vertex_index;
-          params.vertex_is_constrained_map(
-              *utils::convert_to_property_flag<Vertex_index>(
-                  vertex_is_constrained_map, mesh));
-        }
-        if (!face_patch_map.is_none()) {
-          using Face_index = typename PolygonMesh::Face_index;
-          params.face_patch_map(
-              *utils::convert_to_property_map<Face_index, PolygonMesh, int>(
-                  face_patch_map, mesh, 0));
-        }
-        CGAL::Polygon_mesh_processing::isotropic_remeshing(
-            face_range, target_edge_length, mesh, params);
       },
       py::arg("mesh").none(false), py::arg("target_edge_length").none(false),
       py::arg("face_group") = py::none(), py::kw_only(),

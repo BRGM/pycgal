@@ -21,18 +21,18 @@ void wrap_element(detail::connected_components<PolygonMesh>,
       "connected_components",
       [](PolygonMesh& pmesh, py::object fcm,
          py::object edge_is_constrained_map) {
-        auto& fmap =
-            *utils::convert_to_property_map<Face_index, PolygonMesh, int>(
-                fcm, pmesh, 0);
-        if (edge_is_constrained_map.is_none()) {
-          CGAL::Polygon_mesh_processing::connected_components(pmesh, fmap);
-        } else {
+        auto fmap =
+            utils::convert_to_property_map<Face_index, int>(fcm, pmesh, 0);
+        auto edge_constraints = utils::convert_to_property_flag<Edge_index>(
+            edge_is_constrained_map, pmesh);
+        assert(fmap);
+        if (edge_constraints) {
           CGAL::Polygon_mesh_processing::connected_components(
-              pmesh, fmap,
+              pmesh, *fmap,
               CGAL::Polygon_mesh_processing::parameters::
-                  edge_is_constrained_map(
-                      *utils::convert_to_property_flag<Edge_index>(
-                          edge_is_constrained_map, pmesh)));
+                  edge_is_constrained_map(*edge_constraints));
+        } else {
+          CGAL::Polygon_mesh_processing::connected_components(pmesh, *fmap);
         }
       },
       py::arg("pmesh").none(false), py::arg("fcm").none(false),
