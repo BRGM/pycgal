@@ -141,6 +141,15 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("centroids", &wutils::centroids<Surface_mesh>);
   pyclass.def("as_arrays", &wutils::as_arrays<Surface_mesh>);
 
+  pyclass.def("is_removed", py::overload_cast<Vertex_index>(
+                                &Surface_mesh::is_removed, py::const_));
+  pyclass.def("is_removed", py::overload_cast<Halfedge_index>(
+                                &Surface_mesh::is_removed, py::const_));
+  pyclass.def("is_removed", py::overload_cast<Edge_index>(
+                                &Surface_mesh::is_removed, py::const_));
+  pyclass.def("is_removed", py::overload_cast<Face_index>(
+                                &Surface_mesh::is_removed, py::const_));
+
   pyclass.def("is_valid",
               py::overload_cast<bool>(&Surface_mesh::is_valid, py::const_),
               py::arg("verbose") = true);
