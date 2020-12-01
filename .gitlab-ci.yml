@@ -36,12 +36,26 @@ build:
     expose_as: wheel
     when: on_success
 
+build-windows:
+  stage: build
+  tags:
+    - win10
+  script:
+    - python setup.py bdist_wheel %SCIKITBUILD_OPTIONS%
+  rules:
+    - if: $CI_COMMIT_TAG
+  artifacts:
+    paths:
+    - dist/
+    expose_as: wheel
+    when: on_success
+
 test:
   stage: test
   tags:
     - docker
   before_script:
-    - pip3 install dist/pycgal-*.whl
+    - pip3 install --upgrade --find-links ./dist --no-index pycgal
   script:
     # We have to cd to the test directory not to import installed pycgal package
     - cd test && python3 -m pytest .
