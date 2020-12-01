@@ -1,3 +1,5 @@
 set(module_classes Surface_mesh)
 
-pycgal_add_core_module(Surface_mesh module_classes)
+set(additional_elements Euler_operations iterators)
+
+pycgal_add_core_module(Surface_mesh module_classes additional_elements)
