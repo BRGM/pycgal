@@ -7,6 +7,7 @@ set(additional_elements
     corefine
     helpers
     isotropic_remeshing
+    repair
     split
     stitch_borders
     triangulate_faces
