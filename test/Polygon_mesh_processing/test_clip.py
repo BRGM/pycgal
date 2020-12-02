@@ -1,6 +1,9 @@
+from pycgal.Epick import Plane_3
+from pycgal.Epick import Point_3
+from pycgal.Epick import Vector_3
+from pycgal.Polygon_mesh_processing import clip
+from pycgal.Polygon_mesh_processing import triangulate_faces
 from pycgal.Surface_mesh import Surface_mesh
-from pycgal.Epick import Point_3, Vector_3, Plane_3
-from pycgal.Polygon_mesh_processing import clip, triangulate_faces
 
 
 def test_clip(simple_mesh):

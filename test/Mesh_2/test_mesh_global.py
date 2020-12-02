@@ -1,6 +1,6 @@
 def test_mesh_global():
-    from pycgal.Epick import Point_2 as Point
     import pycgal.Mesh_2 as Mesh_2
+    from pycgal.Epick import Point_2 as Point
 
     cdt = Mesh_2.Constrained_Delaunay_triangulation_2()
     va = cdt.insert(Point(-4, 0))
@@ -16,7 +16,7 @@ def test_mesh_global():
     print("Meshing the triangulation...")
     criteria = Mesh_2.Delaunay_mesh_adaptative_size_criteria_2(S=0.5)
     Mesh_2.refine_Delaunay_mesh_2(cdt, criteria)
-    mesher = Mesh_2.Delaunay_mesher_2(cdt)
+    Mesh_2.Delaunay_mesher_2(cdt)
     print(f"Number of vertices: {cdt.number_of_vertices()}")
     print(cdt.as_arrays())
     print(Mesh_2.as_arrays(cdt))

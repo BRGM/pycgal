@@ -1,7 +1,7 @@
 from collections import namedtuple
-import pytest
-import numpy as np
 
+import numpy as np
+import pytest
 
 SimpleMesh = namedtuple(
     "SimpleMesh", ("all_vertices", "square", "square_vertices", "triangles")
@@ -28,7 +28,14 @@ def simple_mesh():
     )
     square = np.array([[0, 1, 2, 3]])
     square_vertices = all_vertices[np.unique(square)]
-    triangles = np.array([[5, 1, 0], [6, 2, 1], [7, 3, 2], [4, 0, 3],])
+    triangles = np.array(
+        [
+            [5, 1, 0],
+            [6, 2, 1],
+            [7, 3, 2],
+            [4, 0, 3],
+        ]
+    )
     return SimpleMesh(
         all_vertices=all_vertices,
         square=square,

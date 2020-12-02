@@ -1,7 +1,6 @@
 import numpy as np
-
-from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Polygon_mesh_processing import corefine
+from pycgal.Surface_mesh import Surface_mesh
 
 
 def test_corefine(simple_mesh):

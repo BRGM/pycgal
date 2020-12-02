@@ -1,5 +1,5 @@
-from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Polygon_mesh_processing import stitch_borders
+from pycgal.Surface_mesh import Surface_mesh
 
 
 def test_extend_mesh(simple_mesh):

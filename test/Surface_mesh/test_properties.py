@@ -1,10 +1,11 @@
-import pytest
-
 import numpy as np
+import pytest
 
 # We need to import Point_3 to display them cf (*) below
 from pycgal.Epick import Point_3
-from pycgal.Surface_mesh import Surface_mesh, Edge_index, Edges
+from pycgal.Surface_mesh import Edge_index
+from pycgal.Surface_mesh import Edges
+from pycgal.Surface_mesh import Surface_mesh
 
 
 def test_properties(simple_mesh):

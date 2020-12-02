@@ -1,11 +1,8 @@
 import pytest
-
+from pycgal.Polygon_mesh_processing import is_triangle_mesh
+from pycgal.Polygon_mesh_processing import isotropic_remeshing
+from pycgal.Polygon_mesh_processing import triangulate_faces
 from pycgal.Surface_mesh import Surface_mesh
-from pycgal.Polygon_mesh_processing import (
-    triangulate_faces,
-    isotropic_remeshing,
-    is_triangle_mesh,
-)
 
 
 def test_remesh(simple_mesh):

@@ -1,4 +1,5 @@
-from pycgal.core import Random, set_default_random
+from pycgal.core import Random
+from pycgal.core import set_default_random
 
 
 def test_set_default_random():

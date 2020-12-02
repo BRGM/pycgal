@@ -1,25 +1,38 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
+    rev: v3.3.0
     hooks:
     -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
     -   id: check-merge-conflict
     -   id: mixed-line-ending
+-   repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+    -   id: autoflake
+        files: \.py$
+        # --remove-all-unused-imports is not used until issue #14 is solved
+        args: ["--in-place", "--expand-star-imports", "--remove-unused-variables"]
+# isort interferes with black
+# -   repo: https://github.com/PyCQA/isort
+#     rev: 5.6.4
+#     hooks:
+#     -   id: isort
+#         args: ["--sl"]
 -   repo: https://github.com/psf/black
-    rev: 19.10b0
+    rev: 20.8b1
     hooks:
     -   id: black
 -   repo: https://github.com/doublify/pre-commit-clang-format
-    rev: master
+    rev: 62302476d0da01515660132d76902359bed0f782 # no tag as of 02/12/2020
     hooks:
     -   id: clang-format
         args: [-style=file]
 -   repo: https://github.com/cheshirekow/cmake-format-precommit
-    rev: v0.6.10
+    rev: v0.6.13
     hooks:
-    - id: cmake-format
-      additional_dependencies: [pyyaml]
-      args: ['-i']
-#    - id: cmake-lint
+    -   id: cmake-format
+        additional_dependencies: [pyyaml]
+        args: ['-i']
+#    -  id: cmake-lint

@@ -1,6 +1,7 @@
-import subprocess
-import shlex
 import re
+import shlex
+import subprocess
+
 from packaging.version import parse as vparse
 
 from pycgal import __version__ as version

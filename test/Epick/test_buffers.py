@@ -1,8 +1,7 @@
-import pytest
-
 import numpy as np
-
-from pycgal.Epick import Point_3, Vector_3
+import pytest
+from pycgal.Epick import Point_3
+from pycgal.Epick import Vector_3
 from pycgal.utils import as_array
 
 

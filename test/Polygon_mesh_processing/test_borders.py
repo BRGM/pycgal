@@ -1,5 +1,7 @@
-from pycgal.Surface_mesh import Surface_mesh, Edges, Faces
 from pycgal.Polygon_mesh_processing import border_halfedges
+from pycgal.Surface_mesh import Edges
+from pycgal.Surface_mesh import Faces
+from pycgal.Surface_mesh import Surface_mesh
 
 
 def test_border_halfedges(simple_mesh):

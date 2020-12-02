@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-
-from pycgal.Surface_mesh import Vertices, Edges, Vertex_index
+import pytest
+from pycgal.Surface_mesh import Edges
+from pycgal.Surface_mesh import Vertex_index
+from pycgal.Surface_mesh import Vertices
 
 
 def test_surface_mesh_vertices():

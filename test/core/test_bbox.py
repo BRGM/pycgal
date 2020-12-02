@@ -1,4 +1,5 @@
-from pycgal.core import Bbox_3, do_overlap
+from pycgal.core import Bbox_3
+from pycgal.core import do_overlap
 
 
 def test_bbox():
