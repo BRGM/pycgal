@@ -2,6 +2,7 @@
 *~
 *.bak
 *.orig
+.history*
 
 # compiled python files
 *.py[cod]
@@ -13,12 +14,9 @@
 
 # binary directory
 __pycache__*
-build*
+build/*
 _skbuild/*
 dist/*
-
-# file setup.sh is a conda recipe requirement
-!build.sh
 
 # IDE config
 *.kdev*
@@ -33,13 +31,19 @@ CMakeFiles*
 Makefile
 cmake_install.cmake
 
+# CMake templates
+# This line is temporary will be removed when issue #7 is solved
+src/pyCGAL/packages/*/*.cpp
+
 # OS temp
 .DS_Store
 .ini
 
 # test outputs
 *.png
-
-# numpy and/or paraview
-*.npz
+*.off
 *.vtu
+
+# numpy
+*.npy
+*.npz
