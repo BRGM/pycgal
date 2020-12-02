@@ -30,6 +30,11 @@ void wrap_element(wrap::BGL::detail::iterators<Graph>, py::module& module) {
       CGAL::Iterator_range<CGAL::Vertex_around_face_iterator<Graph>>>(
       module, "Vertex_around_face_iterator");
   module.def("vertices_around_face", &CGAL::vertices_around_face<Graph>);
+
+  wrap_iterator_range<
+      CGAL::Iterator_range<CGAL::Face_around_target_iterator<Graph>>>(
+      module, "Face_around_target_iterator");
+  module.def("faces_around_target", &CGAL::faces_around_target<Graph>);
 }
 
 }  // namespace pyCGAL
