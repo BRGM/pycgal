@@ -1,4 +1,7 @@
-#include <pyCGAL/wrap/@PYCGAL_GENERIC_MODULE_PATH@/@PYCGAL_MODULE_ELEMENT@.h>
+#include <pyCGAL/typedefs.h>
+// generic definition of wrapping utilities
+#include <pyCGAL/wrap/@PYCGAL_WRAPPER_PATH@/@PYCGAL_MODULE_ELEMENT@.h>
+// per package definition of wrapped element
 #include "@PYCGAL_MODULE_ELEMENT@.h"
 
 namespace pyCGAL::@PYCGAL_MODULE_NAMESPACE@ {

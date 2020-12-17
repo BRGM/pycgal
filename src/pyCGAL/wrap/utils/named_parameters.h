@@ -2,7 +2,9 @@
 
 #include <CGAL/boost/graph/Named_function_parameters.h>
 
+#include <cassert>
 #include <optional>
+#include <tuple>
 #include <variant>
 
 namespace pyCGAL::wrap::utils {
@@ -33,6 +35,11 @@ auto create_optional_parameter(Add add, const std::optional<T>& option) {
   return Result{};
 }
 
+template <typename... Bases>
+auto _concatenate_with_base(const std::variant<Bases...>& vbase) {
+  return vbase;
+}
+
 template <typename... Bases, typename P, typename... Ps>
 auto _concatenate(const std::variant<Bases...>& vbase,
                   const std::optional<P>& option,
@@ -55,6 +62,32 @@ auto _concatenate(const std::variant<Bases...>& vbase,
 template <typename Base, typename... Ps>
 auto concatenate(const Base& base, const std::optional<Ps>&... options) {
   return _concatenate(std::variant<Base>{base}, options...);
+}
+
+template <std::size_t k = 0, typename... Options>
+auto _find_base(std::tuple<Options...> options) {
+  auto all_default = CGAL::parameters::all_default();
+  using Base = std::variant<decltype(all_default),
+                            typename std::decay_t<Options>::value_type...>;
+  if constexpr (k >= sizeof...(Options)) {
+    return Base{all_default};
+  } else {
+    auto& option = std::get<k>(options);
+    if (option) {
+      auto base = Base{*option};
+      option.reset();
+      assert(!std::get<k>(options));
+      return base;
+    }
+    return _find_base<k + 1>(options);
+  }
+}
+
+template <typename... Options>
+auto concatenate_options(Options... options) {
+  auto base = _find_base(std::forward_as_tuple(
+      options...));  // options may be modified to skip the base element
+  return _concatenate(base, options...);
 }
 
 }  // namespace pyCGAL::wrap::utils

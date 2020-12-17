@@ -3,8 +3,8 @@
 namespace pyCGAL::wrap::Polygon_mesh_processing::detail {
 
 template <typename PolygonMesh,
-          typename Halfedge_descriptor = typename PolygonMesh::Halfedge_index,
+          typename EdgeRange = typename PolygonMesh::Edge_range,
           typename FaceRange = typename PolygonMesh::Face_range>
-struct border_halfedges {};
+struct remesh {};
 
 }  // namespace pyCGAL::wrap::Polygon_mesh_processing::detail

@@ -1,12 +1,12 @@
 set(module_classes)
 
 set(additional_elements
-    border_halfedges
+    border
     clip
     connected_components
     corefine
     helpers
-    isotropic_remeshing
+    remesh
     repair
     split
     stitch_borders

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <pybind11/operators.h>
+
 namespace pyCGAL {
 namespace wrap {
 namespace utils {
@@ -25,6 +27,8 @@ void wrap_index(py::module& module, const std::string& name) {
   pyclass.def("__repr__", [name](const Index& self) {
     return local::index_representation(name, static_cast<Base_index>(self));
   });
+  pyclass.def(py::self == py::self);
+  pyclass.def(py::self != py::self);
 }
 
 }  // namespace utils
