@@ -20,6 +20,9 @@ void wrap_element(detail::global_kernel_functions<Kernel>, py::module& module) {
   module.def("approximate_angle",
              py::overload_cast<const Vector_3&, const Vector_3&>(
                  &CGAL::approximate_angle<Kernel>));
+  module.def("cross_product",
+             py::overload_cast<const Vector_3&, const Vector_3&>(
+                 &CGAL::cross_product<Kernel>));
 }
 
 }  // namespace pyCGAL
