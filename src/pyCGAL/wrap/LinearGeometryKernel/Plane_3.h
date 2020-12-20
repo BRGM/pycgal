@@ -23,10 +23,14 @@ typename WrapTraits<CGAL::Plane_3<Kernel>>::py_class wrap_class(
   pyclass.def(py::init<const Point&, const Vector&>());
   pyclass.def(py::self == py::self);
   pyclass.def(py::self != py::self);
+  pyclass.def("projection", &Plane::projection);
+  pyclass.def("opposite", &Plane::opposite);
   pyclass.def("point", &Plane::point);
   pyclass.def("orthogonal_vector", &Plane::orthogonal_vector);
   pyclass.def("base1", &Plane::base1);
   pyclass.def("base2", &Plane::base2);
+  pyclass.def("to_2d", &Plane::to_2d);
+  pyclass.def("to_3d", &Plane::to_3d);
   pyclass.def("has_on",
               py::overload_cast<const Point&>(&Plane::has_on, py::const_));
   pyclass.def("has_on_positive_side", &Plane::has_on_positive_side);
