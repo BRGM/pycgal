@@ -15,6 +15,15 @@ template <typename TriangleMesh, typename Plane_3>
 void wrap_element(detail::clip<TriangleMesh, Plane_3>, py::module& module) {
   module.def(
       "clip",
+      [](TriangleMesh& tm, TriangleMesh& clipper) {
+        if (!CGAL::is_triangle_mesh(tm) || !CGAL::is_triangle_mesh(clipper))
+          throw std::runtime_error("Only triangle meshes can be clipped!");
+        CGAL::Polygon_mesh_processing::clip(tm, clipper);
+      },
+      py::arg("tm").none(false), py::arg("clipper").none(false));
+
+  module.def(
+      "clip",
       [](TriangleMesh& mesh, const Plane_3& plane,
          const bool throw_on_self_intersection, const bool clip_volume,
          const bool use_compact_clipper) {
