@@ -21,6 +21,22 @@ void wrap_element(detail::addons<Surface_mesh>, py::module& module) {
       P = plane.projection(P);
     }
   });
+
+  module.def("locate", [](Surface_mesh& mesh, py::list points) {
+    py::list result;
+    for (auto&& p : points) {
+      const Point& P = p.cast<const Point&>();
+      py::object w = py::none{};
+      for (auto&& v : mesh.vertices()) {
+        if (mesh.point(v) == P) {
+          w = py::cast(v);
+          break;
+        };
+      }
+      result.append(w);
+    }
+    return result;
+  });
 }
 
 }  // namespace pyCGAL
