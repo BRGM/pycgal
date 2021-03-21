@@ -69,6 +69,20 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
     return std::visit(
         [i](auto alternative) { return py::cast(alternative[i]); }, map);
   }
+  bool is_set(const Index i) const {
+    return std::visit(
+        [i](auto alternative) {
+          if constexpr (std::is_same_v<
+                            typename decltype(alternative)::value_type, bool>) {
+            return static_cast<bool>(alternative[i]);
+          } else {
+            throw std::runtime_error(
+                "Property map does not hold flags (i.e. boolean types).");
+            return false;
+          }
+        },
+        map);
+  }
   void set(const Index i, py::object& value) {
     std::visit(
         [i, &value](auto alternative) {
@@ -226,6 +240,7 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
       py::keep_alive<0, 1>());
   pyholder.def("property_type", &holder::property_type);
   pyholder.def("__getitem__", &holder::get);
+  pyholder.def("is_set", &holder::is_set);
   pyholder.def("__setitem__",
                py::overload_cast<Index, py::object&>(&holder::set));
   pyholder.def("set", py::overload_cast<Index, py::object&>(&holder::set));

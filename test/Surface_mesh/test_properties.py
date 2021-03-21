@@ -32,6 +32,8 @@ def test_properties(simple_mesh):
             prop[e] = prop[e] + 0.5
     print(a)
     edges = Edges(mesh.edges())
+    with pytest.raises(RuntimeError):
+        prop.is_set(edges[0])
     print("Before:", a)
     prop.set(edges, np.arange(edges.size, dtype="d"))
     print("After:", a)
@@ -48,8 +50,10 @@ def test_properties(simple_mesh):
     print(
         "some_property type:", prop.property_type()
     )  # mangled named... TODO:replace mangled names using detail::TName
-
     flag, created = mesh.add_edge_property("e:flag", dtype="b")
+    assert created
+    for e in mesh.edges():
+        assert not flag.is_set(e)  # booleans default to false
     # a = np.array(flag) : this will throw a C++ exception (TODO: convert the exception to python)
     # because of underlyning storage
     flag_copy = flag.copy_as_array()
