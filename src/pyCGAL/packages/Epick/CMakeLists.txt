@@ -6,6 +6,7 @@ set(module_classes
     Plane_3
     Segment_3
     Line_3
+    Ray_3
 )
 
 set(additional_elements global_kernel_functions)
