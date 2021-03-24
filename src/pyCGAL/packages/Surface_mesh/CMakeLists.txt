@@ -1,4 +1,4 @@
-set(module_classes Surface_mesh)
+set(module_classes Tree Surface_mesh)
 
 set(additional_elements addons Euler_operations iterators)
 
