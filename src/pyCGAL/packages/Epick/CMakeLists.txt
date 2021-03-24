@@ -1,4 +1,12 @@
-set(module_classes Point_2 Vector_2 Point_3 Vector_3 Plane_3 Line_3)
+set(module_classes
+    Point_2
+    Vector_2
+    Point_3
+    Vector_3
+    Plane_3
+    Segment_3
+    Line_3
+)
 
 set(additional_elements global_kernel_functions)
 
