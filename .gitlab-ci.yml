@@ -7,63 +7,13 @@ stages:
   - documentation
   - deploy
 
-check_version_and_format:
-  stage: check
-  tags:
-    - docker
-  #only:
-  #  - merge_requests
-  script:
-    - python3 check_git_tag_against_version.py
-    # We could check format only for merge requests
-    # using only merge_requests
-    # and CI_MERGE_REQUEST_SOURCE_BRANCH_SHA and CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
-    # variables but the latest are not correclyt set
-    - git fetch origin master
-    - merge_base=$(git merge-base origin/master HEAD)
-    - changed_files=$(git diff --no-ext-diff --name-only ${merge_base}...HEAD)
-    - echo "Changed files:" ${changed_files}
-    - pre-commit run --files ${changed_files}
-
-build-linux:
-  stage: build
-  tags:
-    - docker
-  script:
-    - python3 setup.py bdist_wheel
-  artifacts:
-    paths:
-    - dist/
-    expose_as: wheel
-    when: on_success
-
-build-windows-py37:
-  stage: build
-  tags:
-    - win10-py37
-  script:
-    - python setup.py bdist_wheel %SCIKITBUILD_OPTIONS%
-  rules:
-    - if: $CI_COMMIT_TAG
-  artifacts:
-    paths:
-    - dist/
-    expose_as: wheel
-    when: on_success
-
-build-windows-py38:
-  stage: build
-  tags:
-    - win10-py38
-  script:
-    - python setup.py bdist_wheel %SCIKITBUILD_OPTIONS%
-  rules:
-    - if: $CI_COMMIT_TAG
-  artifacts:
-    paths:
-    - dist/
-    expose_as: wheel
-    when: on_success
+include:
+  - project: 'brgm/modelisation-geologique/templates'
+    ref: master
+    file:
+      - '/gitlab-ci/check.yml'
+      - '/gitlab-ci/build.yml'
+      - '/gitlab-ci/deploy.yml'
 
 test:
   stage: test
@@ -97,27 +47,3 @@ pages:
   artifacts:
     paths:
     - public
-
-deploy-stage:
-  stage: deploy
-  tags:
-    - brgm
-    - docker
-  only:
-    - master
-  script:
-    - twine upload -u ${REGISTRY_NEXUS_USER} -p ${REGISTRY_NEXUS_PASSWORD} --repository-url ${REGISTRY_NEXUS}/pypi-stage/ dist/*
-  when: manual
-
-deploy-release:
-  stage: deploy
-  tags:
-    - brgm
-    - docker
-  only:
-    - tags
-  except:
-    - branches
-  script:
-    - twine upload -u ${REGISTRY_NEXUS_USER} -p ${REGISTRY_NEXUS_PASSWORD} --repository-url ${REGISTRY_NEXUS}/pypi-releases/ dist/*
-  when: manual
