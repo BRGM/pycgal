@@ -1,6 +1,7 @@
 set(module_classes
     Point_2
     Vector_2
+    Segment_2
     Point_3
     Vector_3
     Plane_3
