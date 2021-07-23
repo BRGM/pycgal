@@ -10,6 +10,7 @@ set(additional_elements
     repair
     split
     stitch_borders
+    surface_intersection
     triangulate_faces
 )
 
