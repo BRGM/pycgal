@@ -20,10 +20,30 @@ test:
   tags:
     - docker
   before_script:
-    - pip3 install --upgrade --find-links ./dist --no-index pycgal
+    - pip3 uninstall pycgal
+    - pip3 install --find-links ./dist --no-index pycgal
   script:
-    # We have to cd to the test directory not to import installed pycgal package
+    # We have to cd to the test directory not to import pycgal package from source directory
     - cd test && python3 -m pytest .
+
+test-windows:
+  stage: test
+  tags:
+    - win10-py39
+  before_script:
+    - conda run --no-capture-output -n runner-py37 python -m pip uninstall --yes pycgal
+    - conda run --no-capture-output -n runner-py37 python -m pip install --find-links ./dist --no-index pycgal
+    - conda run --no-capture-output -n runner-py38 python -m pip uninstall --yes pycgal
+    - conda run --no-capture-output -n runner-py38 python -m pip install --find-links ./dist --no-index pycgal
+    - conda run --no-capture-output -n runner-py39 python -m pip uninstall --yes pycgal
+    - conda run --no-capture-output -n runner-py39 python -m pip install --find-links ./dist --no-index pycgal
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    # We have to cd to the test directory not to import pycgal package from source directory
+    - conda run --cwd test --no-capture-output -n runner-py37 python -m pytest .
+    - conda run --cwd test --no-capture-output -n runner-py38 python -m pytest .
+    - conda run --cwd test --no-capture-output -n runner-py39 python -m pytest .
 
 pages:
   stage: documentation
