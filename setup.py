@@ -1,6 +1,8 @@
 try:
     from skbuild import setup
 except ImportError:
+    import sys
+
     print("scikit-build is required to build from source!", file=sys.stderr)
     print("Install it running: python -m pip install scikit-build")
     sys.exit(1)
