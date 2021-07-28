@@ -1,3 +1,6 @@
+# version file (managed by setuptools_scm)
+pycgal/version.py
+
 # back-up files
 *~
 *.bak
