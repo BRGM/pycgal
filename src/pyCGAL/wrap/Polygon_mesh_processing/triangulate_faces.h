@@ -15,10 +15,16 @@ void wrap_element(detail::triangulate_faces<PolygonMesh, FaceRange>,
   module.def(
       "triangulate_faces",
       [](PolygonMesh& mesh, py::object face_group) {
-        const FaceRange& face_range = face_group.is_none()
-                                          ? faces(mesh)
-                                          : face_group.cast<const FaceRange&>();
-        CGAL::Polygon_mesh_processing::triangulate_faces(face_range, mesh);
+        if (face_group.is_none()) {
+          CGAL::Polygon_mesh_processing::triangulate_faces(mesh);
+        } else {
+          using Face_index = typename PolygonMesh::Face_index;
+          auto& v =
+              face_group.cast<std::vector<Face_index>&>();  // may throw
+                                                            // py::cast_error
+          CGAL::Polygon_mesh_processing::triangulate_faces(
+              CGAL::make_range(begin(v), end(v)), mesh);
+        }
       },
       py::arg("mesh").none(false), py::arg("face_group") = py::none());
 }

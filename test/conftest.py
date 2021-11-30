@@ -6,6 +6,7 @@ import pytest
 SimpleMesh = namedtuple(
     "SimpleMesh", ("all_vertices", "square", "square_vertices", "triangles")
 )
+MeshInfo = namedtuple("MeshInfo", ("vertices", "faces"))
 
 
 @pytest.fixture
@@ -42,3 +43,30 @@ def simple_mesh():
         square_vertices=square_vertices,
         triangles=triangles,
     )
+
+
+@pytest.fixture
+def squares_2x2():
+    vertices = np.array(
+        [
+            (-1, -1, 0),
+            (-1, 0, 0),
+            (-1, 1, 0),
+            (0, -1, 0),
+            (0, 0, 0),
+            (0, 1, 0),
+            (1, -1, 0),
+            (1, 0, 0),
+            (1, 1, 0),
+        ],
+        dtype=np.double,
+    )
+    faces = np.array(
+        [
+            [0, 1, 3, 2],
+            [1, 2, 4, 3],
+            [3, 4, 7, 6],
+            [4, 5, 8, 7],
+        ]
+    )
+    return MeshInfo(vertices, faces)

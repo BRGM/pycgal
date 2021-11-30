@@ -1,10 +1,11 @@
 import pytest
 import numpy as np
+from pycgal.Epick import Point_3  # to use return values in python
 from pycgal.Polygon_mesh_processing import is_triangle_mesh
 from pycgal.Polygon_mesh_processing import isotropic_remeshing
 from pycgal.Polygon_mesh_processing import split_long_edges
 from pycgal.Polygon_mesh_processing import triangulate_faces
-from pycgal.Surface_mesh import Surface_mesh
+from pycgal.Surface_mesh import Surface_mesh, Faces
 
 
 def test_isotropic_remeshing(simple_mesh):
@@ -43,3 +44,18 @@ def test_split_long_edges(simple_mesh):
     print(
         "Number of constrained edges after split:", np.sum(constraints.copy_as_array())
     )
+
+
+def test_triangulate_some_faces(squares_2x2):
+
+    mesh = Surface_mesh(squares_2x2.vertices, squares_2x2.faces)
+    centroids = [(f, mesh.centroid(f)) for f in mesh.faces()]
+    selection = [f for f, P in centroids if P.x > 0]
+    assert len(selection) == 2
+    some_faces = Faces()
+    some_faces.extend(selection)
+    assert mesh.number_of_faces() == 4
+    triangulate_faces(mesh, some_faces)
+    assert mesh.number_of_faces() == 6
+    triangulate_faces(mesh)
+    assert mesh.number_of_faces() == 8
