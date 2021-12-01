@@ -23,7 +23,15 @@ auto wrap_stl_vector(py::module& module, const std::string& name,
   auto extend_with_list = [](Vector& v, py::iterable l) -> void {
     v.reserve(v.size() + py::len(l));
     for (auto&& x : l) {
-      v.emplace_back(x.cast<cast_type>());
+      if constexpr (std::is_same_v<value_type, cast_type>) {
+        v.emplace_back(x.cast<value_type>());
+      } else {
+        try {
+          v.emplace_back(x.cast<value_type>());
+        } catch (const py::cast_error&) {
+          v.emplace_back(x.cast<cast_type>());
+        }
+      }
     }
   };
 
