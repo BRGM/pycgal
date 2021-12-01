@@ -1,7 +1,7 @@
 import numpy as np
 
 # We need to import Point_3 to display them cf (*) below
-from pycgal.Epick import Point_3
+from pycgal.Epick import Point_3, Vector_3
 from pycgal.Surface_mesh import Surface_mesh
 
 
@@ -50,3 +50,12 @@ def test_io(simple_mesh):
         mesh = Surface_mesh()
         mesh.read_off(filename)
         mesh = Surface_mesh.from_off(filename)
+
+
+def test_move_points(squares_2x2):
+
+    mesh = Surface_mesh(squares_2x2.vertices, squares_2x2.faces)
+    assert all(mesh[v].z == 0 for v in mesh.vertices())
+    for v in mesh.vertices():
+        mesh[v] += Vector_3(0, 0, 3.14)
+    assert all(mesh[v].z == 3.14 for v in mesh.vertices())

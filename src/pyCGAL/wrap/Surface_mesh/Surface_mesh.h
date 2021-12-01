@@ -126,6 +126,10 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("faces", &Surface_mesh::faces);
   pyclass.def("point", py::overload_cast<Vertex_index>(&Surface_mesh::point,
                                                        py::const_));
+  pyclass.def("__getitem__", py::overload_cast<Vertex_index>(
+                                 &Surface_mesh::point, py::const_));
+  pyclass.def("__setitem__", [](Surface_mesh& self, Vertex_index v,
+                                const Point& P) { self.point(v) = P; });
   pyclass.def("remove_vertex", &Surface_mesh::remove_vertex);
   pyclass.def("remove_edge", &Surface_mesh::remove_edge);
   pyclass.def("remove_face", &Surface_mesh::remove_face);
