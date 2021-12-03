@@ -138,6 +138,16 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("collect_garbage",
               (void (Surface_mesh::*)()) & Surface_mesh::collect_garbage);
 
+  pyclass.def("__iadd__", [](Surface_mesh& self, const Surface_mesh& other) {
+    self += other;
+    return self;
+  });
+  pyclass.def("__add__",
+              [](const Surface_mesh& self, const Surface_mesh& other) {
+                Surface_mesh copy{self};
+                copy += other;
+                return copy;
+              });
   pyclass.def("extend", &wutils::extend_mesh<Surface_mesh>, py::arg("vertices"),
               py::arg("all_faces"), py::arg("reverse_on_failure") = false,
               py::arg("throw_on_failure") = true);
