@@ -11,6 +11,7 @@ pycgal/version.py
 *.py[cod]
 *.egg-info
 *.so
+.eggs/*
 
 # debugger files
 *.pdb
