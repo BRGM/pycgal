@@ -37,7 +37,7 @@ void add_homogeneous_faces(Surface_mesh& mesh, py::buffer faces,
       f = mesh.add_face(
           CGAL::make_range(rbegin(face_vertices), rend(face_vertices)));
     if (throw_on_failure && f == Surface_mesh::null_face())
-      throw std::runtime_error("Could not instert face!");
+      throw std::runtime_error("Could not insert face!");
   }
 }
 
