@@ -5,6 +5,7 @@ set(additional_elements
     clip
     connected_components
     corefine
+    extrude_mesh
     helpers
     remesh
     repair
