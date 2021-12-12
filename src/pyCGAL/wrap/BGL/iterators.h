@@ -30,6 +30,10 @@ void wrap_element(wrap::BGL::detail::iterators<Graph>, py::module& module) {
       CGAL::Iterator_range<CGAL::Vertex_around_face_iterator<Graph>>>(
       module, "Vertex_around_face_iterator");
   module.def("vertices_around_face", &CGAL::vertices_around_face<Graph>);
+  module.def("vertices_around_face",
+             [](const typename Graph::Face_index& face, const Graph& graph) {
+               return CGAL::vertices_around_face(graph.halfedge(face), graph);
+             });
 
   wrap_iterator_range<
       CGAL::Iterator_range<CGAL::Face_around_target_iterator<Graph>>>(
