@@ -23,6 +23,19 @@ def test_meshes(simple_mesh):
         print(mesh.as_arrays())
 
 
+def test_addition(simple_mesh):
+    data = simple_mesh
+    square = Surface_mesh(data.square_vertices, data.square)
+    triangles = Surface_mesh(data.all_vertices, data.triangles)
+    whole = square + triangles
+    assert square.number_of_vertices() == 4
+    assert triangles.number_of_vertices() == 8
+    assert whole.number_of_vertices() == 12
+    triangles += square
+    assert square.number_of_vertices() == 4
+    assert triangles.number_of_vertices() == 12
+
+
 def test_centroids(simple_mesh):
 
     for vertices, faces in [
