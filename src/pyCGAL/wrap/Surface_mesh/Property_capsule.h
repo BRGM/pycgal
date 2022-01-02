@@ -1,11 +1,15 @@
 #pragma once
 
+#include <cstdint>
 #include <type_traits>
 #include <variant>
 
 namespace pyCGAL::wrap::Surface_mesh {
 
-using available_property_types = std::tuple<bool, int, float, double>;
+using pointer_type = std::uintptr_t;
+
+using available_property_types =
+    std::tuple<bool, int, float, double, pointer_type>;
 
 namespace helper_traits {
 template <typename Surface_mesh, typename Index, typename Tuple>

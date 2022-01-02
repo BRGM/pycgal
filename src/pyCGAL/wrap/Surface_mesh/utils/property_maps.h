@@ -14,6 +14,8 @@ namespace py = pybind11;
 
 namespace pyCGAL::wrap::utils {
 
+using pointer_type = Surface_mesh::pointer_type;
+
 namespace detail {
 
 // we rely on typeid but must some name are very mangled
@@ -42,6 +44,11 @@ struct TName<float> {
 template <>
 struct TName<double> {
   static constexpr const char* name() { return "double"; }
+};
+
+template <>
+struct TName<pointer_type> {
+  static constexpr const char* name() { return "pointer"; }
 };
 
 template <typename Surface_mesh, typename Index, typename Tuple>
@@ -267,6 +274,9 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
                    return add_property_map<traits, float>(mesh, name, value);
                  case 'd':
                    return add_property_map<traits, double>(mesh, name, value);
+                 case 'p':
+                   return add_property_map<traits, pointer_type>(mesh, name,
+                                                                 value);
                  default:
                    break;
                }

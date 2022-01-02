@@ -85,3 +85,15 @@ def test_properties(simple_mesh):
     assert "some_property" in mesh.edge_properties()
     mesh.remove_property(prop)
     assert "some_property" not in mesh.edge_properties()
+
+    prop, created = mesh.add_vertex_property("addresses", dtype="p")
+    assert created
+    print(
+        "addresses type:", prop.property_type()
+    )  # mangled named... TODO:replace mangled names using detail::TName
+    n = mesh.number_of_vertices()
+    some_integers = list(range(n))
+    for v, i in zip(mesh.vertices(), some_integers):
+        prop[v] = id(i)
+    for v, i in zip(mesh.vertices(), some_integers):
+        assert prop[v] == id(i)
