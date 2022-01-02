@@ -5,7 +5,7 @@ project(pycgal CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(CGAL 5.2.4 REQUIRED)
+find_package(CGAL 5.3.1 REQUIRED)
 include(${CGAL_USE_FILE})
 
 find_package(pybind11 QUIET) # try locally
