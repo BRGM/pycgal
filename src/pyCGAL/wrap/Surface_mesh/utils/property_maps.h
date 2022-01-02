@@ -32,6 +32,11 @@ struct TName<bool> {
 };
 
 template <>
+struct TName<char> {
+  static constexpr const char* name() { return "char"; }
+};
+
+template <>
 struct TName<int> {
   static constexpr const char* name() { return "int"; }
 };
@@ -268,6 +273,8 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
                switch (dtype) {
                  case 'b':
                    return add_property_map<traits, bool>(mesh, name, value);
+                 case 'c':
+                   return add_property_map<traits, char>(mesh, name, value);
                  case 'i':
                    return add_property_map<traits, int>(mesh, name, value);
                  case 'f':

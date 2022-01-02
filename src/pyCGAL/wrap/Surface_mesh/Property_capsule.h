@@ -9,7 +9,7 @@ namespace pyCGAL::wrap::Surface_mesh {
 using pointer_type = std::uintptr_t;
 
 using available_property_types =
-    std::tuple<bool, int, float, double, pointer_type>;
+    std::tuple<bool, char, int, float, double, pointer_type>;
 
 namespace helper_traits {
 template <typename Surface_mesh, typename Index, typename Tuple>

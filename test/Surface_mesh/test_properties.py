@@ -97,3 +97,19 @@ def test_properties(simple_mesh):
         prop[v] = id(i)
     for v, i in zip(mesh.vertices(), some_integers):
         assert prop[v] == id(i)
+
+    from itertools import cycle
+
+    message = "Hello world!"
+    prop, created = mesh.add_edge_property("characters", dtype="c")
+    assert created
+    print(
+        "characters type:", prop.property_type()
+    )  # mangled named... TODO:replace mangled names using detail::TName
+
+    for e, c in zip(mesh.edges(), cycle(message)):
+        prop[e] = c
+    retrieved = "".join(prop[e] for e in mesh.edges())
+    print(retrieved)
+    n = min(len(message), len(retrieved))
+    assert message[:n] == retrieved[:n]
