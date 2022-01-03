@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PYCGAL_CGAL_VERSION 5.3.1)
+set(PYCGAL_PYBIND11_VERSION 2.8.1)
 
 find_package(CGAL ${PYCGAL_CGAL_VERSION} QUIET) # try locally
 if(NOT CGAL_FOUND) # else fetch it from github
@@ -31,14 +32,15 @@ else()
   include(${CGAL_USE_FILE})
 endif()
 
-find_package(pybind11 QUIET) # try locally
+find_package(pybind11 ${PYCGAL_PYBIND11_VERSION} QUIET) # try locally
 if(NOT pybind11_FOUND) # else fetch it from github
-  message(STATUS "Could NOT find pybind11 (fetching it from GitHub)")
+  message(STATUS "Could NOT find pybind11>=${PYCGAL_PYBIND11_VERSION}.")
+  message(STATUS "Fetching pybind11 ${PYCGAL_PYBIND11_VERSION} from GitHub.")
   include(FetchContent)
   FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    GIT_TAG v2.6.1
+    GIT_TAG v${PYCGAL_PYBIND11_VERSION}
   )
   FetchContent_MakeAvailable(pybind11)
 endif()
