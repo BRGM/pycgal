@@ -10,40 +10,46 @@ template <typename Traits, typename Tds, typename Itag>
 typename WrapTraits<
     CGAL::Constrained_Delaunay_triangulation_2<Traits, Tds, Itag>>::py_class
 wrap_class(
-    WrapTraits<CGAL::Constrained_Delaunay_triangulation_2<Traits, Tds, Itag>>,
+    WrapTraits<CGAL::Constrained_Delaunay_triangulation_2<Traits, Tds, Itag>>
+        wrap,
     py::module& module) {
   using Wrap =
       WrapTraits<CGAL::Constrained_Delaunay_triangulation_2<Traits, Tds, Itag>>;
-  using CDT = typename Wrap::cpp_type;
+  using CDt = typename Wrap::cpp_type;
 
-  using Vertex_handle = typename CDT::Vertex_handle;
-  using Face_handle = typename CDT::Face_handle;
-  using Point = typename CDT::Point;
+  using Vertex_handle = typename CDt::Vertex_handle;
+  using Face_handle = typename CDt::Face_handle;
+  using Point = typename CDt::Point;
 
-  py::class_<Vertex_handle>(module, "Vertex_handle");
+  // using Ct = CGAL::Constrained_triangulation_2<Traits, Tds, Itag>;
+  // static_assert(std::is_base_of_v<Ct, CDt>);
 
-  py::class_<Face_handle>(module, "Face_handle");
-
-  typename Wrap::py_class pyclass =
-      py::class_<CDT>(module, "Constrained_Delaunay_triangulation_2");
+  // typename Wrap::py_class pyclass = py::class_<CDt, Ct>(module, wrap.name);
+  typename Wrap::py_class pyclass = py::class_<CDt>(module, wrap.name);
   pyclass.def(py::init<>());
-  pyclass.def("number_of_vertices", &CDT::number_of_vertices);
-  pyclass.def("number_of_faces", &CDT::number_of_faces);
+  pyclass.def(py::init<const CDt&>());
+  // Triangulation_2 members
+  pyclass.def("clear", &CDt::clear);
+  pyclass.def("dimension", &CDt::dimension);
+  pyclass.def("number_of_vertices", &CDt::number_of_vertices);
+  pyclass.def("number_of_faces", &CDt::number_of_faces);
+  // Constrained_triangulation_2 members
   pyclass.def("insert",
-              [](CDT& self, const Point& P) { return self.insert(P); });
+              [](CDt& self, const Point& P) { return self.insert(P); });
   pyclass.def("insert_constraint",
-              [](CDT& self, const Point& P, const Point& Q) {
+              [](CDt& self, const Point& P, const Point& Q) {
                 return self.insert_constraint(P, Q);
               });
   pyclass.def("insert_constraint",
-              [](CDT& self, Vertex_handle vP, Vertex_handle vQ) {
+              [](CDt& self, Vertex_handle vP, Vertex_handle vQ) {
                 return self.insert_constraint(vP, vQ);
               });
+  // Utilities
   pyclass.def("as_arrays",
-              [](const CDT& self) { return wrap::utils::as_arrays(self); });
-
-  module.def("as_arrays",
-             [](const CDT& cdt) { return wrap::utils::as_arrays(cdt); });
+              [](const CDt& self) { return wrap::utils::as_arrays(self); });
+  module.def("as_arrays", [](const CDt& triangulation) {
+    return wrap::utils::as_arrays(triangulation);
+  });
 
   return pyclass;
 }

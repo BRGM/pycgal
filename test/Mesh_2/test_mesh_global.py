@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_mesh_global():
     import pycgal.Mesh_2 as Mesh_2
     from pycgal.Epick import Point_2 as Point
@@ -27,6 +30,8 @@ def test_mesh_with_intersecting_constraints():
     from pycgal.Epick import Point_2 as Point
 
     def add_constraints(cdt):
+        assert cdt.number_of_vertices() == 0
+        assert cdt.number_of_faces() == 0
         va = cdt.insert(Point(-1, -1))
         vb = cdt.insert(Point(1, -1))
         vc = cdt.insert(Point(1, 1))
@@ -35,5 +40,9 @@ def test_mesh_with_intersecting_constraints():
         cdt.insert_constraint(vb, vd)
 
     cdt = Mesh_2.Constrained_Delaunay_triangulation_2()
+    with pytest.raises(RuntimeError):
+        add_constraints(cdt)
+
+    cdt = Mesh_2.Constrained_Delaunay_triangulation_2_with_intersections()
     add_constraints(cdt)
     assert cdt.number_of_faces() == 4

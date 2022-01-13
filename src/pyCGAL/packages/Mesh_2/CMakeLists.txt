@@ -1,5 +1,4 @@
 set(module_classes
-    Constrained_Delaunay_triangulation_2
     Delaunay_mesh_vertex_base_2
     Delaunay_mesh_face_base_2
     Triangulation_face_base_with_info_2
@@ -10,6 +9,8 @@ set(module_classes
     Delaunay_terrain
 )
 
-set(module_elements Mesh_optimization_return_code lloyd_optimize_mesh_2)
+set(module_elements Mesh_optimization_return_code lloyd_optimize_mesh_2
+                    Constrained_Delaunay_triangulations
+)
 
 pycgal_add_core_module(Mesh_2 module_classes module_elements)
