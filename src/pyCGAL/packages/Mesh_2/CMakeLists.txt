@@ -2,6 +2,7 @@ set(module_classes
     Constrained_Delaunay_triangulation_2
     Delaunay_mesh_vertex_base_2
     Delaunay_mesh_face_base_2
+    Triangulation_vertex_base_with_info_2
     Triangulation_data_structure_2
     Delaunay_mesh_adaptative_size_criteria_2
     Delaunay_mesher_2
