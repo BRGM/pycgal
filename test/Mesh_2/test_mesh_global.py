@@ -20,3 +20,20 @@ def test_mesh_global():
     print(f"Number of vertices: {cdt.number_of_vertices()}")
     print(cdt.as_arrays())
     print(Mesh_2.as_arrays(cdt))
+
+
+def test_mesh_with_intersecting_constraints():
+    import pycgal.Mesh_2 as Mesh_2
+    from pycgal.Epick import Point_2 as Point
+
+    def add_constraints(cdt):
+        va = cdt.insert(Point(-1, -1))
+        vb = cdt.insert(Point(1, -1))
+        vc = cdt.insert(Point(1, 1))
+        vd = cdt.insert(Point(-1, 1))
+        cdt.insert_constraint(va, vc)
+        cdt.insert_constraint(vb, vd)
+
+    cdt = Mesh_2.Constrained_Delaunay_triangulation_2()
+    add_constraints(cdt)
+    assert cdt.number_of_faces() == 4
