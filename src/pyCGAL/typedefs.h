@@ -11,6 +11,7 @@ template <typename Class>
 struct WrapTraits {
   using cpp_type = Class;
   using py_class = py::class_<cpp_type>;
+  const char* name = nullptr;
 };
 
 template <typename EnumType>

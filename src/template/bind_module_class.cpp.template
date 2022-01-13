@@ -8,7 +8,7 @@
 namespace pyCGAL::@PYCGAL_MODULE_NAMESPACE@ {
 
 void wrap_@PYCGAL_MODULE_ELEMENT@_class(py::module& module) {
-  pyCGAL::wrap_class(pyCGAL::WrapTraits<@PYCGAL_MODULE_ELEMENT@>{}, module);
+  pyCGAL::wrap_class(pyCGAL::WrapTraits<@PYCGAL_MODULE_ELEMENT@>{"@PYCGAL_MODULE_ELEMENT@"}, module);
 }
 
 }  // namespace pyCGAL::@PYCGAL_MODULE_NAMESPACE@
