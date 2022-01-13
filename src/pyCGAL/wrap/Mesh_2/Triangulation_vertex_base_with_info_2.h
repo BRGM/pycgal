@@ -1,7 +1,8 @@
 #pragma once
 
 #include <CGAL/Triangulation_vertex_base_with_info_2.h>
-#include <pyCGAL/typedefs.h>
+
+#include "detail/Element_with_info.h"
 
 namespace pyCGAL {
 
@@ -13,14 +14,9 @@ wrap_class(
     py::module& module) {
   using Wrap =
       WrapTraits<CGAL::Triangulation_vertex_base_with_info_2<Info, Traits, Vb>>;
-  using VBI = typename Wrap::cpp_type;
 
-  typename Wrap::py_class pyclass =
-      py::class_<VBI>(module, "Triangulation_vertex_base_with_info_2");
-  pyclass.def(py::init<>());
-  pyclass.def_property("info", py::overload_cast<>(&VBI::info),
-                       [](VBI& self, py::object& obj) { self.info() = obj; });
-  return pyclass;
+  return wrap::Mesh_2::detail::wrap_element_with_info<Wrap>(
+      module, "Triangulation_vertex_base_with_info_2");
 }
 
 }  // namespace pyCGAL
