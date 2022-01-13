@@ -5,11 +5,11 @@
 
 namespace pyCGAL {
 
-template <typename Kernel>
-typename WrapTraits<CGAL::Delaunay_mesh_vertex_base_2<Kernel>>::py_class
-wrap_class(WrapTraits<CGAL::Delaunay_mesh_vertex_base_2<Kernel>>,
+template <typename Kernel, typename Vb>
+typename WrapTraits<CGAL::Delaunay_mesh_vertex_base_2<Kernel, Vb>>::py_class
+wrap_class(WrapTraits<CGAL::Delaunay_mesh_vertex_base_2<Kernel, Vb>>,
            py::module& module) {
-  using Wrap = WrapTraits<CGAL::Delaunay_mesh_vertex_base_2<Kernel>>;
+  using Wrap = WrapTraits<CGAL::Delaunay_mesh_vertex_base_2<Kernel, Vb>>;
 
   typename Wrap::py_class pyclass = py::class_<typename Wrap::cpp_type>(
       module, "Delaunay_mesh_vertex_base_2");
