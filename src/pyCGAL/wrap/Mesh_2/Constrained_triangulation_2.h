@@ -3,9 +3,11 @@
 #include <CGAL/Constrained_triangulation_2.h>
 #include <pyCGAL/typedefs.h>
 
-#include "utils/as_arrays.h"
+#include "detail/Constrained_triangulation_2.h"
+#include "detail/Triangulation_2.h"
 
 namespace pyCGAL {
+
 template <typename Traits, typename Tds, typename Itag>
 typename WrapTraits<
     CGAL::Constrained_triangulation_2<Traits, Tds, Itag>>::py_class
@@ -15,34 +17,24 @@ wrap_class(
   using Wrap = WrapTraits<CGAL::Constrained_triangulation_2<Traits, Tds, Itag>>;
   using Ct = typename Wrap::cpp_type;
 
-  // using Triangulation = CGAL::Triangulation_2<Traits, Tds>;
-  // static_assert(std::is_base_of_v<Triangulation, Ct>);
-
   using Vertex_handle = typename Ct::Vertex_handle;
   using Face_handle = typename Ct::Face_handle;
   using Point = typename Ct::Point;
 
+  // for a strange reason the following does not work...
+  // we call this the *inheritance bug*
+  // it is probably linked to the fact that some methods are reimplemented
+  // using Triangulation = CGAL::Triangulation_2<Traits, Tds>;
+  // static_assert(std::is_base_of_v<Triangulation, Ct>);
   // typename Wrap::py_class pyclass =
   //    py::class_<Ct, Triangulation>(module, wrap.name);
+
   typename Wrap::py_class pyclass = py::class_<Ct>(module, wrap.name);
   pyclass.def(py::init<>());
   pyclass.def(py::init<const Ct&>());
-  // Triangulation_2 members
-  pyclass.def("clear", &Ct::clear);
-  pyclass.def("dimension", &Ct::dimension);
-  pyclass.def("number_of_vertices", &Ct::number_of_vertices);
-  pyclass.def("number_of_faces", &Ct::number_of_faces);
-  // Constrained_triangulation_2 members
-  pyclass.def("insert",
-              [](Ct& self, const Point& P) { return self.insert(P); });
-  pyclass.def("insert_constraint",
-              [](Ct& self, const Point& P, const Point& Q) {
-                return self.insert_constraint(P, Q);
-              });
-  pyclass.def("insert_constraint",
-              [](Ct& self, Vertex_handle vP, Vertex_handle vQ) {
-                return self.insert_constraint(vP, vQ);
-              });
+  // because of the *inheritance bug* we factorized member wrapping
+  wrap::Mesh_2::detail::wrap_Triangulation_2<Ct>(pyclass);
+  wrap::Mesh_2::detail::wrap_Constrained_triangulation_2<Ct>(pyclass);
 
   return pyclass;
 }

@@ -22,7 +22,6 @@ def test_mesh_global():
     Mesh_2.Delaunay_mesher_2(cdt)
     print(f"Number of vertices: {cdt.number_of_vertices()}")
     print(cdt.as_arrays())
-    print(Mesh_2.as_arrays(cdt))
 
 
 def test_mesh_with_intersecting_constraints():
