@@ -1,6 +1,5 @@
 #pragma once
 
-#include <CGAL/Iterator_range.h>
 #include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/named_parameters.h>
