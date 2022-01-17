@@ -31,3 +31,7 @@ def test_connected_components_of_constrained_triangulation():
     )
     assert nb_comps == 4
     assert np.unique(component_id).shape == (nb_comps,)
+    assert mesh.is_border(mesh.edge(vmap[0], vmap[1]))
+    assert mesh.is_border(mesh.edge(vmap[1], vmap[2]))
+    assert mesh.is_border(mesh.edge(vmap[2], vmap[3]))
+    assert mesh.is_border(mesh.edge(vmap[3], vmap[0]))

@@ -187,6 +187,15 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("is_valid", py::overload_cast<Face_index>(&Surface_mesh::is_valid,
                                                         py::const_));
 
+  pyclass.def("is_border",
+              py::overload_cast<Vertex_index, bool>(&Surface_mesh::is_border,
+                                                    py::const_),
+              py::arg("v"), py::arg("check_all_incident_halfedges") = true);
+  pyclass.def("is_border", py::overload_cast<Halfedge_index>(
+                               &Surface_mesh::is_border, py::const_));
+  pyclass.def("is_border", py::overload_cast<Edge_index>(
+                               &Surface_mesh::is_border, py::const_));
+
   // Low-Level Connectivity
   pyclass.def("target", &Surface_mesh::target);
   pyclass.def("set_target", &Surface_mesh::set_target);
