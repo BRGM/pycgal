@@ -206,6 +206,14 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
 
   // Switching between Halfedges and Edges
   pyclass.def("edge", &Surface_mesh::edge);
+  pyclass.def("edge", [](Surface_mesh& self, const Vertex_index v1,
+                         const Vertex_index v2) {
+    const auto h = self.halfedge(v1, v2);
+    if (h == self.null_halfedge())
+      throw std::runtime_error("Non connected vertices.");
+    return self.edge(h);
+  });
+
   pyclass.def("halfedge", py::overload_cast<Edge_index>(&Surface_mesh::halfedge,
                                                         py::const_));
   pyclass.def("halfedge", py::overload_cast<Edge_index, unsigned int>(
