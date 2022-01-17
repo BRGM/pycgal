@@ -32,10 +32,11 @@ void wrap_element(detail::connected_components<PolygonMesh>,
         namespace pns = CGAL::Polygon_mesh_processing::parameters;
 
         if (edge_constraints) {
-          CGAL::Polygon_mesh_processing::connected_components(
+          return CGAL::Polygon_mesh_processing::connected_components(
               pmesh, *fmap, pns::edge_is_constrained_map(*edge_constraints));
         } else {
-          CGAL::Polygon_mesh_processing::connected_components(pmesh, *fmap);
+          return CGAL::Polygon_mesh_processing::connected_components(pmesh,
+                                                                     *fmap);
         }
       },
       py::arg("pmesh").none(false), py::arg("fcm").none(false),

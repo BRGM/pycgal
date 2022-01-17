@@ -26,7 +26,8 @@ def test_connected_components_of_constrained_triangulation():
     for v1, v2 in constraints:
         e = mesh.edge(vmap[v1], vmap[v2])
         edge_is_constrained[e] = True
-    connected_components(
+    nb_comps = connected_components(
         mesh, component_id, edge_is_constrained_map=edge_is_constrained
     )
-    assert np.unique(component_id).shape == (4,)
+    assert nb_comps == 4
+    assert np.unique(component_id).shape == (nb_comps,)
