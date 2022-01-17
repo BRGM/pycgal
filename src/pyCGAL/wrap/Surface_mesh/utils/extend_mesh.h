@@ -6,15 +6,24 @@
 #include <stdexcept>
 
 #include "Face_connectivity.h"
+#include "Face_map.h"
 #include "add_vertices.h"
 
 namespace pyCGAL::wrap::utils {
 
 template <typename Surface_mesh>
-void add_homogeneous_faces(Surface_mesh& mesh, py::buffer faces,
-                           const Vertex_map<Surface_mesh>& vmap,
+struct Extension_data {
+  Vertex_map<Surface_mesh> vmap;
+  Face_map<Surface_mesh> fmap;
+};
+
+template <typename Surface_mesh>
+void add_homogeneous_faces(Surface_mesh& mesh,
+                           Extension_data<Surface_mesh>& data, py::buffer faces,
                            const bool reverse_on_failure = false,
                            const bool throw_on_failure = false) {
+  const Vertex_map<Surface_mesh>& vmap = data.vmap;
+  Face_map<Surface_mesh>& fmap = data.fmap;
   const auto faces_buffer = faces.request();
   typedef typename Surface_mesh::size_type size_type;
   typedef typename Surface_mesh::Vertex_index Vertex_index;
@@ -25,9 +34,11 @@ void add_homogeneous_faces(Surface_mesh& mesh, py::buffer faces,
   if (faces_buffer.strides[1] != sizeof(size_type))
     throw std::runtime_error("Inconsistent stride for vertex index!");
   auto pf = reinterpret_cast<const size_type*>(faces_buffer.ptr);
-  const auto end_faces = pf + faces_buffer.shape[0] * face_degree;
+  const auto nb_faces = faces_buffer.shape[0];
+  const auto end_faces = pf + nb_faces * face_degree;
   std::vector<Vertex_index> face_vertices(face_degree,
                                           Surface_mesh::null_vertex());
+  fmap.reserve(fmap.size() + nb_faces);
   for (; pf != end_faces; pf += face_degree) {
     face_vertices.clear();
     std::transform(pf, pf + face_degree, std::back_inserter(face_vertices),
@@ -38,19 +49,21 @@ void add_homogeneous_faces(Surface_mesh& mesh, py::buffer faces,
           CGAL::make_range(rbegin(face_vertices), rend(face_vertices)));
     if (throw_on_failure && f == Surface_mesh::null_face())
       throw std::runtime_error("Could not insert face!");
+    fmap.emplace_back(f);
   }
 }
 
 template <typename Surface_mesh>
 void extend_mesh(
-    Surface_mesh& mesh,
+    Surface_mesh& mesh, Extension_data<Surface_mesh>& data,
     utils::Coordinates_array<typename Surface_mesh::Point>& vertices,
     py::list& all_faces, const bool reverse_on_failure = false,
     const bool throw_on_failure = true) {
-  const auto vmap = add_vertices(mesh, vertices);
+  add_vertices(mesh, vertices, data.vmap);
   for (auto&& faces : all_faces)
-    add_homogeneous_faces(mesh, faces.cast<Face_connectivity<Surface_mesh>>(),
-                          vmap, reverse_on_failure, throw_on_failure);
+    add_homogeneous_faces(mesh, data,
+                          faces.cast<Face_connectivity<Surface_mesh>>(),
+                          reverse_on_failure, throw_on_failure);
 }
 
 }  // namespace pyCGAL::wrap::utils

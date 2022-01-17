@@ -112,7 +112,9 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
                           wutils::Face_connectivity<Surface_mesh>& faces) {
     return wutils::make_mesh<Surface_mesh>(vertices, py::make_tuple(faces));
   }));
-  pyclass.def(py::init(&wutils::make_mesh<Surface_mesh>));
+  pyclass.def(
+      py::init(py::overload_cast<wutils::Coordinates_array<Point>&, py::list>(
+          wutils::make_mesh<Surface_mesh>)));
 
   pyclass.def("number_of_vertices", &Surface_mesh::number_of_vertices);
   pyclass.def("number_of_halfedges", &Surface_mesh::number_of_halfedges);
@@ -148,9 +150,18 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
                 copy += other;
                 return copy;
               });
-  pyclass.def("extend", &wutils::extend_mesh<Surface_mesh>, py::arg("vertices"),
-              py::arg("all_faces"), py::arg("reverse_on_failure") = false,
-              py::arg("throw_on_failure") = true);
+  pyclass.def(
+      "extend",
+      [](Surface_mesh& self, wutils::Coordinates_array<Point>& vertices,
+         py::list& all_faces, const bool reverse_on_failure,
+         const bool throw_on_failure) {
+        wutils::Extension_data<Surface_mesh> data;
+        wutils::extend_mesh<Surface_mesh>(self, data, vertices, all_faces,
+                                          reverse_on_failure, throw_on_failure);
+      },
+      py::arg("vertices"), py::arg("all_faces"),
+      py::arg("reverse_on_failure") = false,
+      py::arg("throw_on_failure") = true);
   pyclass.def("centroid", &wutils::centroid<Surface_mesh>);
   pyclass.def("centroids", &wutils::centroids<Surface_mesh>);
   pyclass.def("as_arrays", &wutils::as_arrays<Surface_mesh>);
@@ -246,6 +257,48 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
     wutils::read_off(*p, filename);
     return p;
   });
+
+  auto process_mesh_output =
+      [](Surface_mesh* pmesh, wutils::Extension_data<Surface_mesh> data,
+         bool with_vertices_map, bool with_faces_map) -> py::object {
+    auto mesh = py::cast(pmesh);
+    if (with_vertices_map) {
+      if (with_faces_map) return py::make_tuple(mesh, data.vmap, data.fmap);
+      return py::make_tuple(mesh, data.vmap);
+    } else {
+      if (with_faces_map) return py::make_tuple(mesh, data.fmap);
+    }
+    return mesh;
+  };
+
+  module.def(
+      "make_mesh",
+      [process_mesh_output](wutils::Coordinates_array<Point>& vertices,
+                            wutils::Face_connectivity<Surface_mesh>& faces,
+                            bool with_vertices_map,
+                            bool with_faces_map) -> py::object {
+        wutils::Extension_data<Surface_mesh> data;
+        auto mesh = wutils::make_mesh<Surface_mesh>(
+            vertices, py::make_tuple(faces), data);
+        return process_mesh_output(mesh.release(), data, with_vertices_map,
+                                   with_faces_map);
+      },
+      py::arg("vertices").none(false), py::arg("faces").none(false),
+      py::kw_only(), py::arg("with_vertices_map") = false,
+      py::arg("with_faces_map") = false);
+  module.def(
+      "make_mesh",
+      [process_mesh_output](wutils::Coordinates_array<Point>& vertices,
+                            py::list& faces, bool with_vertices_map,
+                            bool with_faces_map) -> py::object {
+        wutils::Extension_data<Surface_mesh> data;
+        auto mesh = wutils::make_mesh<Surface_mesh>(vertices, faces, data);
+        return process_mesh_output(mesh.release(), data, with_vertices_map,
+                                   with_faces_map);
+      },
+      py::arg("vertices").none(false), py::arg("faces").none(false),
+      py::kw_only(), py::arg("with_vertices_map") = false,
+      py::arg("with_faces_map") = false);
 
   wutils::wrap_property_map<Vertex_index>(module, pyclass, "vertex");
   wutils::wrap_property_map<Halfedge_index>(module, pyclass, "halfedge");
