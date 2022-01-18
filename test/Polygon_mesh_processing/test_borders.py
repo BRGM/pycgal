@@ -52,3 +52,21 @@ def test_extract_zmap_corners_and_borders(simple_mesh):
     corners, borders = extract_zmap_corners_and_borders(mesh)
     assert len(corners) == 8
     assert len(borders) == 8
+
+
+def test_selection_border_halfedges(simple_mesh):
+
+    mesh = Surface_mesh(
+        simple_mesh.all_vertices, [simple_mesh.triangles, simple_mesh.square]
+    )
+    # with Faces container
+    square_face = Faces()
+    for f in mesh.faces():
+        if mesh.degree(f) == 4:
+            square_face.append(f)
+    borders = border_halfedges(mesh, square_face)
+    assert len(borders) == 4
+    # with list
+    square_face = [f for f in mesh.faces() if mesh.degree(f) == 4]
+    borders = border_halfedges(mesh, square_face)
+    assert len(borders) == 4

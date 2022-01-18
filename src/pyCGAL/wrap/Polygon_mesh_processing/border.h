@@ -90,12 +90,40 @@ void wrap_element(detail::border<PolygonMesh, Halfedge_descriptor, FaceRange>,
   module.def(
       "border_halfedges",
       [](PolygonMesh& mesh, py::object face_group) {
-        const FaceRange& face_range = face_group.is_none()
-                                          ? faces(mesh)
-                                          : face_group.cast<const FaceRange&>();
+        using Face_index = typename PolygonMesh::Face_index;
         std::vector<Halfedge_descriptor> borders;
-        CGAL::Polygon_mesh_processing::border_halfedges(face_range, mesh,
-                                                        back_inserter(borders));
+        if (face_group.is_none()) {
+          CGAL::Polygon_mesh_processing::border_halfedges(
+              faces(mesh), mesh, back_inserter(borders));
+          return borders;
+        }
+        try {
+          CGAL::Polygon_mesh_processing::border_halfedges(
+              face_group.cast<const FaceRange&>(), mesh,
+              back_inserter(borders));
+          return borders;
+        } catch (py::cast_error&) {
+        }
+        try {
+          const std::vector<Face_index>& v =
+              face_group.cast<const std::vector<Face_index>&>();
+          CGAL::Polygon_mesh_processing::border_halfedges(
+              CGAL::make_range(begin(v), end(v)), mesh, back_inserter(borders));
+          return borders;
+        } catch (py::cast_error&) {
+        }
+        try {
+          std::vector<Face_index> v;
+          for (auto&& f : face_group) {
+            v.emplace_back(f.cast<Face_index>());
+          }
+          CGAL::Polygon_mesh_processing::border_halfedges(
+              CGAL::make_range(begin(v), end(v)), mesh, back_inserter(borders));
+          return borders;
+        } catch (py::cast_error&) {
+          throw;  // this was the latest attempt
+        }
+        assert(false);  // should never be reached
         return borders;
       },
       py::arg("mesh").none(false), py::arg("face_group") = py::none());
