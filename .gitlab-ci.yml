@@ -1,5 +1,14 @@
 image: ${CI_BUILD_ENVIRONMENT_IMAGE}:${CI_BUILD_ENVIRONMENT_IMAGE_TAG}
 
+include:
+  - project: 'brgm/modelisation-geologique/templates'
+    ref: master
+    file:
+      - 'gitlab-ci/check.yml'
+      - 'gitlab-ci/build.yml'
+      - 'gitlab-ci/deploy.yml'
+      - 'gitlab-ci/test.yml'
+
 variables:
   TARGET_PYTHON_PACKAGE_NAME: pycgal
 
@@ -9,15 +18,6 @@ stages:
   - test
   - documentation
   - deploy
-
-include:
-  - project: 'brgm/modelisation-geologique/templates'
-    ref: master
-    file:
-      - 'gitlab-ci/check.yml'
-      - 'gitlab-ci/build.yml'
-      - 'gitlab-ci/deploy.yml'
-      - 'gitlab-ci/test.yml'
 
 pages:
   stage: documentation
