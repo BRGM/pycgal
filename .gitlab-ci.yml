@@ -11,6 +11,7 @@ include:
 
 variables:
   TARGET_PYTHON_PACKAGE_NAME: pycgal
+  ADDITIONAL_BUILD_ON_TAG_WINDOWS_FLAGS: "-DPYCGAL_SHIPS_GMP=ON"
 
 stages:
   - check

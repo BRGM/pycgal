@@ -47,4 +47,32 @@ endif()
 
 set(PYCGAL_PACKAGES core Epick Mesh_2 Polygon_mesh_processing Surface_mesh)
 
+option(PYCGAL_SHIPS_GMP OFF)
+if(PYCGAL_SHIPS_GMP)
+  # For some reasons the generator expression set(SHIPPED_GMP_LIBRARY
+  # $<IF:$<CONFIG:Debug>,${GMP_LIBRARY_DEBUG},${GMP_LIBRARY_RELEASE}>) is not
+  # handled in the later glob expressions
+  if($<CONFIG:Debug>)
+    set(SHIPPED_GMP_LIBRARY ${GMP_LIBRARY_DEBUG})
+  else()
+    set(SHIPPED_GMP_LIBRARY ${GMP_LIBRARY_RELEASE})
+  endif()
+  if(WIN32)
+    string(REPLACE .lib .dll SHIPPED_GMP_LIBRARY ${SHIPPED_GMP_LIBRARY})
+    if(NOT EXISTS ${SHIPPED_GMP_LIBRARY})
+      # will try a GNU like directory structure (which is used by vcpkg)
+      get_filename_component(GMP_LIB_DIRECTORY ${SHIPPED_GMP_LIBRARY} DIRECTORY)
+      get_filename_component(
+        SHIPPED_GMP_LIBRARY ${GMP_LIB_DIRECTORY}/../bin/gmp.dll ABSOLUTE
+      )
+      if(NOT EXISTS ${SHIPPED_GMP_LIBRARY})
+        message(FATAL_ERROR "Could not find a dll for gmp library!")
+      endif()
+    endif()
+  else(WIN32)
+    message(FATAL_ERROR "gmp library can only be shipped on Windows platforms!")
+  endif(WIN32)
+  install(FILES ${SHIPPED_GMP_LIBRARY} DESTINATION pycgal)
+endif(PYCGAL_SHIPS_GMP)
+
 add_subdirectory(src)
