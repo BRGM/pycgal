@@ -12,30 +12,6 @@ namespace pyCGAL::wrap::utils {
 
 template <typename Surface_mesh>
 auto remap_vertices(const Surface_mesh& mesh) {
-  typedef typename Surface_mesh::Point Point;
-  typedef typename Surface_mesh::size_type Surface_mesh_index;
-  typedef CGAL_FT<Point> FT;
-  const std::size_t nv = mesh.number_of_vertices();
-  constexpr std::size_t dim = CGAL::Ambient_dimension<Point>::value;
-  auto va = py::array_t<FT, py::array::c_style>{{nv, dim}};
-  static_assert(sizeof(Point) == dim * sizeof(FT), "Inconsistent sizes");
-  typedef std::array<FT, dim> Point_as_array;
-  static_assert(sizeof(Point) == sizeof(Point_as_array), "Inconsistent sizes");
-  auto pv = reinterpret_cast<Point_as_array*>(va.mutable_data(0, 0));
-  const std::size_t ntv = nv + mesh.number_of_removed_vertices();
-  std::vector<Surface_mesh_index> vmap(ntv, Surface_mesh::null_vertex());
-  Surface_mesh_index k = 0;
-  for (auto&& v : mesh.vertices()) {
-    (*pv) = *(reinterpret_cast<const Point_as_array*>(&(mesh.point(v))));
-    vmap[v] = k;
-    ++pv;
-    ++k;
-  }
-  return std::make_tuple(vmap, va);
-}
-
-template <typename Surface_mesh>
-auto remap_vertices_map_only(const Surface_mesh& mesh) {
   using Surface_mesh_index = typename Surface_mesh::size_type;
   const std::size_t ntv =
       mesh.number_of_vertices() + mesh.number_of_removed_vertices();
@@ -62,14 +38,27 @@ auto count_faces_by_degree(const Surface_mesh& mesh) {
 }
 
 template <typename Surface_mesh>
-auto as_arrays(const Surface_mesh& mesh) -> py::tuple {
-  typedef typename Surface_mesh::Point Point;
-  typedef typename Surface_mesh::size_type Surface_mesh_index;
-  typedef typename Surface_mesh::Vertex_index Vertex_index;
-  typedef CGAL_FT<Point> FT;
-  std::vector<Surface_mesh_index> vmap;
-  py::array_t<FT, py::array::c_style> vertices;
-  std::tie(vmap, vertices) = remap_vertices(mesh);
+auto collect_vertices_array(const Surface_mesh& mesh) {
+  using Point = typename Surface_mesh::Point;
+  using FT = CGAL_FT<Point>;
+  const std::size_t nv = mesh.number_of_vertices();
+  constexpr std::size_t dim = CGAL::Ambient_dimension<Point>::value;
+  auto vertices = py::array_t<FT, py::array::c_style>{{nv, dim}};
+  static_assert(sizeof(Point) == dim * sizeof(FT), "Inconsistent sizes");
+  typedef std::array<FT, dim> Point_as_array;
+  static_assert(sizeof(Point) == sizeof(Point_as_array), "Inconsistent sizes");
+  auto pv = reinterpret_cast<Point_as_array*>(vertices.mutable_data(0, 0));
+  for (auto&& v : mesh.vertices()) {
+    (*pv) = *(reinterpret_cast<const Point_as_array*>(&(mesh.point(v))));
+    ++pv;
+  }
+  return vertices;
+}
+
+template <typename Surface_mesh>
+auto collect_faces_arrays(const Surface_mesh& mesh) {
+  using Surface_mesh_index = typename Surface_mesh::size_type;
+  using Vertex_index = typename Surface_mesh::Vertex_index;
   auto nb_faces_by_degree = count_faces_by_degree(mesh);
   const auto nb_categories = nb_faces_by_degree.size();
   py::list faces;
@@ -83,6 +72,7 @@ auto as_arrays(const Surface_mesh& mesh) -> py::tuple {
       faces.append(a);
     }
   }
+  const auto vmap = remap_vertices(mesh);
   for (auto&& f : mesh.faces()) {
     for (Vertex_index v : CGAL::vertices_around_face(mesh.halfedge(f), mesh)) {
       Surface_mesh_index** pf = &(pointers[mesh.degree(f)]);
@@ -90,18 +80,29 @@ auto as_arrays(const Surface_mesh& mesh) -> py::tuple {
       ++(*pf);
     }
   }
-  return py::make_tuple(vertices, faces);
+  return faces;
 }
 
 template <typename Surface_mesh>
-auto as_lists(const Surface_mesh& mesh) -> py::tuple {
-  using Vertex_index = typename Surface_mesh::Vertex_index;
+auto as_arrays(const Surface_mesh& mesh) -> py::tuple {
+  return py::make_tuple(collect_vertices_array(mesh),
+                        collect_faces_arrays(mesh));
+}
+
+template <typename Surface_mesh>
+auto collect_vertices_list(const Surface_mesh& mesh) {
   py::list vertices;
   for (auto&& v : mesh.vertices()) {
     const auto& P = mesh.point(v);
     vertices.append(py::make_tuple(P[0], P[1], P[2]));
   }
-  const auto vmap = remap_vertices_map_only(mesh);
+  return vertices;
+}
+
+template <typename Surface_mesh>
+auto collect_faces_list(const Surface_mesh& mesh) {
+  using Vertex_index = typename Surface_mesh::Vertex_index;
+  const auto vmap = remap_vertices(mesh);
   py::list faces;
   for (auto&& f : mesh.faces()) {
     py::list cell;
@@ -110,7 +111,12 @@ auto as_lists(const Surface_mesh& mesh) -> py::tuple {
     }
     faces.append(cell);
   }
-  return py::make_tuple(vertices, faces);
+  return faces;
+}
+
+template <typename Surface_mesh>
+auto as_lists(const Surface_mesh& mesh) -> py::tuple {
+  return py::make_tuple(collect_vertices_list(mesh), collect_faces_list(mesh));
 }
 
 }  // namespace pyCGAL::wrap::utils
