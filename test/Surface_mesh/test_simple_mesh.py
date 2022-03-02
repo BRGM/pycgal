@@ -21,6 +21,7 @@ def test_meshes(simple_mesh):
             # (*) pycgal.Epick.Point_3 i.e. Surface_mesh::Point must be available here
             print(f"{v} at {mesh.point(v)}")
         print(mesh.as_arrays())
+        print(mesh.as_lists())
 
 
 def test_addition(simple_mesh):

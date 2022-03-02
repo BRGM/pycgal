@@ -36,6 +36,20 @@ auto remap_vertices(const Surface_mesh& mesh) {
 }
 
 template <typename Surface_mesh>
+auto remap_vertices_map_only(const Surface_mesh& mesh) {
+  using Surface_mesh_index = typename Surface_mesh::size_type;
+  const std::size_t ntv =
+      mesh.number_of_vertices() + mesh.number_of_removed_vertices();
+  std::vector<Surface_mesh_index> vmap(ntv, Surface_mesh::null_vertex());
+  Surface_mesh_index k = 0;
+  for (auto&& v : mesh.vertices()) {
+    vmap[v] = k;
+    ++k;
+  }
+  return vmap;
+}
+
+template <typename Surface_mesh>
 auto count_faces_by_degree(const Surface_mesh& mesh) {
   typedef typename Surface_mesh::size_type size_type;
   std::vector<size_type> nb_faces;
@@ -76,6 +90,26 @@ auto as_arrays(const Surface_mesh& mesh) -> py::tuple {
       (**pf) = vmap[v];
       ++(*pf);
     }
+  }
+  return py::make_tuple(vertices, faces);
+}
+
+template <typename Surface_mesh>
+auto as_lists(const Surface_mesh& mesh) -> py::tuple {
+  using Vertex_index = typename Surface_mesh::Vertex_index;
+  py::list vertices;
+  for (auto&& v : mesh.vertices()) {
+    const auto& P = mesh.point(v);
+    vertices.append(py::make_tuple(P[0], P[1], P[2]));
+  }
+  const auto vmap = remap_vertices_map_only(mesh);
+  py::list faces;
+  for (auto&& f : mesh.faces()) {
+    py::list cell;
+    for (Vertex_index v : CGAL::vertices_around_face(mesh.halfedge(f), mesh)) {
+      cell.append(vmap[v]);
+    }
+    faces.append(cell);
   }
   return py::make_tuple(vertices, faces);
 }
