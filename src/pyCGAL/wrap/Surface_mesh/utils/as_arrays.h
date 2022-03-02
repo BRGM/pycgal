@@ -4,6 +4,7 @@
 #include <pybind11/numpy.h>
 
 #include <tuple>
+#include <type_traits>
 
 #include "Face_connectivity.h"
 namespace py = pybind11;
@@ -69,29 +70,29 @@ void _check_breaking_order(const Category_sizes& nb_faces_by_degree) {
   }
 }
 
-template <typename Surface_mesh>
-auto collect_faces_arrays(const Surface_mesh& mesh,
-                          const bool throw_if_breaking_order = false) {
+template <typename Surface_mesh, typename Category_sizes>
+auto collect_connectivity_tables(const Surface_mesh& mesh,
+                                 const Category_sizes& nb_faces_by_degree) {
   using Surface_mesh_index = typename Surface_mesh::size_type;
   using Vertex_index = typename Surface_mesh::Vertex_index;
-  auto nb_faces_by_degree = count_faces_by_degree(mesh);
-  if (throw_if_breaking_order) _check_breaking_order(nb_faces_by_degree);
-  const auto nb_categories = nb_faces_by_degree.size();
   py::list faces;
+  const auto nb_categories = nb_faces_by_degree.size();
   std::vector<Surface_mesh_index*> pointers(nb_categories, nullptr);
   for (std::size_t k = 0; k != nb_categories; ++k) {
     if (nb_faces_by_degree[k] != 0) {
       auto a = Face_connectivity<Surface_mesh>{
-          {static_cast<std::size_t>(nb_faces_by_degree[k]),
-           static_cast<std::size_t>(k)}};
+          {static_cast<py::ssize_t>(nb_faces_by_degree[k]),
+           static_cast<py::ssize_t>(k)}};
       pointers[k] = a.mutable_data(0, 0);
+      // we must keep a reference to the array a in a python object
+      // so that it's not garbage collected
       faces.append(a);
     }
   }
   const auto vmap = remap_vertices(mesh);
   for (auto&& f : mesh.faces()) {
     for (Vertex_index v : CGAL::vertices_around_face(mesh.halfedge(f), mesh)) {
-      Surface_mesh_index** pf = &(pointers[mesh.degree(f)]);
+      auto pf = &(pointers[mesh.degree(f)]);
       (**pf) = vmap[v];
       ++(*pf);
     }
@@ -99,9 +100,58 @@ auto collect_faces_arrays(const Surface_mesh& mesh,
   return faces;
 }
 
+template <typename Surface_mesh, typename Category_sizes>
+auto collect_face_index_tables(const Surface_mesh& mesh,
+                               const Category_sizes& nb_faces_by_degree) {
+  using Surface_mesh_index = typename Surface_mesh::size_type;
+  py::list indices;
+  const auto nb_categories = nb_faces_by_degree.size();
+  std::vector<Surface_mesh_index*> pointers(nb_categories, nullptr);
+  for (std::size_t k = 0; k != nb_categories; ++k) {
+    if (nb_faces_by_degree[k] != 0) {
+      auto a = py::array_t<Surface_mesh_index, py::array::c_style>{
+          static_cast<py::ssize_t>(nb_faces_by_degree[k])};
+      pointers[k] = a.mutable_data(0);
+      // we must keep a reference to the array a in a python object
+      // so that it's not garbage collected
+      indices.append(a);
+    }
+  }
+  Surface_mesh_index k = 0;
+  for (auto&& f : mesh.faces()) {
+    auto pi = &(pointers[mesh.degree(f)]);
+    (**pi) = k;
+    ++(*pi);
+    ++k;
+  }
+  return indices;
+}
+
+template <bool return_index = false, typename Surface_mesh>
+auto collect_faces_arrays(const Surface_mesh& mesh,
+                          const bool throw_if_breaking_order = false)
+    -> std::conditional_t<return_index, std::tuple<py::list, py::list>,
+                          py::list> {
+  using Vertex_index = typename Surface_mesh::Vertex_index;
+  auto nb_faces_by_degree = count_faces_by_degree(mesh);
+  if (throw_if_breaking_order) _check_breaking_order(nb_faces_by_degree);
+  if constexpr (return_index) {
+    return std::make_tuple(
+        collect_connectivity_tables(mesh, nb_faces_by_degree),
+        collect_face_index_tables(mesh, nb_faces_by_degree));
+  } else {
+    return collect_connectivity_tables(mesh, nb_faces_by_degree);
+  }
+}
+
 template <typename Surface_mesh>
-auto as_arrays(const Surface_mesh& mesh,
+auto as_arrays(const Surface_mesh& mesh, const bool return_index = false,
                const bool throw_if_breaking_order = false) -> py::tuple {
+  if (return_index) {
+    auto [faces, indices] =
+        collect_faces_arrays<true>(mesh, throw_if_breaking_order);
+    return py::make_tuple(collect_vertices_array(mesh), faces, indices);
+  }
   return py::make_tuple(collect_vertices_array(mesh),
                         collect_faces_arrays(mesh, throw_if_breaking_order));
 }

@@ -27,12 +27,15 @@ def test_meshes(simple_mesh):
 
 
 def test_array_conversion(simple_mesh):
-
     mesh = Surface_mesh(
         simple_mesh.all_vertices, [simple_mesh.square, simple_mesh.triangles]
     )
     with pytest.raises(RuntimeError):
         mesh.as_arrays(throw_on_breaking_order=True)
+    vertices, faces, indices = mesh.as_arrays(return_index=True)
+    assert len(faces[0]) == len(indices[0]) == 4
+    assert len(indices[1]) == 1
+    assert indices[1][0] == 0
 
 
 def test_addition(simple_mesh):
