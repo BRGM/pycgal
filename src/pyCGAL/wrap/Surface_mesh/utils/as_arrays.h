@@ -14,7 +14,6 @@ template <typename Surface_mesh>
 auto remap_vertices(const Surface_mesh& mesh) {
   typedef typename Surface_mesh::Point Point;
   typedef typename Surface_mesh::size_type Surface_mesh_index;
-  typedef typename Surface_mesh::Vertex_index Vertex_index;
   typedef CGAL_FT<Point> FT;
   const std::size_t nv = mesh.number_of_vertices();
   constexpr std::size_t dim = CGAL::Ambient_dimension<Point>::value;
