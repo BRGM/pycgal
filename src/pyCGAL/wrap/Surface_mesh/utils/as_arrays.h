@@ -55,11 +55,27 @@ auto collect_vertices_array(const Surface_mesh& mesh) {
   return vertices;
 }
 
+template <typename Category_sizes>
+void _check_breaking_order(const Category_sizes& nb_faces_by_degree) {
+  int nb_types = 0;
+  for (auto&& n : nb_faces_by_degree) {
+    if (n > 0) ++nb_types;
+  }
+  assert(nb_types > 0);
+  // this test is not sufficient but it is more than highly probable
+  // that the order will be broken in such a situation
+  if (nb_types > 1) {
+    throw std::runtime_error("Order of Surface_mesh cells will be broken!");
+  }
+}
+
 template <typename Surface_mesh>
-auto collect_faces_arrays(const Surface_mesh& mesh) {
+auto collect_faces_arrays(const Surface_mesh& mesh,
+                          const bool throw_if_breaking_order = false) {
   using Surface_mesh_index = typename Surface_mesh::size_type;
   using Vertex_index = typename Surface_mesh::Vertex_index;
   auto nb_faces_by_degree = count_faces_by_degree(mesh);
+  if (throw_if_breaking_order) _check_breaking_order(nb_faces_by_degree);
   const auto nb_categories = nb_faces_by_degree.size();
   py::list faces;
   std::vector<Surface_mesh_index*> pointers(nb_categories, nullptr);
@@ -84,9 +100,10 @@ auto collect_faces_arrays(const Surface_mesh& mesh) {
 }
 
 template <typename Surface_mesh>
-auto as_arrays(const Surface_mesh& mesh) -> py::tuple {
+auto as_arrays(const Surface_mesh& mesh,
+               const bool throw_if_breaking_order = false) -> py::tuple {
   return py::make_tuple(collect_vertices_array(mesh),
-                        collect_faces_arrays(mesh));
+                        collect_faces_arrays(mesh, throw_if_breaking_order));
 }
 
 template <typename Surface_mesh>

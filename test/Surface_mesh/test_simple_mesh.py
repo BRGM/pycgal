@@ -1,5 +1,7 @@
 import numpy as np
 
+import pytest
+
 # We need to import Point_3 to display them cf (*) below
 from pycgal.Epick import Point_3, Vector_3
 from pycgal.Surface_mesh import Surface_mesh
@@ -22,6 +24,15 @@ def test_meshes(simple_mesh):
             print(f"{v} at {mesh.point(v)}")
         print(mesh.as_arrays())
         print(mesh.as_lists())
+
+
+def test_array_conversion(simple_mesh):
+
+    mesh = Surface_mesh(
+        simple_mesh.all_vertices, [simple_mesh.square, simple_mesh.triangles]
+    )
+    with pytest.raises(RuntimeError):
+        mesh.as_arrays(throw_on_breaking_order=True)
 
 
 def test_addition(simple_mesh):
