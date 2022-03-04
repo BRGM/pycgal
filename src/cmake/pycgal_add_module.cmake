@@ -99,6 +99,10 @@ function(pycgal_add_core_module module_name)
   pybind11_add_module(${target_name} ${module_sources})
   target_include_directories(${target_name} PUBLIC ${PYCGAL_INCLUDE_DIR})
   set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${module_name})
+  if(PYCGAL_SHIPS_GMP_AND_MPFR)
+    set_target_properties(${target_name} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+  endif(PYCGAL_SHIPS_GMP_AND_MPFR)
+
   install(TARGETS ${target_name} LIBRARY DESTINATION pycgal)
 
 endfunction()
@@ -131,6 +135,10 @@ function(pycgal_add_submodule module_name)
   pybind11_add_module(${target_name} ${module_sources})
   target_include_directories(${target_name} PUBLIC ${PYCGAL_INCLUDE_DIR})
   set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${module_name})
+  if(PYCGAL_SHIPS_GMP_AND_MPFR)
+    set_target_properties(${target_name} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+  endif(PYCGAL_SHIPS_GMP_AND_MPFR)
+
   install(TARGETS ${target_name}
           LIBRARY DESTINATION pycgal/${PYCGAL_MODULE_PATH}
   )

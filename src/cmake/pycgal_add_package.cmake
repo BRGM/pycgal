@@ -7,6 +7,7 @@ function(pycgal_add_package)
   string(REPLACE "/" "::" PYCGAL_PACKAGE_NAMESPACE ${PYCGAL_PACKAGE_PATH})
 
   foreach(module_name ${PYCGAL_MODULES})
+
     set(PYCGAL_CLASS_NAME ${module_name})
     # the following file is generated in ${CMAKE_CURRENT_SOURCE_DIR} and can be
     # modified on a per package basis
@@ -20,7 +21,12 @@ function(pycgal_add_package)
     pybind11_add_module(${target_name} ${wrap_source})
     target_include_directories(${target_name} PUBLIC ${PYCGAL_INCLUDE_DIR})
     set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${module_name})
+    if(PYCGAL_SHIPS_GMP_AND_MPFR)
+      set_target_properties(${target_name} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+    endif(PYCGAL_SHIPS_GMP_AND_MPFR)
+
     install(TARGETS ${target_name} DESTINATION ${PYCGAL_PACKAGE_PATH}/_impl)
+
   endforeach()
 
 endfunction()

@@ -47,40 +47,7 @@ if(NOT pybind11_FOUND) # else fetch it from github
   FetchContent_MakeAvailable(pybind11)
 endif()
 
-set(PYCGAL_PACKAGES core Epick Mesh_2 Polygon_mesh_processing Surface_mesh)
-
-function(ship_library SHIPPED_LIBRARY)
-  get_filename_component(LIBNAME ${SHIPPED_LIBRARY} NAME_WE)
-  message(STATUS "Trying to ship ${LIBNAME} library (${SHIPPED_LIBRARY})")
-  if(WIN32)
-    string(REPLACE .lib .dll SHIPPED_LIBRARY ${SHIPPED_LIBRARY})
-    if(NOT EXISTS ${SHIPPED_LIBRARY})
-      # will try a GNU like directory structure (which is used by vcpkg)
-      get_filename_component(LIB_DIRECTORY ${SHIPPED_LIBRARY} DIRECTORY)
-      get_filename_component(
-        SHIPPED_LIBRARY ${LIB_DIRECTORY}/../bin/${LIBNAME}.dll ABSOLUTE
-      )
-      if(NOT EXISTS ${SHIPPED_LIBRARY})
-        # Try to find version number
-        file(
-          GLOB SHIPPED_LIBRARY
-          LIST_DIRECTORIES false
-          ${LIB_DIRECTORY}/../bin/${LIBNAME}-[0-9.]*.dll
-        )
-        get_filename_component(SHIPPED_LIBRARY ${SHIPPED_LIBRARY} REALPATH)
-        if(NOT EXISTS ${SHIPPED_LIBRARY})
-          message(FATAL_ERROR "Could not find a dll for ${LIBNAME} library!")
-        endif()
-      endif()
-    endif()
-  else(WIN32)
-    message(
-      FATAL_ERROR "${LIBNAME} library can only be shipped on Windows platforms!"
-    )
-  endif(WIN32)
-  message(STATUS "          shipping: ${SHIPPED_LIBRARY}")
-  install(FILES ${SHIPPED_LIBRARY} DESTINATION pycgal)
-endfunction()
+include(cmake/ship_library.cmake)
 
 option(PYCGAL_SHIPS_GMP_AND_MPFR OFF)
 if(PYCGAL_SHIPS_GMP_AND_MPFR)
@@ -88,11 +55,13 @@ if(PYCGAL_SHIPS_GMP_AND_MPFR)
   # $<IF:$<CONFIG:Debug>,${GMP_LIBRARY_DEBUG},${GMP_LIBRARY_RELEASE}>) is not
   # handled in the later glob expressions
   if($<CONFIG:Debug>)
-    ship_library(${GMP_LIBRARY_DEBUG})
+    ship_library(${GMP_LIBRARY_DEBUG} pycgal)
   else()
-    ship_library(${GMP_LIBRARY_RELEASE})
+    ship_library(${GMP_LIBRARY_RELEASE} pycgal)
   endif()
-  ship_library(${MPFR_LIBRARIES})
+  ship_library(${MPFR_LIBRARIES} pycgal)
 endif(PYCGAL_SHIPS_GMP_AND_MPFR)
+
+set(PYCGAL_PACKAGES core Epick Mesh_2 Polygon_mesh_processing Surface_mesh)
 
 add_subdirectory(src)
