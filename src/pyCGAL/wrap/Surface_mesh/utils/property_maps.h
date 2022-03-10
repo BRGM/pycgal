@@ -69,6 +69,7 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   //    {sizeof(Ts)...};
   template <typename T>
   using Property_map = typename Surface_mesh::template Property_map<Index, T>;
+  using Property_index = Index;
   std::variant<Property_map<Ts>...> map;
   template <typename T>
   const Property_map<T>* get_underlying_map() const {
@@ -185,6 +186,32 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         map);
   }
 };
+
+template <typename Tuple>
+struct Add;
+
+template <typename T, typename... Ts>
+struct Add<std::tuple<T, Ts...>> {
+  template <typename Holder, typename Surface_mesh>
+  static void select(py::class_<Surface_mesh>& pymesh) {
+    using Index = typename Holder::Property_index;
+    pymesh.def("select",
+               [](const Surface_mesh& mesh, const Holder& pmap, T value) {
+                 auto p = pmap.template get_underlying_map<T>();
+                 assert(p);
+                 return select_indices<Surface_mesh, Index, T>(mesh, *p, value);
+               });
+    if constexpr (sizeof...(Ts) > 0) {
+      Add<std::tuple<Ts...>>::template select<Holder>(pymesh);
+    }
+  }
+};
+
+template <typename Holder, typename Surface_mesh>
+void add_select(py::class_<Surface_mesh>& pymesh) {
+  using alternatives = typename Holder::property_alternatives;
+  Add<alternatives>::template select<Holder>(pymesh);
+}
 
 template <typename SurfaceMesh, typename IndexType>
 struct Helper_traits {
@@ -312,12 +339,7 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
     pmap.remove_from_mesh(mesh);
   });
 
-  pymesh.def("select",
-             [](const Surface_mesh& mesh, const holder& pmap, int value) {
-               auto p = pmap.template get_underlying_map<int>();
-               assert(p);
-               return select<Surface_mesh, Index, int>(mesh, *p, value);
-             });
+  detail::add_select<holder>(pymesh);
 }
 
 }  // namespace pyCGAL::wrap::utils

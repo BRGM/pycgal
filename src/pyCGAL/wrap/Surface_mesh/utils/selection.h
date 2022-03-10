@@ -34,7 +34,7 @@ struct get<Surface_mesh, typename Surface_mesh::Edge_index> {
 // T must be comparable to TT
 // value is locally copied (assumed to be faster than passing by reference)
 template <typename Surface_mesh, typename Index, typename T, typename TT = T>
-auto select(
+auto select_indices(
     const Surface_mesh& mesh,
     const typename Surface_mesh::template Property_map<Index, T>& property,
     const TT value) -> std::vector<Index> {
