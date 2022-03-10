@@ -126,3 +126,21 @@ def test_property_selection(simple_mesh):
     selection = mesh.select(value, 1)
     assert all([value[e] == 1 for e in selection])
     assert len(selection) == mesh.number_of_edges() / 2
+    n = len(selection)
+    for k, e in enumerate(selection):
+        value[e] = k % 2
+    mesh.keep(selection, value, 1)
+    assert all([value[e] == 1 for e in selection])
+    assert len(selection) == n / 2
+    value, created = mesh.add_vertex_property("v:value", dtype="i")
+    assert created
+    for k, v in enumerate(mesh.vertices()):
+        value[v] = k % 2
+    selection = mesh.select_edges(value, 0)
+    print("All edges")
+    for e in mesh.edges():
+        va, vb = mesh.vertex(e, 0), mesh.vertex(e, 1)
+        print(va, "<->", vb, ":", value[va], value[vb])
+    print("Selection")
+    for e in selection:
+        print(mesh.vertex(e, 0), "<->", mesh.vertex(e, 1))

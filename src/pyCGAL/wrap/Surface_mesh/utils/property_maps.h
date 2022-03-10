@@ -187,6 +187,24 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   }
 };
 
+// Compiler error with MSVC 2019
+// template <typename T, typename Holder>
+// inline auto get_map(const Holder& pmap) -> const
+//    typename Holder::template Property_map& {
+//  auto p = pmap.template get_underlying_map<T>();
+//  assert(p);
+//  return *p;
+//}
+
+// WIP
+// template <typename Surface_mesh>
+// struct Visitor {
+//  template <typename Index, typename T>
+//  void operator()(
+//      const typename Surface_mesh::template Property_map<Index, T>&
+//          map) const {};
+//};
+
 template <typename Tuple>
 struct Add;
 
@@ -205,12 +223,96 @@ struct Add<std::tuple<T, Ts...>> {
       Add<std::tuple<Ts...>>::template select<Holder>(pymesh);
     }
   }
+  template <typename Holder, typename Surface_mesh>
+  static void keep(py::class_<Surface_mesh>& pymesh) {
+    using Index = typename Holder::Property_index;
+    pymesh.def(
+        "keep", [](const Surface_mesh& mesh, std::vector<Index>& selection,
+                   const Holder& pmap, T value) {
+          auto p = pmap.template get_underlying_map<T>();
+          assert(p);
+          keep_indices<Surface_mesh, Index, T>(mesh, selection, *p, value);
+        });
+    if constexpr (sizeof...(Ts) > 0) {
+      Add<std::tuple<Ts...>>::template keep<Holder>(pymesh);
+    }
+  }
+  template <typename Holder, typename Surface_mesh>
+  static void extract(py::class_<Surface_mesh>& pymesh) {
+    using Index = typename Holder::Property_index;
+    pymesh.def("extract",
+               [](const Surface_mesh& mesh, const std::vector<Index>& selection,
+                  const Holder& pmap, T value) {
+                 auto p = pmap.template get_underlying_map<T>();
+                 assert(p);
+                 return extract_indices<Surface_mesh, Index, T>(mesh, selection,
+                                                                *p, value);
+               });
+    if constexpr (sizeof...(Ts) > 0) {
+      Add<std::tuple<Ts...>>::template extract<Holder>(pymesh);
+    }
+  }
+  template <typename Holder, typename Surface_mesh>
+  static void select_edges(py::class_<Surface_mesh>& pymesh) {
+    using Index = typename Holder::Property_index;
+    pymesh.def("select_edges",
+               [](const Surface_mesh& mesh, const Holder& pmap, T value) {
+                 auto p = pmap.template get_underlying_map<T>();
+                 assert(p);
+                 return select_edge_indices<Surface_mesh, T>(mesh, *p, value);
+               });
+    if constexpr (sizeof...(Ts) > 0) {
+      Add<std::tuple<Ts...>>::template select_edges<Holder>(pymesh);
+    }
+  }
 };
 
 template <typename Holder, typename Surface_mesh>
-void add_select(py::class_<Surface_mesh>& pymesh) {
+void add_selections(py::class_<Surface_mesh>& pymesh) {
+  using Index = typename Holder::Property_index;
   using alternatives = typename Holder::property_alternatives;
   Add<alternatives>::template select<Holder>(pymesh);
+  Add<alternatives>::template keep<Holder>(pymesh);
+  Add<alternatives>::template extract<Holder>(pymesh);
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Vertex_index>) {
+    Add<alternatives>::template select_edges<Holder>(pymesh);
+    pymesh.def("select_crossing_edges", [](const Surface_mesh& mesh,
+                                           const Holder& pmap) {
+      return std::visit(
+          [&](const auto& map) { select_crossing_edge_indices(mesh, map); },
+          pmap.map);
+    });
+    pymesh.def(
+        "select_crossing_edges",
+        [](const Surface_mesh& mesh, const Holder& pmap, const double value) {
+          std::visit(
+              [&](const auto& map) {
+                select_crossing_isovalue_edge_indices(mesh, map, value);
+              },
+              pmap.map);
+        });
+    pymesh.def("keep_crossing_edges",
+               [](const Surface_mesh& mesh,
+                  std::vector<typename Surface_mesh::Edge_index>& selection,
+                  const Holder& pmap) {
+                 std::visit(
+                     [&](const auto& map) {
+                       keep_crossing_edge_indices(mesh, selection, map);
+                     },
+                     pmap.map);
+               });
+    pymesh.def("keep_crossing_edges",
+               [](const Surface_mesh& mesh,
+                  std::vector<typename Surface_mesh::Edge_index>& selection,
+                  const Holder& pmap, const double value) {
+                 std::visit(
+                     [&](const auto& map) {
+                       keep_crossing_isovalue_edge_indices(mesh, selection, map,
+                                                           value);
+                     },
+                     pmap.map);
+               });
+  }
 }
 
 template <typename SurfaceMesh, typename IndexType>
@@ -339,7 +441,7 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
     pmap.remove_from_mesh(mesh);
   });
 
-  detail::add_select<holder>(pymesh);
+  detail::add_selections<holder>(pymesh);
 }
 
 }  // namespace pyCGAL::wrap::utils
