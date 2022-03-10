@@ -12,6 +12,8 @@ namespace py = pybind11;
 #include <pyCGAL/wrap/Surface_mesh/Property_capsule.h>
 #include <pyCGAL/wrap/utils/Coordinates_array.h>
 
+#include "selection.h"
+
 namespace pyCGAL::wrap::utils {
 
 using pointer_type = Surface_mesh::pointer_type;
@@ -309,6 +311,13 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
   pymesh.def("remove_property", [](Surface_mesh& mesh, holder& pmap) {
     pmap.remove_from_mesh(mesh);
   });
+
+  pymesh.def("select",
+             [](const Surface_mesh& mesh, const holder& pmap, int value) {
+               auto p = pmap.template get_underlying_map<int>();
+               assert(p);
+               return select<Surface_mesh, Index, int>(mesh, *p, value);
+             });
 }
 
 }  // namespace pyCGAL::wrap::utils

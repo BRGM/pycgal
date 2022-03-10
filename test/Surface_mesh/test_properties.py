@@ -113,3 +113,16 @@ def test_properties(simple_mesh):
     print(retrieved)
     n = min(len(message), len(retrieved))
     assert message[:n] == retrieved[:n]
+
+
+def test_property_selection(simple_mesh):
+    mesh = Surface_mesh(
+        simple_mesh.all_vertices, [simple_mesh.square, simple_mesh.triangles]
+    )
+    value, created = mesh.add_edge_property("e:value", dtype="i")
+    assert created
+    for k, e in enumerate(mesh.edges()):
+        value[e] = k % 2
+    selection = mesh.select(value, 1)
+    assert all([value[e] == 1 for e in selection])
+    assert len(selection) == mesh.number_of_edges() / 2
