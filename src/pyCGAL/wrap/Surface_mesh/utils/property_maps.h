@@ -69,8 +69,12 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   using Property_map = typename Surface_mesh::template Property_map<Index, T>;
   std::variant<Property_map<Ts>...> map;
   template <typename T>
+  const Property_map<T>* get_underlying_map() const {
+    return std::get_if<Property_map<T>>(&map);
+  }
+  template <typename T>
   Property_map<T>* get_underlying_map() {
-    return std::get_if<T>(&map);
+    return std::get_if<Property_map<T>>(&map);
   }
   constexpr std::string property_type() const {
     return std::visit(

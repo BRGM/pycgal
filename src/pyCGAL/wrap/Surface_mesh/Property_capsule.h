@@ -30,6 +30,10 @@ struct Property_capsule {
   template <typename T>
   using Property_map = typename Surface_mesh::template Property_map<Index, T>;
   template <typename T>
+  const Property_map<T>* get_map_if() const {
+    return std::get_if<Property_map<T>>(this->ptr);
+  }
+  template <typename T>
   Property_map<T>* get_map_if() {
     return std::get_if<Property_map<T>>(this->ptr);
   }
