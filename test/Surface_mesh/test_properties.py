@@ -36,6 +36,7 @@ def test_properties(simple_mesh):
         prop.is_set(edges[0])
     print("Before:", a)
     prop.set(edges, np.arange(edges.size, dtype="d"))
+    prop.set([e for e in edges], np.arange(edges.size, dtype="d"))
     print("After:", a)
     fconnectivity = mesh.face_property("f:connectivity")
     print(

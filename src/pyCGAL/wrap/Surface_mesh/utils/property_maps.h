@@ -123,6 +123,19 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         },
         map);
   }
+  void set(py::list& indices, py::iterable& values) {
+    std::visit(
+        [&indices, &values](auto alternative) {
+          using value_type = typename decltype(alternative)::value_type;
+          auto pi = std::begin(indices);
+          for (auto&& value : values) {
+            assert(pi != std::end(indices));
+            alternative[pi->cast<Index>()] = value.cast<value_type>();
+            ++pi;
+          }
+        },
+        map);
+  }
   void set(const std::vector<Index>& indices, py::object& value) {
     std::visit(
         [&indices, &value](auto alternative) {
@@ -130,6 +143,17 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
           const auto v = value.cast<value_type>();
           for (auto&& i : indices) {
             alternative[i] = v;
+          }
+        },
+        map);
+  }
+  void set(py::list& indices, py::object& value) {
+    std::visit(
+        [&indices, &value](auto alternative) {
+          using value_type = typename decltype(alternative)::value_type;
+          const auto v = value.cast<value_type>();
+          for (auto&& i : indices) {
+            alternative[i.cast<Index>()] = v;
           }
         },
         map);
@@ -396,6 +420,9 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
                    &holder::set));
   pyholder.def("set", py::overload_cast<const std::vector<Index>&, py::object&>(
                           &holder::set));
+  pyholder.def("set",
+               py::overload_cast<py::list&, py::iterable&>(&holder::set));
+  pyholder.def("set", py::overload_cast<py::list&, py::object&>(&holder::set));
   pyholder.def("set", &holder::fill);
   pyholder.def("fill", &holder::fill);
   pyholder.def_buffer(&holder::buffer_info);
