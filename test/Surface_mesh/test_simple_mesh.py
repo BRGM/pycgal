@@ -4,7 +4,7 @@ import pytest
 
 # We need to import Point_3 to display them cf (*) below
 from pycgal.Epick import Point_3, Vector_3
-from pycgal.Surface_mesh import Surface_mesh
+from pycgal.Surface_mesh import Surface_mesh, Vertices
 
 
 def test_meshes(simple_mesh):
@@ -87,3 +87,12 @@ def test_move_points(squares_2x2):
     for v in mesh.vertices():
         mesh[v] += Vector_3(0, 0, 3.14)
     assert all(mesh[v].z == 3.14 for v in mesh.vertices())
+
+
+def test_access_points(squares_2x2):
+
+    mesh = Surface_mesh(squares_2x2.vertices, squares_2x2.faces)
+    points = mesh.points(Vertices.create(mesh.vertices()))
+    assert points.shape == (9, 3)
+    points = mesh.points(list(mesh.vertices()))
+    assert points.shape == (9, 3)

@@ -128,6 +128,25 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("faces", &Surface_mesh::faces);
   pyclass.def("point", py::overload_cast<Vertex_index>(&Surface_mesh::point,
                                                        py::const_));
+  pyclass.def("points", [](const Surface_mesh& self,
+                           const std::vector<Vertex_index>& vertices) {
+    auto result = wutils::empty_coordinates_array<Point>(vertices.size());
+    auto p = reinterpret_cast<Point*>(result.mutable_data(0, 0));
+    for (auto&& v : vertices) {
+      (*p) = self.point(v);
+      ++p;
+    }
+    return result;
+  });
+  pyclass.def("points", [](const Surface_mesh& self, const py::list& vertices) {
+    auto result = wutils::empty_coordinates_array<Point>(py::len(vertices));
+    auto p = reinterpret_cast<Point*>(result.mutable_data(0, 0));
+    for (auto&& v : vertices) {
+      (*p) = self.point(v.cast<Vertex_index>());
+      ++p;
+    }
+    return result;
+  });
   pyclass.def("__getitem__", py::overload_cast<Vertex_index>(
                                  &Surface_mesh::point, py::const_));
   pyclass.def("__setitem__", [](Surface_mesh& self, Vertex_index v,
