@@ -91,6 +91,20 @@ auto select_edge_indices(
 }
 
 template <typename Surface_mesh, typename Property_map>
+auto collect_edge_indices(const Surface_mesh& mesh,
+                          const Property_map& vertex_property)
+    -> std::vector<typename Surface_mesh::Edge_index> {
+  std::vector<typename Surface_mesh::Edge_index> selection;
+  for (auto&& e : mesh.edges()) {
+    if (vertex_property[mesh.vertex(e, 0)] &&
+        vertex_property[mesh.vertex(e, 1)]) {
+      selection.emplace_back(e);
+    }
+  }
+  return selection;
+}
+
+template <typename Surface_mesh, typename Property_map>
 auto select_crossing_edge_indices(const Surface_mesh& mesh,
                                   const Property_map& vertex_property)
     -> std::vector<typename Surface_mesh::Edge_index> {

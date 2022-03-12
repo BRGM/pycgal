@@ -336,6 +336,12 @@ void add_selections(py::class_<Surface_mesh>& pymesh) {
                      },
                      pmap.map);
                });
+    pymesh.def(
+        "collect_edges", [](const Surface_mesh& mesh, const Holder& pmap) {
+          return std::visit(
+              [&](auto&& map) { return collect_edge_indices(mesh, map); },
+              pmap.map);
+        });
   }
 }
 

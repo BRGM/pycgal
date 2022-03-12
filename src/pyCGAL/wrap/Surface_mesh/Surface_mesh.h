@@ -246,6 +246,38 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("halfedge", py::overload_cast<Vertex_index, Vertex_index>(
                               &Surface_mesh::halfedge, py::const_));
 
+  pyclass.def("collect_edges", [](Surface_mesh& self,
+                                  const std::vector<Vertex_index>& vertices) {
+    auto [flag, created] = self.template add_property_map<Vertex_index, bool>();
+    assert(created);
+    // will overwrite an existing property map
+    // if(!created) std::fill(alternative.begin(), alternative.end(), false);
+    for (auto&& v : vertices) flag[v] = true;
+    std::vector<Edge_index> result;
+    for (auto&& e : self.edges()) {
+      if (flag[self.vertex(e, 0)] && flag[self.vertex(e, 1)]) {
+        result.emplace_back(e);
+      }
+    }
+    self.remove_property_map(flag);
+    return result;
+  });
+  pyclass.def("collect_edges", [](Surface_mesh& self, py::list& vertices) {
+    auto [flag, created] = self.template add_property_map<Vertex_index, bool>();
+    assert(created);
+    // will overwrite an existing property map
+    // if(!created) std::fill(alternative.begin(), alternative.end(), false);
+    for (auto&& v : vertices) flag[v.cast<Vertex_index>()] = true;
+    std::vector<Edge_index> result;
+    for (auto&& e : self.edges()) {
+      if (flag[self.vertex(e, 0)] && flag[self.vertex(e, 1)]) {
+        result.emplace_back(e);
+      }
+    }
+    self.remove_property_map(flag);
+    return result;
+  });
+
   // Switching between Halfedges and Edges
   pyclass.def("edge", &Surface_mesh::edge);
   pyclass.def("edge", [](Surface_mesh& self, const Vertex_index v1,
