@@ -8,31 +8,52 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(PYCGAL_CGAL_VERSION 5.3.1)
 set(PYCGAL_PYBIND11_VERSION 2.8.1)
 
+set(CGAL_HEADER_ONLY ON)
 set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
 
-find_package(CGAL ${PYCGAL_CGAL_VERSION} QUIET) # try locally
+find_package(CGAL ${PYCGAL_CGAL_VERSION} EXACT QUIET) # try locally
 if(NOT CGAL_FOUND) # else fetch it from github
   message(STATUS "Could NOT find CGAL>=${PYCGAL_CGAL_VERSION}.")
   message(STATUS "Fetching CGAL ${PYCGAL_CGAL_VERSION} from GitHub.")
   message(
-    WARNING
-      "====================================================================\n"
-      "Make sure CGAL dependencies are installed (especially gmp and mpfr).\n"
-      "You may want to check:\n"
-      "https://doc.cgal.org/latest/Manual/installation.html#seclibraries\n"
-      "====================================================================\n"
+    STATUS
+      "===================================================================="
+  )
+  message(
+    STATUS
+      "Make sure CGAL dependencies are installed (especially gmp and mpfr)!"
+  )
+  message(STATUS "You may want to check:")
+  message(
+    STATUS "https://doc.cgal.org/latest/Manual/installation.html#seclibraries"
+  )
+  message(
+    STATUS
+      "===================================================================="
   )
   include(FetchContent)
   FetchContent_Declare(
     CGAL
     GIT_REPOSITORY https://github.com/CGAL/cgal.git
     GIT_TAG v${PYCGAL_CGAL_VERSION}
-    CGAL_HEADER_ONLY ON
   )
+  # FIXME: this will add_subdirectory CGAL which is not necessary cf.
+  # include(${CGAL_USE_FILE}) command below
   FetchContent_MakeAvailable(CGAL)
-else()
-  include(${CGAL_USE_FILE})
+  if(NOT ${cgal_POPULATED})
+    message(FATAL_ERROR "Something went wrong in fetching CGAL from github.")
+  endif()
+  find_package(
+    CGAL
+    ${PYCGAL_CGAL_VERSION}
+    EXACT
+    REQUIRED
+    PATHS
+    ${cgal_SOURCE_DIR}
+    NO_DEFAULT_PATH
+  )
 endif()
+include(${CGAL_USE_FILE})
 
 find_package(pybind11 ${PYCGAL_PYBIND11_VERSION} QUIET) # try locally
 if(NOT pybind11_FOUND) # else fetch it from github
