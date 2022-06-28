@@ -1,5 +1,9 @@
 #pragma once
 
+// FIXME: this is a workaround for a missing include in
+// Polygon_mesh_processing/include/CGAL/Polygon_mesh_processing/internal/Isotropic_remeshing/remesh_impl.h
+// in CGAL v5.4.1
+#include <CGAL/Kernel/global_functions_3.h>
 #include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/named_parameters.h>
