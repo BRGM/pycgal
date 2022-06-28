@@ -59,3 +59,19 @@ def test_triangulate_some_faces(squares_2x2):
     assert mesh.number_of_faces() == 6
     triangulate_faces(mesh)
     assert mesh.number_of_faces() == 8
+
+
+def test_remesh_with_projection(simple_mesh):
+    mesh = Surface_mesh(simple_mesh.square_vertices, simple_mesh.square)
+    constraints, created = mesh.add_edge_property(
+        "e:is_constrained", dtype="b", value=False
+    )
+    assert created
+    constraints.set(True)
+    triangulate_faces(mesh)
+    split_long_edges(mesh, 0.1, edge_is_constrained_map=constraints)
+
+    def project(P):
+        return Point_3(P.x, P.y, P.x**2 - 1)
+
+    isotropic_remeshing(mesh, 0.1, projection_functor=project)

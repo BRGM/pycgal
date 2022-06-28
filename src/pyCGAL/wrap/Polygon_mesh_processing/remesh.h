@@ -16,15 +16,13 @@ namespace utils = pyCGAL::wrap::utils;
 namespace {
 
 template <typename PolygonMesh, typename FaceRange>
-void isotropic_remeshing(PolygonMesh& mesh, const double target_edge_length,
-                         py::object face_group, const int number_of_iterations,
-                         py::object edge_is_constrained_map,
-                         py::object constrained_edges,
-                         py::object vertex_is_constrained_map,
-                         py::object constrained_vertices,
-                         const bool protect_constraints,
-                         const bool relax_constraints,
-                         py::object face_patch_map, const bool do_project) {
+void isotropic_remeshing(
+    PolygonMesh& mesh, const double target_edge_length, py::object face_group,
+    const int number_of_iterations, py::object edge_is_constrained_map,
+    py::object constrained_edges, py::object vertex_is_constrained_map,
+    py::object constrained_vertices, const bool protect_constraints,
+    const bool relax_constraints, py::object face_patch_map,
+    const bool do_project, py::object projection_functor) {
   if (!CGAL::is_triangle_mesh(mesh))
     throw std::runtime_error("Only triangle meshes can be remeshed!");
 
@@ -49,6 +47,20 @@ void isotropic_remeshing(PolygonMesh& mesh, const double target_edge_length,
   auto face_patches_option = utils::create_optional_parameter(
       pns::face_patch_map<Face_label>, face_patches);
 
+  using Vertex_index = typename PolygonMesh::Vertex_index;
+  using Point = typename PolygonMesh::Point;
+  using Projector = std::function<Point(const Vertex_index)>;
+  std::optional<Projector> projector;
+  if (!projection_functor.is_none()) {
+    projector = [projection_functor, &mesh](const Vertex_index v) -> Point {
+      // we need to instantiate P to later cast it with gcc
+      py::object P = projection_functor(mesh.point(v));
+      return P.cast<Point>();
+    };
+  }
+  auto projection_functor_option = utils::create_optional_parameter(
+      pns::projection_functor<Projector>, projector);
+
   // WARNING: the correct handling of BGL Named_parameters needs all this burden
   //          the point is the underlying parameter type changes with each
   //          modification so that all_parameters is actually a variant
@@ -56,8 +68,9 @@ void isotropic_remeshing(PolygonMesh& mesh, const double target_edge_length,
       pns::number_of_iterations(number_of_iterations)
           .protect_constraints(protect_constraints)
           .relax_constraints(relax_constraints)
-          .do_project(do_project),
-      edge_constraints_option, vertex_constraints_option, face_patches_option);
+          .do_project(do_project || (!projection_functor.is_none())),
+      edge_constraints_option, vertex_constraints_option, face_patches_option,
+      projection_functor_option);
 
   std::visit(
       [&](auto&& np) {
@@ -133,7 +146,8 @@ void wrap_element(detail::remesh<PolygonMesh, EdgeRange, FaceRange>,
       py::arg("constrained_vertices") = py::none(),
       py::arg("protect_constraints") = false,
       py::arg("relax_constraints") = false,
-      py::arg("face_patch_map") = py::none(), py::arg("do_project") = false);
+      py::arg("face_patch_map") = py::none(), py::arg("do_project") = false,
+      py::arg("projection_functor") = py::none());
 
   module.def(
       "split_long_edges",
