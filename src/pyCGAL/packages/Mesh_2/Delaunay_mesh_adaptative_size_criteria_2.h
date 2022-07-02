@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pyCGAL/addons/Delaunay_mesh_adaptative_size_criteria_2.h>
+#include <pyCGAL/addons/Mesh_2/Delaunay_mesh_adaptative_size_criteria_2.h>
 
 #include "Constrained_Delaunay_triangulation_2.h"
 
