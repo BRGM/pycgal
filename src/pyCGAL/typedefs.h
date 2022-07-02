@@ -1,6 +1,8 @@
 #pragma once
 
 #include <pybind11/pybind11.h>
+
+#include "dependencies.h"
 namespace py = pybind11;
 
 namespace pyCGAL {
@@ -26,5 +28,14 @@ typename WrapTraits<Class>::py_class wrap_class(WrapTraits<Class>, py::module&);
 // A generic utility to wrap algorithms, enums...
 template <typename Wrapped>
 void wrap_element(Wrapped, py::module&);
+
+template <typename Class>
+void import_dependencies() {
+  std::istringstream dependencies{Dependencies<Class>::get()};
+  std::string dependency;
+  while (getline(dependencies, dependency, ';')) {
+    py::module_::import(dependency.c_str());
+  }
+}
 
 }  // namespace pyCGAL

@@ -40,6 +40,8 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   using Edge_range = typename Surface_mesh::Edge_range;
   using Face_range = typename Surface_mesh::Face_range;
 
+  import_dependencies<Surface_mesh>();
+
   wutils::wrap_index<Vertex_index, Surface_mesh_index>(module, "Vertex_index");
   wutils::wrap_index<Halfedge_index, Surface_mesh_index>(module,
                                                          "Halfedge_index");

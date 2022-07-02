@@ -2,8 +2,7 @@ import numpy as np
 
 import pytest
 
-# We need to import Point_3 to display them cf (*) below
-from pycgal.Epick import Point_3, Vector_3
+from pycgal.Epick import Vector_3
 from pycgal.Surface_mesh import Surface_mesh, Vertices
 
 
@@ -20,7 +19,6 @@ def test_meshes(simple_mesh):
         )
         print(f"Vertices:")
         for v in mesh.vertices():
-            # (*) pycgal.Epick.Point_3 i.e. Surface_mesh::Point must be available here
             print(f"{v} at {mesh.point(v)}")
         print(mesh.as_arrays())
         print(mesh.as_lists())

@@ -1,7 +1,4 @@
-import numpy as np
-
-# We need to import Point_3 to display them cf (*) below
-from pycgal.Epick import Point_3, Line_3, Ray_3
+from pycgal.Epick import Line_3, Point_3
 from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Surface_mesh import Tree
 
