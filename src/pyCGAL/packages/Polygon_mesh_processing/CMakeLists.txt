@@ -9,6 +9,7 @@ set(additional_elements
     helpers
     remesh
     repair
+    repair_polygon_soup
     split
     stitch_borders
     surface_intersection
