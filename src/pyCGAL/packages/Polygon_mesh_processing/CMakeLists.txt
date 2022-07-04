@@ -1,4 +1,4 @@
-set(module_classes)
+set(module_classes Polygon_soup)
 
 set(additional_elements
     border
