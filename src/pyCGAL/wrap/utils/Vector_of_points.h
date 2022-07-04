@@ -6,6 +6,7 @@
 
 #include "CGAL_FT.h"
 #include "Vector.h"
+#include "vector_to_ostream.h"
 
 namespace pyCGAL {
 
@@ -68,21 +69,8 @@ typename WrapTraits<std::vector<Point>>::py_class wrap_class(
 
   pyclass.def("__str__", [wrap](const Vector& self) {
     std::stringstream s;
-    s << wrap.name << "[";
-    auto n = self.size();
-    if (n <= 4) {
-      for (auto&& P : self) {
-        s << "(" << P << ")";
-        --n;
-        if (n != 0) s << ", ";
-      }
-    } else {
-      s << "(" << self[0] << "), ";
-      s << "(" << self[1] << "), ..., ";
-      s << "(" << self[n - 2] << "), ";
-      s << "(" << self[n - 1] << ")";
-    }
-    s << "]";
+    s << wrap.name;
+    wrap::utils::vector_to_ostream(self, s, "(", ", ", ")");
     return s.str();
   });
 
