@@ -1,0 +1,30 @@
+import numpy as np
+from pycgal.Surface_mesh import Surface_mesh
+from pycgal.Polygon_mesh_processing import Polygon_soup
+from pycgal.Polygon_mesh_processing import polygon_soup_to_polygon_mesh
+from pycgal.Polygon_mesh_processing import polygon_mesh_to_polygon_soup
+
+
+def test_polygon_soup_conversion():
+
+    soup = Polygon_soup()
+    soup.points.extend(
+        np.array(
+            [
+                (0, 0, 0),
+                (1, 0, 0),
+                (1, 1, 0),
+                (0, 1, 0),
+            ]
+        )
+    )
+    soup.polygons.extend([[0, 1, 2], [0, 2, 3]])
+    mesh = polygon_soup_to_polygon_mesh(soup)
+    print(
+        f"Result mesh has {mesh.number_of_vertices()} vertices and {mesh.number_of_faces()} faces."
+    )
+    assert soup.points.size() == mesh.number_of_vertices()
+    assert soup.polygons.size() == mesh.number_of_faces()
+    soup2 = polygon_mesh_to_polygon_soup(mesh)
+    print(soup2.points)
+    print(soup2.polygons)
