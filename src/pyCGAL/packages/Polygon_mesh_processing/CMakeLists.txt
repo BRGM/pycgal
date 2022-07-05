@@ -12,6 +12,7 @@ set(additional_elements
     remesh
     repair
     repair_polygon_soup
+    reverse_face_orientations
     split
     stitch_borders
     surface_intersection
