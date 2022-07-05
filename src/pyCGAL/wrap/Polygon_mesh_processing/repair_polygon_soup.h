@@ -1,10 +1,10 @@
 #pragma once
 
-// FIXME: this is to avoid a bug in the boost template declareation of deque
 #include <CGAL/Polygon_mesh_processing/repair_polygon_soup.h>
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/named_parameters.h>
 
+// FIXME: this is to avoid a bug in the boost template declareation of deque
 #include <deque>
 
 #include "detail/repair_polygon_soup.h"
