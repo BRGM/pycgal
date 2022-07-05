@@ -7,6 +7,7 @@ set(additional_elements
     corefine
     extrude_mesh
     helpers
+    orient_polygon_soup
     polygon_soup_conversions
     remesh
     repair
