@@ -53,6 +53,14 @@ void wrap_element(detail::global_kernel_functions<Kernel>, py::module& module) {
   add_squared_distance<Plane_3>(module);
   add_squared_distance<Point_3, Segment_3>(module);
   add_squared_distance<Point_3, Plane_3>(module);
+  module.def("midpoint", py::overload_cast<const Point_2&, const Point_2&>(
+                             &CGAL::midpoint<Kernel>));
+  module.def("midpoint", py::overload_cast<const Point_3&, const Point_3&>(
+                             &CGAL::midpoint<Kernel>));
+  module.def("midpoint",
+             py::overload_cast<const Segment_2&>(&CGAL::midpoint<Kernel>));
+  module.def("midpoint",
+             py::overload_cast<const Segment_3&>(&CGAL::midpoint<Kernel>));
 }
 
 }  // namespace pyCGAL
