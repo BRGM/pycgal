@@ -29,6 +29,7 @@ void add_squared_distance(py::module& module) {
 
 template <typename Kernel>
 void wrap_element(detail::global_kernel_functions<Kernel>, py::module& module) {
+  using FT = typename Kernel::FT;
   using Point_2 = CGAL::Point_2<Kernel>;
   using Segment_2 = CGAL::Segment_2<Kernel>;
   using Point_3 = CGAL::Point_3<Kernel>;
@@ -61,6 +62,36 @@ void wrap_element(detail::global_kernel_functions<Kernel>, py::module& module) {
              py::overload_cast<const Segment_2&>(&CGAL::midpoint<Kernel>));
   module.def("midpoint",
              py::overload_cast<const Segment_3&>(&CGAL::midpoint<Kernel>));
+  module.def("barycenter",
+             py::overload_cast<const Point_2&, const FT&, const Point_2&>(
+                 &CGAL::barycenter<Kernel>));
+  module.def(
+      "barycenter",
+      py::overload_cast<const Point_2&, const FT&, const Point_2&, const FT&>(
+          &CGAL::barycenter<Kernel>));
+  module.def(
+      "barycenter",
+      py::overload_cast<const Point_2&, const FT&, const Point_2&, const FT&,
+                        const Point_2&>(&CGAL::barycenter<Kernel>));
+  module.def(
+      "barycenter",
+      py::overload_cast<const Point_2&, const FT&, const Point_2&, const FT&,
+                        const Point_2&, const FT&>(&CGAL::barycenter<Kernel>));
+  module.def("barycenter",
+             py::overload_cast<const Point_3&, const FT&, const Point_3&>(
+                 &CGAL::barycenter<Kernel>));
+  module.def(
+      "barycenter",
+      py::overload_cast<const Point_3&, const FT&, const Point_3&, const FT&>(
+          &CGAL::barycenter<Kernel>));
+  module.def(
+      "barycenter",
+      py::overload_cast<const Point_3&, const FT&, const Point_3&, const FT&,
+                        const Point_3&>(&CGAL::barycenter<Kernel>));
+  module.def(
+      "barycenter",
+      py::overload_cast<const Point_3&, const FT&, const Point_3&, const FT&,
+                        const Point_3&, const FT&>(&CGAL::barycenter<Kernel>));
 }
 
 }  // namespace pyCGAL
