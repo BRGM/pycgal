@@ -70,3 +70,23 @@ def squares_2x2():
         ]
     )
     return MeshInfo(vertices, faces)
+
+
+@pytest.fixture
+def two_triangles():
+    vertices = np.array(
+        [
+            (-1, 0, 0),
+            (1, 0, 0),
+            (0, 1, 0),
+            (0, -1, 0),
+        ],
+        dtype=np.double,
+    )
+    faces = np.array(
+        [
+            [0, 1, 2],
+            [1, 0, 3],
+        ]
+    )
+    return MeshInfo(vertices, faces)
