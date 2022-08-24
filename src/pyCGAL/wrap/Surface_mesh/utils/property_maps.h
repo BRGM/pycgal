@@ -97,7 +97,9 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
           } else {
             throw std::runtime_error(
                 "Property map does not hold flags (i.e. boolean types).");
-            return false;
+            return false;  // visit() requires the result of all potential
+                           // invocations to have the same type and value
+                           // category
           }
         },
         map);
