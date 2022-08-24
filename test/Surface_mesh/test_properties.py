@@ -69,10 +69,18 @@ def test_properties(simple_mesh):
     print("One out of two:", list(one_of_two))
     flag.set(one_of_two, False)
     print(flag.copy_as_array())
+    flag.flip()
+    for e in edges:
+        if e in one_of_two:
+            assert flag.is_set(e)
+        else:
+            assert not flag.is_set(e)
     flag.set(True)
     assert np.all(flag.copy_as_array())
     flag.fill(False)
     assert not np.any(flag.copy_as_array())
+    flag.flip()
+    assert np.all(flag.copy_as_array())
     print("f:removed:", mesh.face_property("f:removed").copy_as_array())
     for k, f in enumerate(mesh.faces()):
         if k % 2 == 0:

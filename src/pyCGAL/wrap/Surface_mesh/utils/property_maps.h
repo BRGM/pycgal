@@ -169,6 +169,21 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         },
         map);
   }
+  void flip() {
+    return std::visit(
+        [](auto alternative) {
+          if constexpr (std::is_same_v<
+                            typename decltype(alternative)::value_type, bool>) {
+            // we must use forward reference with std::vector<bool>
+            for (auto&& b : alternative) {
+              b = !b;
+            }
+          } else {
+            throw std::runtime_error("Property map must hold boolean types.");
+          }
+        },
+        map);
+  }
   struct Buffer_visitor {
     template <typename T>
     py::buffer_info operator()(Property_map<T>& pmap) {
@@ -433,6 +448,7 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
   pyholder.def("set", py::overload_cast<py::list&, py::object&>(&holder::set));
   pyholder.def("set", &holder::fill);
   pyholder.def("fill", &holder::fill);
+  pyholder.def("flip", &holder::flip);
   pyholder.def_buffer(&holder::buffer_info);
   pyholder.def("__iter__", &holder::make_iterator);
   pyholder.def("copy_as_array", &holder::copy_as_array);
