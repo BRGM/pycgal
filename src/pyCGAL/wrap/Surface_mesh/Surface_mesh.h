@@ -171,6 +171,31 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
                 copy += other;
                 return copy;
               });
+  pyclass.def("add_vertex", py::overload_cast<>(&Surface_mesh::add_vertex));
+  pyclass.def("add_vertex",
+              py::overload_cast<const Point&>(&Surface_mesh::add_vertex));
+  pyclass.def("add_edge", py::overload_cast<>(&Surface_mesh::add_edge));
+  pyclass.def("add_edge", py::overload_cast<Vertex_index, Vertex_index>(
+                              &Surface_mesh::add_edge));
+  // we don't use py::overload_cast<> here because Surface_mesh::add_face
+  // also has a template overload (for vertices ranges)
+  pyclass.def("add_face", static_cast<Face_index (Surface_mesh::*)()>(
+                              &Surface_mesh::add_face));
+  pyclass.def("add_face", static_cast<Face_index (Surface_mesh::*)(
+                              Vertex_index, Vertex_index, Vertex_index)>(
+                              &Surface_mesh::add_face));
+  pyclass.def("add_face",
+              static_cast<Face_index (Surface_mesh::*)(
+                  Vertex_index, Vertex_index, Vertex_index, Vertex_index)>(
+                  &Surface_mesh::add_face));
+  pyclass.def("add_face", [](Surface_mesh& self, py::sequence vertices) {
+    std::vector<Vertex_index> tmp;
+    tmp.reserve(py::len(vertices));
+    for (auto&& v : vertices) {
+      tmp.emplace_back(v.cast<Vertex_index>());
+    }
+    return self.add_face(tmp);
+  });
   pyclass.def(
       "extend",
       [](Surface_mesh& self, wutils::Coordinates_array<Point>& vertices,
@@ -183,6 +208,7 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
       py::arg("vertices"), py::arg("all_faces"),
       py::arg("reverse_on_failure") = false,
       py::arg("throw_on_failure") = true);
+
   pyclass.def("centroid", &wutils::centroid<Surface_mesh>);
   pyclass.def("centroids", &wutils::centroids<Surface_mesh>);
   pyclass.def("as_arrays", &wutils::as_arrays<Surface_mesh>,

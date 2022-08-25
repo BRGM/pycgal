@@ -2,7 +2,7 @@ import numpy as np
 
 import pytest
 
-from pycgal.Epick import Vector_3
+from pycgal.Epick import Point_3, Vector_3
 from pycgal.Surface_mesh import Surface_mesh, Vertices
 
 
@@ -94,3 +94,18 @@ def test_access_points(squares_2x2):
     assert points.shape == (9, 3)
     points = mesh.points(list(mesh.vertices()))
     assert points.shape == (9, 3)
+
+
+def test_simple_square():
+    add_corners = lambda mesh: [
+        mesh.add_vertex(Point_3(x, y, 0)) for x, y in ((0, 0), (0, 1), (1, 1), (0, 1))
+    ]
+    mesh = Surface_mesh()
+    corners = add_corners(mesh)
+    mesh.add_face(corners)
+    mesh = Surface_mesh()
+    corners = add_corners(mesh)
+    mesh.add_face(*corners)
+    mesh = Surface_mesh()
+    corners = add_corners(mesh)
+    mesh.add_face(*corners[:3])
