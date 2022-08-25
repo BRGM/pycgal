@@ -121,6 +121,56 @@ def test_properties(simple_mesh):
     assert message[:n] == retrieved[:n]
 
 
+def test_logical_properties(simple_mesh):
+    mesh = Surface_mesh(
+        simple_mesh.all_vertices, [simple_mesh.square, simple_mesh.triangles]
+    )
+    ne = mesh.number_of_edges()
+
+    def generate_edge_selection():
+        selection = np.unique(np.random.randint(0, ne, ne // 2))
+        some_edges = []
+        for k, e in enumerate(mesh.edges()):
+            if k in selection:
+                some_edges.append(e)
+        return selection, some_edges
+
+    f1, created = mesh.add_edge_property("e:f1", dtype="b", value=True)
+    assert np.all(f1.copy_as_array())
+    assert created
+    f2, created = mesh.add_edge_property("e:f2", dtype="b")
+    assert created
+    assert not np.any(f2.copy_as_array())
+    ne = mesh.number_of_edges()
+    selection, some_edges = generate_edge_selection()
+    f2.set(some_edges, True)
+    check2 = np.zeros(ne, dtype="b")
+    check2[selection] = True
+    assert np.all(f2.copy_as_array() == check2)
+    f2.flip()
+    assert np.all(f2.copy_as_array() == np.logical_not(check2))
+    selection, some_edges = generate_edge_selection()
+
+    def reset_f1():
+        f1.set(True)
+        f1.set(some_edges, False)
+
+    reset_f1()
+    check1 = np.ones(ne, dtype="b")
+    check1[selection] = False
+    assert np.all(f1.copy_as_array() == check1)
+    f2.flip()
+    assert np.all(f2.copy_as_array() == check2)
+    f1.logical_or(f2)
+    assert np.all(f1.copy_as_array() == np.logical_or(check1, check2))
+    reset_f1()
+    f1.logical_and(f2)
+    assert np.all(f1.copy_as_array() == np.logical_and(check1, check2))
+    reset_f1()
+    f1.logical_xor(f2)
+    assert np.all(f1.copy_as_array() == np.logical_xor(check1, check2))
+
+
 def test_property_selection(simple_mesh):
     mesh = Surface_mesh(
         simple_mesh.all_vertices, [simple_mesh.square, simple_mesh.triangles]

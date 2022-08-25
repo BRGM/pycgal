@@ -64,6 +64,7 @@ struct Pmap_holder;
 template <typename Surface_mesh, typename Index, typename... Ts>
 struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   using property_alternatives = std::tuple<Ts...>;
+  using Holder = Pmap_holder<Surface_mesh, Index, property_alternatives>;
   // static constexpr std::size_t
   //    alternative_size[std::tuple_size_v<property_alternatives>] =
   //    {sizeof(Ts)...};
@@ -168,6 +169,69 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
           std::fill(alternative.begin(), alternative.end(), v);
         },
         map);
+  }
+  void logical_or(const Holder& holder) {
+    return std::visit(
+        [](auto self, auto other) {
+          if constexpr (std::is_same_v<typename decltype(self)::value_type,
+                                       bool> &&
+                        std::is_same_v<typename decltype(other)::value_type,
+                                       bool>) {
+            auto p = other.begin();
+            // we must use forward reference with std::vector<bool>
+            for (auto&& b : self) {
+              assert(p != other.end());
+              b = b || *p;  // *p is not a reference to a bit
+              ++p;
+            }
+            assert(p == other.end());
+          } else {
+            throw std::runtime_error("Property maps must hold boolean types.");
+          }
+        },
+        map, holder.map);
+  }
+  void logical_and(const Holder& holder) {
+    return std::visit(
+        [](auto self, auto other) {
+          if constexpr (std::is_same_v<typename decltype(self)::value_type,
+                                       bool> &&
+                        std::is_same_v<typename decltype(other)::value_type,
+                                       bool>) {
+            auto p = other.begin();
+            // we must use forward reference with std::vector<bool>
+            for (auto&& b : self) {
+              assert(p != other.end());
+              b = b && *p;  // *p is not a reference to a bit
+              ++p;
+            }
+            assert(p == other.end());
+          } else {
+            throw std::runtime_error("Property maps must hold boolean types.");
+          }
+        },
+        map, holder.map);
+  }
+  void logical_xor(const Holder& holder) {
+    return std::visit(
+        [](auto self, auto other) {
+          if constexpr (std::is_same_v<typename decltype(self)::value_type,
+                                       bool> &&
+                        std::is_same_v<typename decltype(other)::value_type,
+                                       bool>) {
+            auto p = other.begin();
+            // we must use forward reference with std::vector<bool>
+            for (auto&& b : self) {
+              assert(p != other.end());
+              b = (b != *p);  // *p is not a reference to a bit
+              ++p;
+            }
+            assert(p == other.end());
+          } else {
+            throw std::runtime_error("Property maps must hold boolean types.");
+          }
+        },
+        map, holder.map);
   }
   void flip() {
     return std::visit(
@@ -448,6 +512,9 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
   pyholder.def("set", py::overload_cast<py::list&, py::object&>(&holder::set));
   pyholder.def("set", &holder::fill);
   pyholder.def("fill", &holder::fill);
+  pyholder.def("logical_or", &holder::logical_or);
+  pyholder.def("logical_and", &holder::logical_and);
+  pyholder.def("logical_xor", &holder::logical_xor);
   pyholder.def("flip", &holder::flip);
   pyholder.def_buffer(&holder::buffer_info);
   pyholder.def("__iter__", &holder::make_iterator);
