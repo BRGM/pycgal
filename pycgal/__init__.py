@@ -1,2 +1,8 @@
-# kept for backward compatibility reasons
-from .version import version as __version__
+import verstr
+
+try:
+    from . import _version
+
+    __version__ = verstr.verstr(_version.version)
+except ImportError:
+    __version__ = None
