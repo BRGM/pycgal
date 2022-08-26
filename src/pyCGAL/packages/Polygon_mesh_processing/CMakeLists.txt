@@ -14,6 +14,7 @@ set(additional_elements
     repair_polygon_soup
     reverse_face_orientations
     split
+    smooth_shape
     stitch_borders
     surface_intersection
     triangulate_faces
@@ -22,3 +23,5 @@ set(additional_elements
 pycgal_add_core_module(
   Polygon_mesh_processing module_classes additional_elements
 )
+
+target_link_libraries(Polygon_mesh_processing PUBLIC CGAL::Eigen3_support)

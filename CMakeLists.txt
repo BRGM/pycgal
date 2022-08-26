@@ -68,6 +68,9 @@ if(NOT pybind11_FOUND) # else fetch it from github
   FetchContent_MakeAvailable(pybind11)
 endif()
 
+find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
+include(CGAL_Eigen3_support)
+
 include(cmake/ship_library.cmake)
 
 option(PYCGAL_SHIPS_GMP_AND_MPFR OFF)
