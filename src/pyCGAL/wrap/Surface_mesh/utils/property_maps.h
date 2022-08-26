@@ -313,7 +313,7 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         },
         map);
   }
-};
+};  // namespace detail
 
 // Compiler error with MSVC 2019
 // template <typename T, typename Holder>
