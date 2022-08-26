@@ -6,6 +6,7 @@
 #include <CGAL/Kernel/global_functions_3.h>
 #include <CGAL/Polygon_mesh_processing/remesh.h>
 #include <pyCGAL/typedefs.h>
+#include <pyCGAL/wrap/utils/container_proxy.h>
 #include <pyCGAL/wrap/utils/named_parameters.h>
 
 #include "detail/remesh.h"
@@ -19,7 +20,7 @@ namespace utils = pyCGAL::wrap::utils;
 
 namespace {
 
-template <typename PolygonMesh, typename FaceRange>
+template <typename PolygonMesh>
 void isotropic_remeshing(
     PolygonMesh& mesh, const double target_edge_length, py::object face_group,
     const int number_of_iterations, py::object edge_is_constrained_map,
@@ -29,9 +30,6 @@ void isotropic_remeshing(
     const bool do_project, py::object projection_functor) {
   if (!CGAL::is_triangle_mesh(mesh))
     throw std::runtime_error("Only triangle meshes can be remeshed!");
-
-  const FaceRange face_range =
-      face_group.is_none() ? faces(mesh) : face_group.cast<const FaceRange&>();
 
   namespace pns = CGAL::Polygon_mesh_processing::parameters;
 
@@ -76,12 +74,22 @@ void isotropic_remeshing(
       edge_constraints_option, vertex_constraints_option, face_patches_option,
       projection_functor_option);
 
-  std::visit(
-      [&](auto&& np) {
-        CGAL::Polygon_mesh_processing::isotropic_remeshing(
-            face_range, target_edge_length, mesh, np);
-      },
-      all_parameters);
+  if (face_group.is_none()) {
+    std::visit(
+        [&](auto&& np) {
+          CGAL::Polygon_mesh_processing::isotropic_remeshing(
+              faces(mesh), target_edge_length, mesh, np);
+        },
+        all_parameters);
+  } else {
+    auto group = utils::container_proxy<Face_index>(face_group);
+    std::visit(
+        [&](auto&& np) {
+          CGAL::Polygon_mesh_processing::isotropic_remeshing(
+              group.as_range(), target_edge_length, mesh, np);
+        },
+        all_parameters);
+  }
 
   if (!constrained_edges.is_none()) {
     assert(edge_constraints);
@@ -93,10 +101,9 @@ void isotropic_remeshing(
   }
 }
 
-template <typename PolygonMesh, typename EdgeRange>
+template <typename PolygonMesh>
 void split_long_edges(PolygonMesh& mesh, const double max_length,
-                      const EdgeRange& edge_range,
-                      py::object edge_is_constrained_map,
+                      py::object edge_group, py::object edge_is_constrained_map,
                       py::object constrained_edges, py::object face_patch_map) {
   if (!CGAL::is_triangle_mesh(mesh))
     throw std::runtime_error("Only triangle meshes are handled!");
@@ -121,12 +128,23 @@ void split_long_edges(PolygonMesh& mesh, const double max_length,
   auto all_parameters =
       utils::concatenate_options(edge_constraints_option, face_patches_option);
 
-  std::visit(
-      [&](auto&& np) {
-        CGAL::Polygon_mesh_processing::split_long_edges(edge_range, max_length,
-                                                        mesh, np);
-      },
-      all_parameters);
+  if (edge_group.is_none()) {
+    std::visit(
+        [&](auto&& np) {
+          CGAL::Polygon_mesh_processing::split_long_edges(edges(mesh),
+                                                          max_length, mesh, np);
+        },
+        all_parameters);
+  } else {
+    using Edge_index = typename PolygonMesh::Edge_index;
+    auto group = utils::container_proxy<Edge_index>(edge_group);
+    std::visit(
+        [&](auto&& np) {
+          CGAL::Polygon_mesh_processing::split_long_edges(group.as_range(),
+                                                          max_length, mesh, np);
+        },
+        all_parameters);
+  }
 
   if (!constrained_edges.is_none()) {
     assert(edge_constraints);
@@ -136,11 +154,10 @@ void split_long_edges(PolygonMesh& mesh, const double max_length,
 
 }  // namespace
 
-template <typename PolygonMesh, typename EdgeRange, typename FaceRange>
-void wrap_element(detail::remesh<PolygonMesh, EdgeRange, FaceRange>,
-                  py::module& module) {
+template <typename PolygonMesh>
+void wrap_element(detail::remesh<PolygonMesh>, py::module& module) {
   module.def(
-      "isotropic_remeshing", &isotropic_remeshing<PolygonMesh, FaceRange>,
+      "isotropic_remeshing", &isotropic_remeshing<PolygonMesh>,
       py::arg("mesh").none(false), py::arg("target_edge_length").none(false),
       py::arg("face_group") = py::none(), py::kw_only(),
       py::arg("number_of_iterations") = static_cast<unsigned int>(1),
@@ -153,30 +170,12 @@ void wrap_element(detail::remesh<PolygonMesh, EdgeRange, FaceRange>,
       py::arg("face_patch_map") = py::none(), py::arg("do_project") = false,
       py::arg("projection_functor") = py::none());
 
-  module.def(
-      "split_long_edges",
-      [](PolygonMesh& self, const double max_length, py::object edge_group,
-         py::object edge_is_constrained_map, py::object constrained_edges,
-         py::object face_patch_map) {
-        if (edge_group.is_none()) {
-          split_long_edges(self, max_length, edges(self),
-                           edge_is_constrained_map, constrained_edges,
-                           face_patch_map);
-        } else {
-          using Edge_index = typename PolygonMesh::Edge_index;
-          auto& v =
-              edge_group.cast<std::vector<Edge_index>&>();  // may throw
-                                                            // py::cast_error
-          split_long_edges(self, max_length, CGAL::make_range(begin(v), end(v)),
-                           edge_is_constrained_map, constrained_edges,
-                           face_patch_map);
-        }
-      },
-      py::arg("mesh").none(false), py::arg("max_length").none(false),
-      py::arg("edge_group") = py::none(), py::kw_only(),
-      py::arg("edge_is_constrained_map") = py::none(),
-      py::arg("constrained_edges") = py::none(),
-      py::arg("face_patch_map") = py::none());
+  module.def("split_long_edges", &split_long_edges<PolygonMesh>,
+             py::arg("mesh").none(false), py::arg("max_length").none(false),
+             py::arg("edge_group") = py::none(), py::kw_only(),
+             py::arg("edge_is_constrained_map") = py::none(),
+             py::arg("constrained_edges") = py::none(),
+             py::arg("face_patch_map") = py::none());
 }
 
 }  // namespace pyCGAL

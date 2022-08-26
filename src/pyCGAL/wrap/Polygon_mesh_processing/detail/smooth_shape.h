@@ -2,8 +2,7 @@
 
 namespace pyCGAL::wrap::Polygon_mesh_processing::detail {
 
-template <typename PolygonMesh,
-          typename FaceRange = typename PolygonMesh::Face_range>
+template <typename PolygonMesh>
 struct smooth_shape {};
 
 }  // namespace pyCGAL::wrap::Polygon_mesh_processing::detail
