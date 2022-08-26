@@ -161,6 +161,29 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         },
         map);
   }
+  void set(const Holder& where, py::object& value) {
+    std::visit(
+        [&value](auto self, auto mask) {
+          using value_type = typename decltype(self)::value_type;
+          if constexpr (std::is_same_v<value_type, bool>) {
+            throw std::runtime_error(
+                "Use logical operators to set boolean maps.");
+          }
+          if constexpr (!std::is_same_v<typename decltype(mask)::value_type,
+                                        bool>) {
+            throw std::runtime_error(
+                "Location must be given as a boolean property.");
+          }
+          const auto v = value.cast<value_type>();
+          auto p = self.begin();
+          for (auto&& ok : mask) {
+            if (ok) (*p) = v;
+            ++p;
+          }
+          assert(p == self.end());
+        },
+        map, where.map);
+  }
   void fill(py::object& value) {
     std::visit(
         [&value](auto alternative) {
@@ -510,6 +533,8 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
   pyholder.def("set",
                py::overload_cast<py::list&, py::iterable&>(&holder::set));
   pyholder.def("set", py::overload_cast<py::list&, py::object&>(&holder::set));
+  pyholder.def("set",
+               py::overload_cast<const holder&, py::object&>(&holder::set));
   pyholder.def("set", &holder::fill);
   pyholder.def("fill", &holder::fill);
   pyholder.def("logical_or", &holder::logical_or);
