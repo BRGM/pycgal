@@ -26,7 +26,9 @@ void isotropic_remeshing(
     const int number_of_iterations, py::object edge_is_constrained_map,
     py::object constrained_edges, py::object vertex_is_constrained_map,
     py::object constrained_vertices, const bool protect_constraints,
-    const bool relax_constraints, py::object face_patch_map,
+    const bool collapse_constraints, const bool do_split,
+    const bool do_collapse, const bool do_flip, py::object face_patch_map,
+    const int number_of_relaxation_steps, const bool relax_constraints,
     const bool do_project, py::object projection_functor) {
   if (!CGAL::is_triangle_mesh(mesh))
     throw std::runtime_error("Only triangle meshes can be remeshed!");
@@ -69,6 +71,11 @@ void isotropic_remeshing(
   auto all_parameters = utils::concatenate(
       pns::number_of_iterations(number_of_iterations)
           .protect_constraints(protect_constraints)
+          .collapse_constraints(collapse_constraints)
+          .do_split(do_split)
+          .do_collapse(do_collapse)
+          .do_flip(do_flip)
+          .number_of_relaxation_steps(number_of_relaxation_steps)
           .relax_constraints(relax_constraints)
           .do_project(do_project || (!projection_functor.is_none())),
       edge_constraints_option, vertex_constraints_option, face_patches_option,
@@ -160,14 +167,17 @@ void wrap_element(detail::remesh<PolygonMesh>, py::module& module) {
       "isotropic_remeshing", &isotropic_remeshing<PolygonMesh>,
       py::arg("mesh").none(false), py::arg("target_edge_length").none(false),
       py::arg("face_group") = py::none(), py::kw_only(),
-      py::arg("number_of_iterations") = static_cast<unsigned int>(1),
+      py::arg("number_of_iterations") = static_cast<int>(1),
       py::arg("edge_is_constrained_map") = py::none(),
       py::arg("constrained_edges") = py::none(),
       py::arg("vertex_is_constrained_map") = py::none(),
       py::arg("constrained_vertices") = py::none(),
       py::arg("protect_constraints") = false,
-      py::arg("relax_constraints") = false,
-      py::arg("face_patch_map") = py::none(), py::arg("do_project") = false,
+      py::arg("collapse_constraints") = true, py::arg("do_split") = true,
+      py::arg("do_collapse") = true, py::arg("do_flip") = true,
+      py::arg("face_patch_map") = py::none(),
+      py::arg("number_of_relaxation_steps") = static_cast<int>(1),
+      py::arg("relax_constraints") = false, py::arg("do_project") = false,
       py::arg("projection_functor") = py::none());
 
   module.def("split_long_edges", &split_long_edges<PolygonMesh>,
