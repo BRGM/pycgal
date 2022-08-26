@@ -13,6 +13,13 @@ namespace utils = pyCGAL::wrap::utils;
 
 template <typename PolygonMesh>
 void wrap_element(detail::triangulate_faces<PolygonMesh>, py::module& module) {
+  using Face_index = typename PolygonMesh::Face_index;
+  module.def(
+      "triangulate_face",
+      [](Face_index face_descriptor, PolygonMesh& mesh) {
+        CGAL::Polygon_mesh_processing::triangulate_face(face_descriptor, mesh);
+      },
+      py::arg("mesh").none(false), py::arg("face_descriptor").none(false));
   module.def(
       "triangulate_faces",
       [](PolygonMesh& mesh, py::object face_group) {
