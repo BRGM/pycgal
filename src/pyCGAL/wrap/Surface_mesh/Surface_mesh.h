@@ -1,5 +1,7 @@
 #pragma once
 
+#include <CGAL/IO/GOCAD.h>
+#include <CGAL/IO/STL.h>
 #include <CGAL/Surface_mesh.h>
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/wrap_index.h>
@@ -348,6 +350,21 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
     wutils::read_off(*p, filename);
     return p;
   });
+  pyclass.def(
+      "write_GOCAD",
+      [](const Surface_mesh& self, const std::string& filename,
+         const bool verbose) {
+        CGAL::IO::write_GOCAD(filename, self,
+                              CGAL::parameters::verbose(verbose));
+      },
+      py::arg("filename").none(false), py::arg("verbose") = false);
+  pyclass.def(
+      "write_STL",
+      [](const Surface_mesh& self, const std::string& filename,
+         const bool verbose) {
+        CGAL::IO::write_STL(filename, self, CGAL::parameters::verbose(verbose));
+      },
+      py::arg("filename").none(false), py::arg("verbose") = false);
 
   auto process_mesh_output =
       [](Surface_mesh* pmesh, wutils::Extension_data<Surface_mesh> data,
