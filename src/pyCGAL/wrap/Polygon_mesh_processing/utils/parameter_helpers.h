@@ -26,22 +26,35 @@ auto optional_flag_map(PolygonMesh& mesh, py::object map, py::object indices) {
 
   if (!map.is_none()) {
     flags = utils::convert_to_property_flag<Index>(map, mesh);
+    return flags;
   }
 
-  if (!indices.is_none()) {
-    auto [is_set, created] = mesh.template add_property_map<Index, bool>();
-    assert(created);
+  if (indices.is_none()) {
+    assert(!flags);
+    return flags;
+  }
+
+  auto [is_set, created] = mesh.template add_property_map<Index, bool>();
+  assert(created);
+  assert(std::none_of(is_set.begin(), is_set.end(),
+                      [](auto&& v) { return v; }));  // C++20: use std::identity
+
+  try {
+    assert(!flags);
+    auto p = indices.cast<std::vector<Index>*>();
+    for (auto&& i : *p) {
+      is_set[i] = true;
+    }
+    flags = is_set;
+  } catch (py::cast_error) {
+  }
+
+  if (!flags) {
     assert(std::none_of(is_set.begin(), is_set.end(), [](auto&& v) {
       return v;
     }));  // C++20: use std::identity
-    if (auto p = indices.cast<std::vector<Index>*>()) {
-      for (auto&& i : *p) {
-        is_set[i] = true;
-      }
-    } else {
-      for (auto&& i : indices) {
-        is_set[i.cast<Index>()] = true;
-      }
+    for (auto&& i : indices) {
+      is_set[i.cast<Index>()] = true;
     }
     flags = is_set;
   }
