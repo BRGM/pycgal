@@ -200,3 +200,18 @@ def test_property_selection(simple_mesh):
     print("Selection")
     for e in selection:
         print(mesh.vertex(e, 0), "<->", mesh.vertex(e, 1))
+
+
+def test_properties_copy(triangle):
+
+    mesh = Surface_mesh(triangle.vertices, triangle.faces)
+    p, created = mesh.add_face_property("f:p", dtype="i", value=0)
+    assert created
+    mesh2 = Surface_mesh(mesh)
+    p2 = mesh2.face_property("f:p")
+    faces = mesh.faces()
+    assert len(faces) == 1
+    f0 = list(faces)[0]
+    assert p[f0] == p2[f0]
+    p[f0] = 1
+    assert p[f0] != p2[f0]
