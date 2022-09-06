@@ -19,4 +19,4 @@ def test_corefine(simple_mesh):
         + f"TM2 with {tm2.number_of_vertices()} vertices and {tm2.number_of_faces()} faces"
     )
     assert tm1.number_of_faces() == 2
-    assert tm1.number_of_faces() == 2
+    assert tm2.number_of_faces() == 2
