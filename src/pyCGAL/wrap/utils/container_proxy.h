@@ -8,7 +8,7 @@ namespace py = pybind11;
 
 namespace pyCGAL::wrap::utils {
 
-namespace {
+namespace detail {
 template <typename T>
 struct Container_proxy {
   // we keep a (shallow) copy of the source object to prevent garbage collection
@@ -53,11 +53,11 @@ struct Container_proxy {
   }
 };
 
-}  // namespace
+}  // namespace detail
 
 template <typename T>
-auto container_proxy(py::object& source) {
-  return Container_proxy<T>{source};
+detail::Container_proxy<T> container_proxy(py::object& source) {
+  return detail::Container_proxy<T>{source};
 }
 
 }  // namespace pyCGAL::wrap::utils
