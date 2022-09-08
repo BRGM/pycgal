@@ -50,8 +50,20 @@ void wrap_index_range(py::module& module, const std::string& name) {
       .def(
           "__iter__", [](IRange& self) { return iterator{self}; },
           py::keep_alive<0, 1>())
-      .def("__len__", [](const IRange& self) {
-        return std::distance(begin(self), end(self));
+      .def("__len__",
+           [](const IRange& self) {
+             return std::distance(begin(self), end(self));
+           })
+      .def("as_array", [](IRange& self) {
+        using idx_t = decltype(begin(self)->idx());
+        const py::ssize_t n = std::distance(begin(self), end(self));
+        auto a = py::array_t<idx_t, py::array::c_style>{n};
+        auto p = a.mutable_data(0);
+        for (auto&& i : self) {
+          (*p) = i.idx();
+          ++p;
+        }
+        return a;
       });
 
   py::class_<iterator>(module, (name + std::string{"_iterator"}).c_str())
