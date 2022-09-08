@@ -5,7 +5,6 @@
 #include <CGAL/Surface_mesh.h>
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/wrap_index.h>
-#include <pyCGAL/wrap/utils/wrap_range.h>
 #include <pyCGAL/wrap/utils/wrap_stl_container.h>
 
 #include <memory>
@@ -23,6 +22,43 @@ auto index_vector_from_range(Range_type& range)
   v->insert(v->end(), begin(range), end(range));
   return v;
 }
+
+// py::make_iterator fails when building list from iterator
+// __next__ must return a value (py::object) not a reference to a py::object
+template <typename IRange>
+struct Index_range_iterator {
+  using iterator = typename IRange::iterator;
+  using value_type = typename iterator::value_type;
+  IRange range;
+  iterator state;
+  Index_range_iterator(IRange r) : range{r}, state{begin(r)} {}
+  auto __iter__() {
+    state = begin(range);
+    return *this;
+  }
+  value_type __next__() {
+    if (state == end(range)) throw py::stop_iteration{};
+    return *(state++);
+  }
+};
+
+template <typename IRange>
+void wrap_index_range(py::module& module, const std::string& name) {
+  using iterator = Index_range_iterator<IRange>;
+
+  py::class_<IRange>(module, name.c_str())
+      .def(
+          "__iter__", [](IRange& self) { return iterator{self}; },
+          py::keep_alive<0, 1>())
+      .def("__len__", [](const IRange& self) {
+        return std::distance(begin(self), end(self));
+      });
+
+  py::class_<iterator>(module, (name + std::string{"_iterator"}).c_str())
+      .def("__iter__", &iterator::__iter__)
+      .def("__next__", &iterator::__next__);
+}
+
 }  // namespace detail
 
 template <typename Point>
@@ -49,11 +85,6 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
                                                          "Halfedge_index");
   wutils::wrap_index<Edge_index, Surface_mesh_index>(module, "Edge_index");
   wutils::wrap_index<Face_index, Surface_mesh_index>(module, "Face_index");
-
-  wutils::wrap_range<Vertex_range>(module, "Vertex_range");
-  wutils::wrap_range<Halfedge_range>(module, "Halfedge_range");
-  wutils::wrap_range<Edge_range>(module, "Edge_range");
-  wutils::wrap_range<Face_range>(module, "Face_range");
 
   // We deactivate buffer interface to prevent mixing indices with constructors
   auto Vertices_class =
@@ -126,10 +157,17 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("number_of_faces", &Surface_mesh::number_of_faces);
   pyclass.def("is_empty", &Surface_mesh::is_empty);
   pyclass.def("join", &Surface_mesh::join);
-  pyclass.def("vertices", &Surface_mesh::vertices);
-  pyclass.def("halfedges", &Surface_mesh::halfedges);
-  pyclass.def("edges", &Surface_mesh::edges);
-  pyclass.def("faces", &Surface_mesh::faces);
+
+  detail::wrap_index_range<Vertex_range>(module, "Surface_mesh_Vertex_range");
+  detail::wrap_index_range<Halfedge_range>(module,
+                                           "Surface_mesh_Halfedge_range");
+  detail::wrap_index_range<Edge_range>(module, "Surface_mesh_Edge_range");
+  detail::wrap_index_range<Face_range>(module, "Surface_mesh_Face_range");
+  pyclass.def("vertices", &Surface_mesh::vertices, py::keep_alive<0, 1>());
+  pyclass.def("halfedges", &Surface_mesh::halfedges, py::keep_alive<0, 1>());
+  pyclass.def("edges", &Surface_mesh::edges, py::keep_alive<0, 1>());
+  pyclass.def("faces", &Surface_mesh::faces, py::keep_alive<0, 1>());
+
   pyclass.def("point", py::overload_cast<Vertex_index>(&Surface_mesh::point,
                                                        py::const_));
   pyclass.def("points", [](const Surface_mesh& self,

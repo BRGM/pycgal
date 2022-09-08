@@ -81,6 +81,14 @@ auto wrap_stl_vector(py::module& module, const std::string& name,
   if (with_buffer_interface) pyclass.def_buffer(buffer_info);
 
   pyclass.def(py::init<>());
+  pyclass.def(py::init([](py::iterator it) {
+    auto self = std::make_unique<Vector>();
+    while (it != py::iterator::sentinel()) {
+      self->push_back(it->cast<value_type>());
+      ++it;
+    }
+    return self;
+  }));
   if constexpr (std::is_same_v<value_type, cast_type>) {
     pyclass.def(py::init(create_from_array));
     pyclass.def(py::init(create_from_iterable));
