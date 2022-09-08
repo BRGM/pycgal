@@ -1,3 +1,4 @@
+name: pycgal
 channels:
   - conda-forge
   - nodefaults
@@ -5,12 +6,13 @@ dependencies:
   - boost
   - cmake
   - cxx-compiler
+  - eigen
   - gmp
   - mpfr
   - ninja
   - numpy
   - pip
+  - pybind11
   - python=3.9
-  - pip:
-    - scikit-build
-    - setuptools-scm
+  - scikit-build
+  - setuptools-scm
