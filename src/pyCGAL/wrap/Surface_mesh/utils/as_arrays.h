@@ -166,6 +166,91 @@ auto collect_vertices_list(const Surface_mesh& mesh) {
   return vertices;
 }
 
+template <typename Index, typename Surface_mesh>
+auto number_of_valid_indices(const Surface_mesh& mesh) ->
+    typename Surface_mesh::size_type {
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Vertex_index>) {
+    return mesh.number_of_vertices();
+  }
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Halfedge_index>) {
+    return mesh.number_of_halfedges();
+  }
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Edge_index>) {
+    return mesh.number_of_edges();
+  }
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Face_index>) {
+    return mesh.number_of_faces();
+  }
+  assert(false);
+  return 0;
+}
+
+template <typename Index, typename Surface_mesh>
+auto valid_indices(const Surface_mesh& mesh) {
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Vertex_index>) {
+    return mesh.vertices();
+  }
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Halfedge_index>) {
+    return mesh.halfedges();
+  }
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Edge_index>) {
+    return mesh.edges();
+  }
+  if constexpr (std::is_same_v<Index, typename Surface_mesh::Face_index>) {
+    return mesh.faces();
+  }
+  assert(false);
+}
+
+template <typename... Ts>
+struct Collect_property;
+
+template <typename T, typename... Ts>
+struct Collect_property<T, Ts...> {
+  template <typename Index, typename Surface_mesh>
+  static py::object search(const Surface_mesh& mesh, const std::string& name) {
+    auto [map, exists] = mesh.template property_map<Index, T>(name);
+    if (!exists)
+      return Collect_property<Ts...>::template search<Index>(mesh, name);
+    const py::ssize_t n = number_of_valid_indices<Index>(mesh);
+    auto a = py::array_t<T, py::array::c_style>{n};
+    auto p = a.mutable_data(0);
+    for (auto&& i : valid_indices<Index>(mesh)) {
+      *p = map[i];
+      ++p;
+    }
+    return a;
+  }
+};
+
+template <>
+struct Collect_property<> {
+  template <typename Index, typename Surface_mesh>
+  static py::object search(const Surface_mesh& mesh, const std::string& name) {
+    return py::none{};
+  }
+};
+
+template <typename... Ts>
+struct Collect_property<std::tuple<Ts...>> {
+  template <typename Index, typename Surface_mesh>
+  static py::object search(const Surface_mesh& mesh, const std::string& name) {
+    return Collect_property<Ts...>::template search<Index>(mesh, name);
+  }
+};
+
+template <typename Index, typename Surface_mesh>
+py::dict collect_properties(const Surface_mesh& mesh) {
+  py::dict result;
+  for (auto&& name : mesh.template properties<Index>()) {
+    auto pmap =
+        Collect_property<pyCGAL::available_property_types>::search<Index>(mesh,
+                                                                          name);
+    if (!pmap.is_none()) result[py::str{name}] = pmap;
+  }
+  return result;
+}
+
 template <typename Surface_mesh>
 auto collect_faces_list(const Surface_mesh& mesh) {
   using Vertex_index = typename Surface_mesh::Vertex_index;
@@ -178,12 +263,22 @@ auto collect_faces_list(const Surface_mesh& mesh) {
     }
     faces.append(cell);
   }
+
   return faces;
 }
 
 template <typename Surface_mesh>
-auto as_lists(const Surface_mesh& mesh) -> py::tuple {
-  return py::make_tuple(collect_vertices_list(mesh), collect_faces_list(mesh));
+auto as_lists(const Surface_mesh& mesh, const bool return_vertices_properties,
+              const bool return_faces_properties) -> py::list {
+  py::list result;
+  result.append(collect_vertices_list(mesh));
+  result.append(collect_faces_list(mesh));
+  if (return_vertices_properties)
+    result.append(
+        collect_properties<typename Surface_mesh::Vertex_index>(mesh));
+  if (return_faces_properties)
+    result.append(collect_properties<typename Surface_mesh::Face_index>(mesh));
+  return result;
 }
 
 }  // namespace pyCGAL::wrap::utils

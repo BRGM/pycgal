@@ -269,7 +269,17 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("as_arrays", &wutils::as_arrays<Surface_mesh>,
               py::arg("return_index") = false,
               py::arg("throw_on_breaking_order") = false);
-  pyclass.def("as_lists", &wutils::as_lists<Surface_mesh>);
+  pyclass.def("as_lists", &wutils::as_lists<Surface_mesh>,
+              py::arg("return_vertices_properties") = false,
+              py::arg("return_faces_properties") = false);
+  pyclass.def("collect_vertices_properties",
+              &wutils::collect_properties<Vertex_index, Surface_mesh>);
+  pyclass.def("collect_halfedges_properties",
+              &wutils::collect_properties<Halfedge_index, Surface_mesh>);
+  pyclass.def("collect_edges_properties",
+              &wutils::collect_properties<Edge_index, Surface_mesh>);
+  pyclass.def("collect_faces_properties",
+              &wutils::collect_properties<Face_index, Surface_mesh>);
 
   pyclass.def("is_removed", py::overload_cast<Vertex_index>(
                                 &Surface_mesh::is_removed, py::const_));
