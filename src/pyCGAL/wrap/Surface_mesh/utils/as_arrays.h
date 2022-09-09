@@ -281,4 +281,31 @@ auto as_lists(const Surface_mesh& mesh, const bool return_vertices_properties,
   return result;
 }
 
+template <typename Surface_mesh>
+auto collect_edges_list(const Surface_mesh& mesh) {
+  using Vertex_index = typename Surface_mesh::Vertex_index;
+  const auto vmap = remap_vertices(mesh);
+  py::list edges;
+  for (auto&& e : mesh.edges()) {
+    edges.append(
+        py::make_tuple(vmap[mesh.vertex(e, 0)], vmap[mesh.vertex(e, 1)]));
+  }
+  return edges;
+}
+
+template <typename Surface_mesh>
+auto edges_as_lists(const Surface_mesh& mesh,
+                    const bool return_vertices_properties,
+                    const bool return_edges_properties) -> py::list {
+  py::list result;
+  result.append(collect_vertices_list(mesh));
+  result.append(collect_edges_list(mesh));
+  if (return_vertices_properties)
+    result.append(
+        collect_properties<typename Surface_mesh::Vertex_index>(mesh));
+  if (return_edges_properties)
+    result.append(collect_properties<typename Surface_mesh::Edge_index>(mesh));
+  return result;
+}
+
 }  // namespace pyCGAL::wrap::utils

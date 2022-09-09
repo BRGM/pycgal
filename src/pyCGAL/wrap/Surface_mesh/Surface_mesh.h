@@ -272,6 +272,9 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def("as_lists", &wutils::as_lists<Surface_mesh>,
               py::arg("return_vertices_properties") = false,
               py::arg("return_faces_properties") = false);
+  pyclass.def("edges_as_lists", &wutils::edges_as_lists<Surface_mesh>,
+              py::arg("return_vertices_properties") = false,
+              py::arg("return_edges_properties") = false);
   pyclass.def("collect_vertices_properties",
               &wutils::collect_properties<Vertex_index, Surface_mesh>);
   pyclass.def("collect_halfedges_properties",
