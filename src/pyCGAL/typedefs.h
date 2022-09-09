@@ -2,6 +2,8 @@
 
 #include <pybind11/pybind11.h>
 
+#include <cstdint>
+
 #include "dependencies.h"
 namespace py = pybind11;
 
@@ -37,5 +39,9 @@ void import_dependencies() {
     py::module_::import(dependency.c_str());
   }
 }
+
+using pointer_type = std::uintptr_t;
+using available_property_types =
+    std::tuple<bool, char, int, float, double, pointer_type>;
 
 }  // namespace pyCGAL

@@ -1,15 +1,11 @@
 #pragma once
 
+#include <pyCGAL/typedefs.h>
+
 #include <cstdint>
-#include <type_traits>
 #include <variant>
 
 namespace pyCGAL::wrap::Surface_mesh {
-
-using pointer_type = std::uintptr_t;
-
-using available_property_types =
-    std::tuple<bool, char, int, float, double, pointer_type>;
 
 namespace helper_traits {
 template <typename Surface_mesh, typename Index, typename Tuple>
@@ -26,7 +22,7 @@ struct Properties<Surface_mesh, Index, std::tuple<Ts...>> {
 template <typename Surface_mesh, typename Index>
 struct Property_capsule {
   using variant_type = typename helper_traits::Properties<
-      Surface_mesh, Index, available_property_types>::alternatives;
+      Surface_mesh, Index, pyCGAL::available_property_types>::alternatives;
   template <typename T>
   using Property_map = typename Surface_mesh::template Property_map<Index, T>;
   template <typename T>

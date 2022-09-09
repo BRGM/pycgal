@@ -16,8 +16,6 @@ namespace py = pybind11;
 
 namespace pyCGAL::wrap::utils {
 
-using pointer_type = Surface_mesh::pointer_type;
-
 namespace detail {
 
 // we rely on typeid but must some name are very mangled
@@ -453,7 +451,7 @@ template <typename SurfaceMesh, typename IndexType>
 struct Helper_traits {
   using Surface_mesh = SurfaceMesh;
   using index = IndexType;
-  using alternatives = pyCGAL::wrap::Surface_mesh::available_property_types;
+  using alternatives = pyCGAL::available_property_types;
   using holder = Pmap_holder<Surface_mesh, index, alternatives>;
 };
 
