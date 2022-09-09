@@ -2,6 +2,9 @@
 
 #include <CGAL/IO/GOCAD.h>
 #include <CGAL/IO/STL.h>
+#ifdef CGAL_USE_VTK
+#include <CGAL/IO/VTK.h>
+#endif
 #include <CGAL/Surface_mesh.h>
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/wrap_index.h>
@@ -415,6 +418,18 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
         CGAL::IO::write_STL(filename, self, CGAL::parameters::verbose(verbose));
       },
       py::arg("filename").none(false), py::arg("verbose") = false);
+#ifdef CGAL_USE_VTK
+  pyclass.def(
+      "write_VTP",
+      [](const Surface_mesh& self, const std::string& filename,
+         const bool use_binary_mode, const int stream_precision) {
+        CGAL::IO::write_VTP(filename, self,
+                            CGAL::parameters::use_binary_mode(use_binary_mode)
+                                .stream_precision(stream_precision));
+      },
+      py::arg("filename").none(false), py::arg("use_binary_mode") = true,
+      py::arg("stream_precision") = 6);
+#endif
 
   auto process_mesh_output =
       [](Surface_mesh* pmesh, wutils::Extension_data<Surface_mesh> data,

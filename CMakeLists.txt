@@ -91,4 +91,8 @@ endif(PYCGAL_SHIPS_GMP_AND_MPFR)
 
 set(PYCGAL_PACKAGES core Epick Mesh_2 Polygon_mesh_processing Surface_mesh)
 
+if(CGAL_USE_VTK)
+  add_definitions(-DCGAL_USE_VTK)
+endif()
+
 add_subdirectory(src)
