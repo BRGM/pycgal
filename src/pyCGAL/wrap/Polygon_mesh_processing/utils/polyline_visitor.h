@@ -89,11 +89,11 @@ struct Polyline_visitor : Default_visitor<Surface_mesh> {
       assert(!(is_target_coplanar && is_source_coplanar));
       if (is_target_coplanar) {
         assert(!is_source_coplanar);
-        _collect_vertex(i_id, sm_e, sm_e.target(h_e));
+        _collect_vertex(i_id, sm_f, sm_f.target(h_f));
       } else {
         if (is_source_coplanar) {
           assert(!is_target_coplanar);
-          _collect_vertex(i_id, sm_e, sm_e.source(h_e));
+          _collect_vertex(i_id, sm_f, sm_f.source(h_f));
         }
       }
     }
