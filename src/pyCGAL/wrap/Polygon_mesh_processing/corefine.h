@@ -69,16 +69,16 @@ auto collect_polyline_edges(Surface_mesh& sm1, Surface_mesh& sm2,
   };
   auto collect_edges_to_corner = [&](Halfedge_index h1, auto out) {
     while (!is_corner[sm1.target(h1)]) {
-      auto h = sm1.next_around_target(h1);
+      assert(!is_collected[sm1.edge(h1)]);
+      auto h = h1;
       while (!is_collected[sm1.edge(h)]) {
         h = sm1.next_around_target(h);
         if (h == h1) return;  // we may have encountered a cycle
       }
-      auto e1 = sm1.edge(h);
+      h1 = sm1.opposite(h);  // to circulate around next target
+      auto e1 = sm1.edge(h1);
       is_collected[e1] = false;
       (*out) = edge_twins(e1);
-      ++out;
-      h1 = h;
     }
   };
   std::vector<std::list<std::pair<Edge_index, Edge_index>>> polylines;
