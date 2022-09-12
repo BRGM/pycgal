@@ -1,6 +1,6 @@
-======
-pyCGAL
-======
+================
+pyCGAL |version|
+================
 
 .. toctree::
    :maxdepth: 1
@@ -15,3 +15,5 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+This documentation was built against pyCGAL version |release|.

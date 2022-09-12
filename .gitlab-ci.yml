@@ -8,6 +8,7 @@ include:
       - 'gitlab-ci/build.yml'
       - 'gitlab-ci/deploy.yml'
       - 'gitlab-ci/test.yml'
+      - 'gitlab-ci/documentation.yml'
 
 variables:
   TARGET_PYTHON_PACKAGE_NAME: pycgal
@@ -18,3 +19,4 @@ stages:
   - build
   - test
   - deploy
+  - documentation
