@@ -10,7 +10,7 @@ def test_constrained_edges():
     cdt.insert_constraint(va, vc)
     cdt.insert_constraint(vb, vd)
     pts = cdt.points()
-    assert pts.size() == cdt.number_of_vertices()
+    assert len(pts) == cdt.number_of_vertices()
     for P in pts:
         print(P)
     print(cdt.as_arrays_with_constraints())

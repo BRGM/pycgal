@@ -13,7 +13,7 @@ def test_connected_components_of_constrained_triangulation():
     cdt.insert_constraint(va, vc)
     cdt.insert_constraint(vb, vd)
     pts = cdt.points()
-    assert pts.size() == cdt.number_of_vertices()
+    assert len(pts) == cdt.number_of_vertices()
     vertices, faces, constraints = cdt.as_arrays_with_constraints()
     # convert to 3D Surface_mesh and use PMP::connected_components
     pts3D = np.zeros((vertices.shape[0], 3), dtype="d")
