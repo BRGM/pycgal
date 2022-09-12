@@ -71,6 +71,9 @@ endif()
 find_package(Eigen3 3.3.4 REQUIRED NO_MODULE)
 include(CGAL_Eigen3_support)
 
+message(STATUS "Building against CGAL ${CGAL_VERSION}")
+message(STATUS "Using pybind11 ${pybind11_VERSION}")
+
 include(cmake/ship_library.cmake)
 
 option(PYCGAL_SHIPS_GMP_AND_MPFR OFF)
