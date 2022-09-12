@@ -158,18 +158,19 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
                 pns::throw_on_self_intersection(throw_on_self_intersection),
                 edge_constraints_option2));
 
-        py::object result = py::none();
+        py::list result = py::list();
 
         if (return_new_polylines) {
-          py::list result;
+          py::list polylines_as_edges;
           auto intersection_polylines = collect_polyline_edges(tm1, tm2, twins);
           for (auto& polyline : intersection_polylines) {
             py::list twin_edges;
             for (auto& pair : polyline) {
               twin_edges.append(py::make_tuple(pair.first, pair.second));
             }
-            result.append(twin_edges);
+            polylines_as_edges.append(twin_edges);
           }
+          result.append(polylines_as_edges);
         }
 
         if (return_intersection_vertices) {
@@ -177,17 +178,13 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
           for (auto&& pair : twins) {
             vertices.append(py::make_tuple(pair.first, pair.second));
           }
-          if (return_new_polylines) {
-            py::list new_result;
-            new_result.append(result);
-            new_result.append(vertices);
-            result = new_result;
-          } else {
-            result = vertices;
-          }
+          result.append(vertices);
         }
 
-        return result;
+        const auto nb_results = py::len(result);
+        if (nb_results > 1) return result;
+        if (nb_results == 1) return result[0];
+        return py::none{};
       },
       py::arg("tm1").none(false), py::arg("tm2").none(false), py::kw_only(),
       py::arg("edge_is_constrained_map1") = py::none(),
