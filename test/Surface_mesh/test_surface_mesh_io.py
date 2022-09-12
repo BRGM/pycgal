@@ -25,4 +25,5 @@ def test_surface_mesh_to_vtp(simple_mesh):
     assert created
     for k, e in enumerate(mesh.edges()):
         eprop[e] = k
+    to_vtp(mesh, "simple_mesh")
     edges_to_vtu(mesh, "simple_mesh_edges")
