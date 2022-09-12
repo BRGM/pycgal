@@ -71,7 +71,7 @@ auto collect_polyline_edges(Surface_mesh& sm1, Surface_mesh& sm2,
     while (!is_corner[sm1.target(h1)]) {
       auto h = sm1.next_around_target(h1);
       while (!is_collected[sm1.edge(h)]) {
-        h = sm1.next_around_target(h1);
+        h = sm1.next_around_target(h);
         if (h == h1) return;  // we may have encountered a cycle
       }
       auto e1 = sm1.edge(h);
