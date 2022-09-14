@@ -5,6 +5,7 @@ set(additional_elements
     clip
     connected_components
     corefine
+    do_intersect
     extrude_mesh
     helpers
     orient_polygon_soup
