@@ -27,8 +27,8 @@ auto create_map(Surface_mesh& sm, T value) {
 }  // namespace
 
 template <typename Surface_mesh, typename Twins>
-auto collect_polyline_edges(Surface_mesh& sm1, Surface_mesh& sm2,
-                            const Twins& twins) {
+auto collect_polyline_halfedges(Surface_mesh& sm1, Surface_mesh& sm2,
+                                const Twins& twins) {
   using Vertex_index = typename Surface_mesh::Vertex_index;
   using Halfedge_index = typename Surface_mesh::Halfedge_index;
   using Edge_index = typename Surface_mesh::Edge_index;
@@ -60,14 +60,13 @@ auto collect_polyline_edges(Surface_mesh& sm1, Surface_mesh& sm2,
     }
     if (degree == 1 || degree > 2) is_corner[v1] = true;
   }
-  auto edge_twins = [&](const Edge_index e1) {
-    assert(sm1.is_valid(e1));
-    auto h1 = sm1.halfedge(e1);
+  auto halfedge_twins = [&](const Halfedge_index h1) {
+    assert(sm1.is_valid(h1));
     auto h2 = sm2.halfedge(twin[sm1.source(h1)], twin[sm1.target(h1)]);
     assert(sm2.is_valid(h2));
-    return std::make_pair(e1, sm2.edge(h2));
+    return std::make_pair(h1, h2);
   };
-  auto collect_edges_to_corner = [&](Halfedge_index h1, auto out) {
+  auto collect_halfedges_to_corner = [&](Halfedge_index h1, auto out) {
     while (!is_corner[sm1.target(h1)]) {
       assert(!is_collected[sm1.edge(h1)]);
       auto h = h1;
@@ -78,19 +77,19 @@ auto collect_polyline_edges(Surface_mesh& sm1, Surface_mesh& sm2,
       h1 = sm1.opposite(h);  // to circulate around next target
       auto e1 = sm1.edge(h1);
       is_collected[e1] = false;
-      (*out) = edge_twins(e1);
+      (*out) = halfedge_twins(h1);
     }
   };
-  std::vector<std::list<std::pair<Edge_index, Edge_index>>> polylines;
+  std::vector<std::list<std::pair<Halfedge_index, Halfedge_index>>> polylines;
   for (auto&& e1 : all_edges) {
     if (is_collected[e1]) {
       polylines.emplace_back();
       auto& polyline = polylines.back();
-      polyline.push_back(edge_twins(e1));
-      is_collected[e1] = false;
       auto h1 = sm1.halfedge(e1);
-      collect_edges_to_corner(h1, back_inserter(polyline));
-      collect_edges_to_corner(sm1.opposite(h1), front_inserter(polyline));
+      polyline.push_back(halfedge_twins(h1));
+      is_collected[e1] = false;
+      collect_halfedges_to_corner(h1, back_inserter(polyline));
+      collect_halfedges_to_corner(sm1.opposite(h1), front_inserter(polyline));
     }
   }
   // cleaning
@@ -161,16 +160,17 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
         py::list result = py::list();
 
         if (return_new_polylines) {
-          py::list polylines_as_edges;
-          auto intersection_polylines = collect_polyline_edges(tm1, tm2, twins);
+          py::list polylines_as_halfedges;
+          auto intersection_polylines =
+              collect_polyline_halfedges(tm1, tm2, twins);
           for (auto& polyline : intersection_polylines) {
-            py::list twin_edges;
+            py::list twin_halfedges;
             for (auto& pair : polyline) {
-              twin_edges.append(py::make_tuple(pair.first, pair.second));
+              twin_halfedges.append(py::make_tuple(pair.first, pair.second));
             }
-            polylines_as_edges.append(twin_edges);
+            polylines_as_halfedges.append(twin_halfedges);
           }
-          result.append(polylines_as_edges);
+          result.append(polylines_as_halfedges);
         }
 
         if (return_intersection_vertices) {
