@@ -158,6 +158,8 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
       py::class_<Surface_mesh>(module, "Surface_mesh");
   pyclass.def(py::init<>());
   pyclass.def(py::init<const Surface_mesh&>());
+  pyclass.def(py::init(
+      py::overload_cast<py::list, py::list>(wutils::make_mesh<Surface_mesh>)));
   pyclass.def(py::init([](wutils::Coordinates_array<Point>& vertices,
                           wutils::Face_connectivity<Surface_mesh>& faces) {
     return wutils::make_mesh<Surface_mesh>(vertices, py::make_tuple(faces));
