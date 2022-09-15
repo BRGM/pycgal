@@ -77,19 +77,30 @@ auto collect_polyline_halfedges(Surface_mesh& sm1, Surface_mesh& sm2,
       h1 = sm1.opposite(h);  // to circulate around next target
       auto e1 = sm1.edge(h1);
       is_collected[e1] = false;
-      (*out) = halfedge_twins(h1);
+      (*out) = h1;
     }
   };
-  std::vector<std::list<std::pair<Halfedge_index, Halfedge_index>>> polylines;
+  std::vector<std::vector<std::pair<Halfedge_index, Halfedge_index>>> polylines;
   for (auto&& e1 : all_edges) {
     if (is_collected[e1]) {
-      polylines.emplace_back();
-      auto& polyline = polylines.back();
+      std::list<Halfedge_index> polyline;
       auto h1 = sm1.halfedge(e1);
-      polyline.push_back(halfedge_twins(h1));
+      polyline.push_back(h1);
       is_collected[e1] = false;
       collect_halfedges_to_corner(h1, back_inserter(polyline));
+      // std::list::iterator stays valid when inserting new elements
+      auto reverse_orientation = begin(polyline);
       collect_halfedges_to_corner(sm1.opposite(h1), front_inserter(polyline));
+      for (auto ph = begin(polyline); ph != reverse_orientation; ++ph) {
+        assert(sm1.is_valid(*ph));
+        (*ph) = sm1.opposite(*ph);
+      }
+      polylines.emplace_back();
+      auto& polyline_twins = polylines.back();
+      polyline_twins.reserve(size(polyline));
+      for (auto&& h1 : polyline) {
+        polyline_twins.emplace_back(halfedge_twins(h1));
+      }
     }
   }
   // cleaning
