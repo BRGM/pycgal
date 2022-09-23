@@ -4,6 +4,7 @@ include:
   - project: 'brgm/modelisation-geologique/templates'
     ref: master
     file:
+      - 'gitlab-ci/workflow.yml'
       - 'gitlab-ci/check.yml'
       - 'gitlab-ci/build.yml'
       - 'gitlab-ci/deploy.yml'
