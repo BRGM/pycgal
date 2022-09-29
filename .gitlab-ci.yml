@@ -1,8 +1,8 @@
 image: ${CI_BUILD_ENVIRONMENT_IMAGE}:${CI_BUILD_ENVIRONMENT_IMAGE_TAG}
 
 include:
-  - project: 'brgm/modelisation-geologique/templates'
-    ref: master
+  - project: ${GITLAB_CI_TEMPLATES}
+    ref: ${GITLAB_CI_TEMPLATES_VERSION}
     file:
       - 'gitlab-ci/workflow.yml'
       - 'gitlab-ci/check.yml'
