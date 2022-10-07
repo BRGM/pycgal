@@ -51,6 +51,7 @@ def test_properties(simple_mesh):
     flag, created = mesh.add_edge_property("e:flag", dtype="b")
     assert created
     for e in mesh.edges():
+        assert flag[e] == flag.is_set(e)
         assert not flag.is_set(e)  # booleans default to false
     # a = np.array(flag) : this will throw a C++ exception (TODO: convert the exception to python)
     # because of underlyning storage
@@ -71,6 +72,7 @@ def test_properties(simple_mesh):
     print(flag.copy_as_array())
     flag.flip()
     for e in edges:
+        assert flag[e] == flag.is_set(e)
         if e in one_of_two:
             assert flag.is_set(e)
         else:

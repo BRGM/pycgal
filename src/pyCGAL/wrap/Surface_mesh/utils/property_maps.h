@@ -85,7 +85,17 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   }
   py::object get(const Index i) {
     return std::visit(
-        [i](auto alternative) { return py::cast(alternative[i]); }, map);
+        [i](auto alternative) -> py::object {
+          if constexpr (std::is_same_v<
+                            typename decltype(alternative)::value_type, bool>) {
+            return py::bool_{alternative[i]};
+          } else {
+            return py::cast(alternative[i]);
+          }
+          assert(false);
+          return py::none{};
+        },
+        map);
   }
   bool is_set(const Index i) const {
     return std::visit(
