@@ -77,6 +77,23 @@ def test_properties(simple_mesh):
             assert flag.is_set(e)
         else:
             assert not flag.is_set(e)
+    for e in mesh.edges():
+        flag[e] = False
+    assert not np.any(flag.copy_as_array())
+    e0 = edges[0]
+    for e in mesh.edges():
+        flag[e] = flag[e0]
+    assert np.all(flag.copy_as_array() == flag[e0])
+    flag[e0] = not flag[e0]
+    e1 = edges[1]
+    assert flag[e0] != flag[e1]
+    flag.copy(e0, e1)
+    assert flag[e0] == flag[e1]
+    flag.copy([e0] * len(edges), list(edges))
+    assert np.all(flag.copy_as_array() == flag[e0])
+    for e in edges:
+        flag[e] = False
+    assert not np.any(flag.copy_as_array())
     flag.set(True)
     assert np.all(flag.copy_as_array())
     flag.fill(False)

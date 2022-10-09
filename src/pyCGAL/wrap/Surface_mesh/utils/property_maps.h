@@ -113,6 +113,45 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
         },
         map);
   }
+  void copy(const Index source, const Index target) {
+    std::visit(
+        [source, target](auto alternative) {
+          alternative[target] = alternative[source];
+        },
+        map);
+  }
+  void copy(const std::vector<Index>& sources,
+            const std::vector<Index>& targets) {
+    std::visit(
+        [&sources, &targets](auto alternative) {
+          if (sources.size() != targets.size()) {
+            throw std::runtime_error(
+                "There must be as many source as target indices.");
+          }
+          auto target = begin(targets);
+          for (auto&& source : sources) {
+            alternative[*target] = alternative[source];
+            ++target;
+          }
+        },
+        map);
+  }
+  void copy(py::sequence sources, py::sequence targets) {
+    std::visit(
+        [&sources, &targets](auto alternative) {
+          if (py::len(sources) != py::len(targets)) {
+            throw std::runtime_error(
+                "There must be as many source as target indices.");
+          }
+          auto target = std::begin(targets);
+          for (auto&& source : sources) {
+            alternative[target->cast<Index>()] =
+                alternative[source.cast<Index>()];
+            ++target;
+          }
+        },
+        map);
+  }
   void set(const Index i, py::object& value) {
     std::visit(
         [i, &value](auto alternative) {
@@ -532,6 +571,14 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
   pyholder.def("is_set", &holder::is_set);
   pyholder.def("__setitem__",
                py::overload_cast<Index, py::object&>(&holder::set));
+  pyholder.def("copy",
+               py::overload_cast<const Index, const Index>(&holder::copy));
+  pyholder.def(
+      "copy",
+      py::overload_cast<const std::vector<Index>&, const std::vector<Index>&>(
+          &holder::copy));
+  pyholder.def("copy",
+               py::overload_cast<py::sequence, py::sequence>(&holder::copy));
   pyholder.def("set", py::overload_cast<Index, py::object&>(&holder::set));
   pyholder.def("set",
                py::overload_cast<const std::vector<Index>&, py::iterable&>(
