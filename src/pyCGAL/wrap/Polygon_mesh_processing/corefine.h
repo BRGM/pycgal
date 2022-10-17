@@ -168,6 +168,10 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
                 pns::throw_on_self_intersection(throw_on_self_intersection),
                 edge_constraints_option2));
 
+        if (visitor && py::len(polyline_id_map) > 0) {
+          visitor->process_small_edges(1e-20);
+        }
+
         py::list result = py::list();
 
         if (return_new_polylines) {
