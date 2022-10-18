@@ -297,7 +297,7 @@ struct Polyline_visitor : Default_visitor<Surface_mesh> {
     }
   }
 
-  void process_small_edges(const double& epsilon) {
+  void collapse_small_edges(const double& epsilon) {
     assert(sm1 && sm2);
     assert(ptwins);
     auto& twins = *ptwins;

@@ -120,8 +120,8 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
          py::object edge_is_constrained_map1,
          py::object edge_is_constrained_map2,
          const bool throw_on_self_intersection, const bool return_new_polylines,
-         const bool return_intersection_vertices,
-         py::str polyline_id_map) -> py::object {
+         const bool return_intersection_vertices, py::str polyline_id_map,
+         py::object squared_precision) -> py::object {
         if (!CGAL::is_triangle_mesh(tm1) || !CGAL::is_triangle_mesh(tm2))
           throw std::runtime_error("Only triangle meshes can be corefined!");
 
@@ -145,12 +145,19 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
         std::optional<Visitor> visitor;
         typename Visitor::Twins_container twins;
         if (return_new_polylines || return_intersection_vertices ||
-            py::len(polyline_id_map) > 0) {
+            py::len(polyline_id_map) > 0 || !squared_precision.is_none()) {
           visitor.emplace(tm1, tm2);
           if (py::len(polyline_id_map) > 0) {
             visitor->set_pid_map(polyline_id_map);
+          } else {
+            if (!squared_precision.is_none()) {
+              throw std::runtime_error(
+                  "You need to set a polyline map to use squared precision "
+                  "threshold.");
+            }
           }
-          if (return_intersection_vertices || return_new_polylines) {
+          if (return_intersection_vertices || return_new_polylines ||
+              !squared_precision.is_none()) {
             visitor->collect_twins(twins);
           }
         }
@@ -169,8 +176,10 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
                 pns::throw_on_self_intersection(throw_on_self_intersection),
                 edge_constraints_option2));
 
-        if (visitor && py::len(polyline_id_map) > 0) {
-          visitor->process_small_edges(1e-20);
+        if (!squared_precision.is_none()) {
+          assert(visitor);
+          assert(py::len(polyline_id_map) > 0);
+          visitor->collapse_small_edges(squared_precision.cast<double>());
         }
 
 #ifndef NDEBUG
@@ -178,10 +187,16 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
         std::cerr << "Minimum squared distance on mesh1: " << l2 << "("
                   << tm1.point(tm1.vertex(e, 0)) << " <-> "
                   << tm1.point(tm1.vertex(e, 1)) << ")" << std::endl;
+        if (!squared_precision.is_none()) {
+          assert(l2 > squared_precision.cast<double>());
+        }
         std::tie(e, l2) = PMP::utils::smallest_edge(tm2);
         std::cerr << "Minimum squared distance on mesh1: " << l2 << "("
                   << tm2.point(tm2.vertex(e, 0)) << " <-> "
                   << tm2.point(tm2.vertex(e, 1)) << ")" << std::endl;
+        if (!squared_precision.is_none()) {
+          assert(l2 > squared_precision.cast<double>());
+        }
 #endif  // !NDEBUG
 
         py::list result = py::list();
@@ -219,6 +234,7 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
       py::arg("throw_on_self_intersection") = false,
       py::arg("return_new_polylines") = false,
       py::arg("return_intersection_vertices") = false,
-      py::arg("polyline_id_map") = "");
+      py::arg("polyline_id_map") = "",
+      py::arg("squared_precision") = py::none());
 }
 }  // namespace pyCGAL
