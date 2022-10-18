@@ -320,7 +320,7 @@ struct Polyline_visitor : Default_visitor<Surface_mesh> {
     for (auto&& pair : twins) {
       collapse_intersection_edges_around_source(
           *sm1, *sm2, tmap1, tmap2, pmap1, pmap2, pair.first, epsilon,
-          inserter(corners1), inserter(corners1));
+          inserter(corners1), inserter(corners2));
     }
     for (auto&& v1 : corners1) {
       collapse_edges_around_corner(*sm1, *sm2, tmap1, tmap2, pmap1, pmap2, v1,
