@@ -8,6 +8,7 @@
 #include "detail/corefine.h"
 #include "utils/polyline_visitor.h"
 #include "utils/property_helpers.h"
+#include "utils/smallest_edge.h"
 
 namespace pyCGAL {
 
@@ -171,6 +172,17 @@ void wrap_element(detail::corefine<TriangleMesh>, py::module& module) {
         if (visitor && py::len(polyline_id_map) > 0) {
           visitor->process_small_edges(1e-20);
         }
+
+#ifndef NDEBUG
+        auto [e, l2] = PMP::utils::smallest_edge(tm1);
+        std::cerr << "Minimum squared distance on mesh1: " << l2 << "("
+                  << tm1.point(tm1.vertex(e, 0)) << " <-> "
+                  << tm1.point(tm1.vertex(e, 1)) << ")" << std::endl;
+        std::tie(e, l2) = PMP::utils::smallest_edge(tm2);
+        std::cerr << "Minimum squared distance on mesh1: " << l2 << "("
+                  << tm2.point(tm2.vertex(e, 0)) << " <-> "
+                  << tm2.point(tm2.vertex(e, 1)) << ")" << std::endl;
+#endif  // !NDEBUG
 
         py::list result = py::list();
 
