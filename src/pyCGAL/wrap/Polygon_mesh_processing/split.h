@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "detail/split.h"
+#include "utils/parameter_helpers.h"
 
 namespace pyCGAL {
 
@@ -39,6 +40,29 @@ void wrap_element(detail::split<TriangleMesh, Plane_3>, py::module& module) {
       py::arg("tm").none(false), py::arg("plane").none(false),
       py::arg("throw_on_self_intersection") = false,
       py::arg("allow_self_intersections") = false);
+  module.def(
+      "split_along_edges",
+      [](TriangleMesh& tm, py::object edge_is_constrained_map,
+         py::object constrained_edges) {
+        if (!CGAL::is_triangle_mesh(tm))
+          throw std::runtime_error("Only triangle meshes can be splitted!");
+        if (edge_is_constrained_map.is_none() && constrained_edges.is_none())
+          return;
+        using Edge_index = typename TriangleMesh::Edge_index;
+        // FIXME: do not use detail namespace
+        auto edge_constraints =
+            pyCGAL::wrap::utils::detail::optional_flag_map<Edge_index>(
+                tm, edge_is_constrained_map, constrained_edges);
+        assert(edge_constraints);
+        CGAL::Polygon_mesh_processing::internal::split_along_edges(
+            tm, *edge_constraints, get_property_map(boost::vertex_point, tm));
+        if (!constrained_edges.is_none()) {
+          tm.remove_property_map(*edge_constraints);
+        }
+      },
+      py::arg("tm").none(false), py::kw_only(),
+      py::arg("edge_is_constrained_map") = py::none(),
+      py::arg("constrained_edges") = py::none());
 }
 
 }  // namespace pyCGAL
