@@ -6,6 +6,7 @@ set(module_classes
     Triangulation_data_structure_2
     Delaunay_mesh_adaptative_size_criteria_2
     Delaunay_mesher_2
+    Delaunay_mesher_2_with_intersections
     Delaunay_terrain
 )
 
