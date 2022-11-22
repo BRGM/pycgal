@@ -7,6 +7,7 @@
 
 #include "detail/split.h"
 #include "utils/parameter_helpers.h"
+#include "utils/split_along_edges.h"
 
 namespace pyCGAL {
 
@@ -54,7 +55,7 @@ void wrap_element(detail::split<TriangleMesh, Plane_3>, py::module& module) {
             pyCGAL::wrap::utils::detail::optional_flag_map<Edge_index>(
                 tm, edge_is_constrained_map, constrained_edges);
         assert(edge_constraints);
-        CGAL::Polygon_mesh_processing::internal::split_along_edges(
+        wrap::Polygon_mesh_processing::detail::split_along_edges(
             tm, *edge_constraints, get_property_map(boost::vertex_point, tm));
         if (!constrained_edges.is_none()) {
           tm.remove_property_map(*edge_constraints);
