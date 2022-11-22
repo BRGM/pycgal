@@ -45,6 +45,7 @@ void wrap_element(detail::split<TriangleMesh, Plane_3>, py::module& module) {
       "split_along_edges",
       [](TriangleMesh& tm, py::object edge_is_constrained_map,
          py::object constrained_edges) {
+        assert(is_valid_polygon_mesh(tm));
         if (!CGAL::is_triangle_mesh(tm))
           throw std::runtime_error("Only triangle meshes can be splitted!");
         if (edge_is_constrained_map.is_none() && constrained_edges.is_none())
