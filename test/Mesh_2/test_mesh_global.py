@@ -11,6 +11,7 @@ def test_mesh_global():
     vc = cdt.insert(Point(4, 0))
     vd = cdt.insert(Point(0, 1))
     cdt.insert(Point(2, 0.6))
+    # NB: bounding box must me set as constraint
     cdt.insert_constraint(va, vb)
     cdt.insert_constraint(vb, vc)
     cdt.insert_constraint(vc, vd)
