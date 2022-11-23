@@ -109,3 +109,16 @@ def test_simple_square():
     mesh = Surface_mesh()
     corners = add_corners(mesh)
     mesh.add_face(*corners[:3])
+
+
+def test_dict_of_indices(squares_2x2):
+    mesh = Surface_mesh(squares_2x2.vertices, squares_2x2.faces)
+    d = {}
+    for v in mesh.vertices():
+        d[v] = str(v)
+    for e in mesh.edges():
+        d[e] = str(e)
+    for f in mesh.faces():
+        d[f] = str(f)
+    for i, s in d.items():
+        print(i, s)
