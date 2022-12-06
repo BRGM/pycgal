@@ -92,6 +92,12 @@ void wrap_element(detail::global_kernel_functions<Kernel>, py::module& module) {
       "barycenter",
       py::overload_cast<const Point_3&, const FT&, const Point_3&, const FT&,
                         const Point_3&, const FT&>(&CGAL::barycenter<Kernel>));
+  module.def("collinear",
+             py::overload_cast<const Point_2&, const Point_2&, const Point_2&>(
+                 &CGAL::collinear<Kernel>));
+  module.def("collinear",
+             py::overload_cast<const Point_3&, const Point_3&, const Point_3&>(
+                 &CGAL::collinear<Kernel>));
 }
 
 }  // namespace pyCGAL
