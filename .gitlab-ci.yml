@@ -19,5 +19,5 @@ stages:
   - check
   - build
   - test
-  - deploy
   - documentation
+  - deploy
