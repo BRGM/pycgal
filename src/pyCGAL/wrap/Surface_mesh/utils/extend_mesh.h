@@ -60,10 +60,13 @@ void extend_mesh(
     py::list& all_faces, const bool reverse_on_failure = false,
     const bool throw_on_failure = true) {
   add_vertices(mesh, vertices, data.vmap);
-  for (auto&& faces : all_faces)
-    add_homogeneous_faces(mesh, data,
-                          faces.cast<Face_connectivity<Surface_mesh>>(),
-                          reverse_on_failure, throw_on_failure);
+  for (auto&& faces : all_faces) {
+    if (py::len(faces) > 0) {
+      add_homogeneous_faces(mesh, data,
+                            faces.cast<Face_connectivity<Surface_mesh>>(),
+                            reverse_on_failure, throw_on_failure);
+    }
+  }
 }
 
 }  // namespace pyCGAL::wrap::utils
