@@ -61,3 +61,61 @@ def surface_mesh_edges_to_vtu(
         ),
         filename,
     )
+
+
+def c3t3_to_vtu(
+    c3t3,
+    basename,
+    *,
+    with_corner_index=False,
+    with_curve_index=False,
+    with_facet_index=False,
+    with_subdomain_index=False,
+    with_connected_components=False,
+):
+    vertices, corners, edges, facets, tets, *indices = c3t3.as_arrays(
+        with_corner_index,
+        with_curve_index,
+        with_facet_index,
+        with_subdomain_index,
+    )
+    fetched_indices = []
+
+    def fetch_indices(available):
+        data = {}
+        if available:
+            data = {"index": indices[len(fetched_indices)]}
+            fetched_indices.append(indices[len(fetched_indices)])
+        return data
+
+    def point_indices(available):
+        return {"pointdata": fetch_indices(available)}
+
+    def cell_indices(available):
+        return {"celldata": fetch_indices(available)}
+
+    vtkw.write_vtu(
+        vtkw.points_as_vtu_doc(vertices[corners], **point_indices(with_corner_index)),
+        f"{basename}-corners",
+    )
+    kept, clean = np.unique(edges, return_inverse=True)
+    clean.shape = -1, 2
+    vtkw.write_vtu(
+        vtkw.vtu_doc(vertices[kept], clean, **cell_indices(with_curve_index)),
+        f"{basename}-edges",
+    )
+    kept, clean = np.unique(facets, return_inverse=True)
+    clean.shape = -1, 3
+    vtkw.write_vtu(
+        vtkw.vtu_doc(vertices[kept], clean, **cell_indices(with_facet_index)),
+        f"{basename}-facets",
+    )
+    celldata = fetch_indices(with_subdomain_index)
+    if with_connected_components:
+        nc, component = c3t3.connected_components()
+        print(f"found {nc} connected components")
+        celldata["component"] = component
+    vtkw.write_vtu(
+        vtkw.vtu_doc(vertices, tets, celldata=celldata),
+        f"{basename}-tets",
+    )

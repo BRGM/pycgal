@@ -7,6 +7,7 @@ SimpleMesh = namedtuple(
     "SimpleMesh", ("all_vertices", "square", "square_vertices", "triangles")
 )
 MeshInfo = namedtuple("MeshInfo", ("vertices", "faces"))
+Mesh_connectivity = namedtuple("Mesh_connectivity", ("vertices", "faces"))
 
 
 @pytest.fixture
@@ -108,3 +109,27 @@ def two_triangles():
         ]
     )
     return MeshInfo(vertices, faces)
+
+
+@pytest.fixture
+def unit_cube():
+    return Mesh_connectivity(
+        [
+            (0, 0, 0),
+            (1, 0, 0),
+            (1, 1, 0),
+            (0, 1, 0),
+            (0, 0, 1),
+            (1, 0, 1),
+            (1, 1, 1),
+            (0, 1, 1),
+        ],
+        [
+            [0, 3, 2, 1],
+            [0, 4, 7, 3],
+            [2, 3, 7, 6],
+            [1, 2, 6, 5],
+            [0, 1, 5, 4],
+            [4, 5, 6, 7],
+        ],
+    )

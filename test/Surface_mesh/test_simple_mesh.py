@@ -122,3 +122,9 @@ def test_dict_of_indices(squares_2x2):
         d[f] = str(f)
     for i, s in d.items():
         print(i, s)
+
+
+def test_unit_cube(unit_cube):
+    cube = Surface_mesh(*unit_cube)
+    assert cube.number_of_vertices() == 8
+    assert cube.number_of_faces() == 6
