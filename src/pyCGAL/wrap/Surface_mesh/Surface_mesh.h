@@ -216,7 +216,7 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
 
   pyclass.def("has_garbage", &Surface_mesh::has_garbage);
   pyclass.def("collect_garbage",
-              (void (Surface_mesh::*)()) & Surface_mesh::collect_garbage);
+              (void(Surface_mesh::*)()) & Surface_mesh::collect_garbage);
 
   pyclass.def("__iadd__", [](Surface_mesh& self, const Surface_mesh& other) {
     self += other;

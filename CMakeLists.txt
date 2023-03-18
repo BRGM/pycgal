@@ -5,8 +5,8 @@ project(pycgal CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PYCGAL_CGAL_VERSION 5.4.2)
-set(PYCGAL_PYBIND11_VERSION 2.9.2)
+set(PYCGAL_CGAL_VERSION 5.4.3)
+set(PYCGAL_PYBIND11_VERSION 2.10.4)
 
 set(CGAL_HEADER_ONLY ON)
 set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
@@ -92,7 +92,9 @@ if(PYCGAL_SHIPS_GMP_AND_MPFR)
   ship_library(${MPFR_LIBRARIES} pycgal)
 endif(PYCGAL_SHIPS_GMP_AND_MPFR)
 
-set(PYCGAL_PACKAGES core Epick Mesh_2 Polygon_mesh_processing Surface_mesh)
+set(PYCGAL_PACKAGES core Epick Mesh_2 Mesh_3 Polygon_mesh_processing
+                    Surface_mesh
+)
 
 if(CGAL_USE_VTK)
   add_definitions(-DCGAL_USE_VTK)
