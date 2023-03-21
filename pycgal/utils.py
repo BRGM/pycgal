@@ -74,10 +74,10 @@ def c3t3_to_vtu(
     with_connected_components=False,
 ):
     vertices, corners, edges, facets, tets, *indices = c3t3.as_arrays(
-        with_corner_index,
-        with_curve_index,
-        with_facet_index,
-        with_subdomain_index,
+        return_corner_index=with_corner_index,
+        return_curve_index=with_curve_index,
+        return_facet_index=with_facet_index,
+        return_subdomain_index=with_subdomain_index,
     )
     fetched_indices = []
 

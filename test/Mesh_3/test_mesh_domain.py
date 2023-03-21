@@ -28,6 +28,4 @@ def test_make_simple_mesh(unit_cube):
     domain.detect_features()
     criteria = Mesh_criteria_3(cell_size=0.1)
     c3t3 = make_mesh_3(domain, criteria)
-    vertices, corners, edges, triangles, tets = c3t3.as_arrays(
-        False, False, False, False
-    )
+    vertices, corners, edges, triangles, tets = c3t3.as_arrays()
