@@ -112,6 +112,21 @@ def two_triangles():
 
 
 @pytest.fixture
+def unit_square():
+    return Mesh_connectivity(
+        [
+            (0, 0, 0),
+            (1, 0, 0),
+            (1, 1, 0),
+            (0, 1, 0),
+        ],
+        [
+            [0, 1, 2, 3],
+        ],
+    )
+
+
+@pytest.fixture
 def unit_cube():
     return Mesh_connectivity(
         [

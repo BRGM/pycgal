@@ -5,6 +5,7 @@
 #include "as_arrays.h"
 #include "centroids.h"
 #include "extend_mesh.h"
+#include "insert_isovalue.h"
 #include "io.h"
 #include "make_mesh.h"
 #include "property_maps.h"

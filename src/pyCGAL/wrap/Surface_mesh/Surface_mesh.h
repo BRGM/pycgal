@@ -459,6 +459,31 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
     return mesh;
   };
 
+  pyclass.def(
+      "insert_isovalue",
+      [](Surface_mesh& self, py::function& f,
+         py::object edge_is_constrained_map) {
+        using Edge_index = typename Surface_mesh::Edge_index;
+        using Edge_mask =
+            typename Surface_mesh::template Property_map<Edge_index, bool>;
+        std::optional<Edge_mask> constrained_edges;
+        if (!edge_is_constrained_map.is_none()) {
+          try {
+            constrained_edges = py::cast<Edge_mask>(edge_is_constrained_map);
+          } catch (py::cast_error) {
+            std::string name{py::cast<std::string>(edge_is_constrained_map)};
+            auto&& [pmap, created] =
+                self.template add_property_map<Edge_index, bool>(name, false);
+            assert(created);
+            constrained_edges = pmap;
+          }
+        }
+        wrap::utils::insert_isovalue(
+            self, [f](const Point& P) { return py::cast<double>(f(P)); },
+            constrained_edges);
+      },
+      py::arg("f"), py::arg("edge_is_constrained_map") = py::none());
+
   module.def(
       "make_mesh",
       [process_mesh_output](wutils::Coordinates_array<Point>& vertices,
