@@ -4,6 +4,7 @@
 #include <CGAL/Surface_mesh.h>
 #include <CGAL/boost/graph/copy_face_graph.h>
 #include <pyCGAL/typedefs.h>
+#include <pyCGAL/wrap/utils/CGAL_FT.h>
 
 namespace pyCGAL {
 
@@ -46,7 +47,12 @@ typename WrapTraits<Domain>::py_class wrap_class(WrapTraits<Domain> wrap,
       }));
 
   pyclass.def("detect_borders", [](Domain& self) { self.detect_borders(); });
-  pyclass.def("detect_features", [](Domain& self) { self.detect_features(); });
+  pyclass.def(
+      "detect_features",
+      [](Domain& self, const wrap::utils::CGAL_FT<Point> angle) {
+        self.detect_features(angle);
+      },
+      py::arg("angle") = 60);
 
   return pyclass;
 }
