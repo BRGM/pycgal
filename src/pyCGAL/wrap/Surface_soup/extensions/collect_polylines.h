@@ -1,11 +1,16 @@
 #pragma once
 
 #include <CGAL/boost/graph/split_graph_into_polylines.h>
+#include <pyCGAL/wrap/LinearGeometryKernel/extensions/Polyline.h>
+#include <pyCGAL/wrap/LinearGeometryKernel/extensions/Polylines.h>
 
 #include "Edge_graph.h"
 
 namespace pyCGAL {
 namespace extensions {
+
+namespace LGK = LinearGeometryKernel;
+
 namespace Surface_soup {
 
 namespace detail {
@@ -13,16 +18,16 @@ namespace detail {
 template <typename Edge_graph, typename Point>
 struct Polylines_collector {
   using vertex_descriptor = typename Edge_graph::Graph::vertex_descriptor;
-  using Polyline = std::vector<Point>;
+  using Polyline = LGK::Polyline<Point>;
   const Edge_graph& edge_graph;
-  std::vector<Polyline> polylines;
+  LGK::Polylines<Polyline> polylines;
 
   Polylines_collector(const Edge_graph& edge_graph)
       : edge_graph(edge_graph), polylines{} {}
 
-  void start_new_polyline() { polylines.emplace_back(); }
+  void start_new_polyline() { polylines.start_new_polyline(); }
   void add_node(vertex_descriptor v) {
-    polylines.back().emplace_back(edge_graph.point(v));
+    polylines.add_node(edge_graph.point(v));
   }
   void end_polyline() {}
 };

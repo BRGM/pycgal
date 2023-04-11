@@ -94,22 +94,27 @@ def c3t3_to_vtu(
     def cell_indices(available):
         return {"celldata": fetch_indices(available)}
 
-    vtkw.write_vtu(
-        vtkw.points_as_vtu_doc(vertices[corners], **point_indices(with_corner_index)),
-        f"{basename}-corners",
-    )
-    kept, clean = np.unique(edges, return_inverse=True)
-    clean.shape = -1, 2
-    vtkw.write_vtu(
-        vtkw.vtu_doc(vertices[kept], clean, **cell_indices(with_curve_index)),
-        f"{basename}-edges",
-    )
-    kept, clean = np.unique(facets, return_inverse=True)
-    clean.shape = -1, 3
-    vtkw.write_vtu(
-        vtkw.vtu_doc(vertices[kept], clean, **cell_indices(with_facet_index)),
-        f"{basename}-facets",
-    )
+    if len(corners) > 0:
+        vtkw.write_vtu(
+            vtkw.points_as_vtu_doc(
+                vertices[corners], **point_indices(with_corner_index)
+            ),
+            f"{basename}-corners",
+        )
+    if len(edges) > 0:
+        kept, clean = np.unique(edges, return_inverse=True)
+        clean.shape = -1, 2
+        vtkw.write_vtu(
+            vtkw.vtu_doc(vertices[kept], clean, **cell_indices(with_curve_index)),
+            f"{basename}-edges",
+        )
+    if len(facets) > 0:
+        kept, clean = np.unique(facets, return_inverse=True)
+        clean.shape = -1, 3
+        vtkw.write_vtu(
+            vtkw.vtu_doc(vertices[kept], clean, **cell_indices(with_facet_index)),
+            f"{basename}-facets",
+        )
     celldata = fetch_indices(with_subdomain_index)
     if with_connected_components:
         nc, component = c3t3.connected_components()

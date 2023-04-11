@@ -59,6 +59,7 @@ for mesh in soup.meshes:
 # internal meshes, bounding domain
 domain = Domain(interior, cube)
 domain.detect_features()
+domain.add_features(soup.collect_intersections())
 criteria = Mesh_criteria_3(edge_size=0.2, cell_size=0.2, facet_distance=0.01)
 c3t3 = make_mesh_3(domain, criteria)
 c3t3_to_vtu(c3t3, "triangles", with_curve_index=True, with_subdomain_index=True)

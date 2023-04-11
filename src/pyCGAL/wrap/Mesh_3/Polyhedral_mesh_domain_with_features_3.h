@@ -4,9 +4,13 @@
 #include <CGAL/Surface_mesh.h>
 #include <CGAL/boost/graph/copy_face_graph.h>
 #include <pyCGAL/typedefs.h>
+#include <pyCGAL/wrap/LinearGeometryKernel/extensions/Polyline.h>
+#include <pyCGAL/wrap/LinearGeometryKernel/extensions/Polylines.h>
 #include <pyCGAL/wrap/utils/CGAL_FT.h>
 
 namespace pyCGAL {
+
+namespace eLGK = extensions::LinearGeometryKernel;
 
 template <typename Domain>
 typename WrapTraits<Domain>::py_class wrap_class(WrapTraits<Domain> wrap,
@@ -53,6 +57,12 @@ typename WrapTraits<Domain>::py_class wrap_class(WrapTraits<Domain> wrap,
         self.detect_features(angle);
       },
       py::arg("angle") = 60);
+
+  using Polyline = eLGK::Polyline<Point>;
+  using Polylines = eLGK::Polylines<Polyline>;
+  pyclass.def("add_features", [](Domain& self, const Polylines& features) {
+    self.add_features(features.begin(), features.end());
+  });
 
   return pyclass;
 }

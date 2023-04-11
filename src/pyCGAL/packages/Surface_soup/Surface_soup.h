@@ -16,7 +16,7 @@ using Surface_soup =
 
 template <>
 struct Dependencies<Surface_soup::Surface_soup> {
-  static std::string get() { return "pycgal.Surface_mesh"; }
+  static std::string get() { return "pycgal.Epick;pycgal.Surface_mesh"; }
 };
 
 }  //  namespace pyCGAL

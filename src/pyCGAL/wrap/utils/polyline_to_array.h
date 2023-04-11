@@ -24,7 +24,7 @@ template <typename Polylines>
 auto polylines_to_list(const Polylines& polylines) {
   py::list result;
   for (auto&& polyline : polylines) {
-    result.append(polyline_to_array(polyline));
+    result.append(polyline_to_array(polyline.points));
   }
   return result;
 }

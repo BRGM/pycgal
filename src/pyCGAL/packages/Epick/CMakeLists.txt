@@ -3,6 +3,8 @@ set(module_classes
     Vector_2
     Segment_2
     Point_3
+    Polyline_3
+    Polylines_3
     Vector_of_Point_2
     Vector_of_Point_3
     Vector_3
