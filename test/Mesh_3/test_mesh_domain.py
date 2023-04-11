@@ -15,7 +15,7 @@ def test_bounded_domain(unit_cube):
     vertices, faces = unit_cube
     vertices = np.array(vertices) * 0.25
     vertices += np.array([0.5, 0.5, 0.5])
-    # expecting a list of list of homogeneours faces when vertices is a numpy array
+    # expecting a list of list of homogeneous faces when vertices is a numpy array
     smaller_cube = Surface_mesh(vertices, [faces])
     Domain(smaller_cube, cube)
 
