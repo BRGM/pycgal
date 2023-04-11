@@ -1,0 +1,3 @@
+set(module_classes Extended_mesh Surface_soup)
+
+pycgal_add_core_module(Surface_soup module_classes)

@@ -92,8 +92,14 @@ if(PYCGAL_SHIPS_GMP_AND_MPFR)
   ship_library(${MPFR_LIBRARIES} pycgal)
 endif(PYCGAL_SHIPS_GMP_AND_MPFR)
 
-set(PYCGAL_PACKAGES core Epick Mesh_2 Mesh_3 Polygon_mesh_processing
-                    Surface_mesh
+set(PYCGAL_PACKAGES
+    core
+    Epick
+    Mesh_2
+    Mesh_3
+    Polygon_mesh_processing
+    Surface_mesh
+    Surface_soup
 )
 
 if(CGAL_USE_VTK)
