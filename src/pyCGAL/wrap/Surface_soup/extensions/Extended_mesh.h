@@ -27,13 +27,23 @@ struct Extended_mesh {
   Edge_constraints_map ecm;
   Exact_vertex_point_map evpm;
   Shared_vertex_id_map svid;
-  Extended_mesh(const Mesh &M) : tm{std::make_shared<Mesh>(M)} { init(); }
-  Extended_mesh(Mesh &&M) : tm{std::make_shared<Mesh>(std::forward<Mesh>(M))} {
-    init();
+  Extended_mesh(const Mesh &M,
+                std::optional<Edge_constraints_map> constraints = {})
+      : tm{std::make_shared<Mesh>(M)} {
+    init(constraints);
   }
-  void init() {
+  Extended_mesh(Mesh &&M, std::optional<Edge_constraints_map> constraints = {})
+      : tm{std::make_shared<Mesh>(std::forward<Mesh>(M))} {
+    init(constraints);
+  }
+  void init(std::optional<Edge_constraints_map> constraints) {
     evpm = {*tm, "v:exact_point"};
-    ecm = tm->template add_property_map<Edge_index, bool>("e:ecm", false).first;
+    if (constraints) {
+      ecm = *constraints;
+    } else {
+      ecm =
+          tm->template add_property_map<Edge_index, bool>("e:ecm", false).first;
+    }
     svid = tm->template add_property_map<Vertex_index, int>("v:svid",
                                                             null_shared_vertex)
                .first;

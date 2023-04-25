@@ -1,5 +1,6 @@
 #pragma once
 
+#include <CGAL/Polygon_mesh_processing/clip.h>
 #include <CGAL/Polygon_mesh_processing/corefinement.h>
 #include <CGAL/box_intersection_d.h>
 
@@ -12,6 +13,8 @@ struct Surface_soup {
   using Box = CGAL::Box_intersection_d::Box_d<double, 3>;
   using Extended_mesh = EMesh;
   using Mesh = typename Extended_mesh::Mesh;
+  using Constraints_map =
+      std::optional<typename Extended_mesh::Edge_constraints_map>;
   struct Mesh_iterator : std::vector<EMesh>::iterator {
     using base = typename std::vector<EMesh>::iterator;
     Mesh &operator*() {
@@ -100,28 +103,46 @@ struct Surface_soup {
   std::vector<Extended_mesh> emeshes;
   std::vector<Box> boxes;
   Shared_elements elements;
-  Surface_soup(std::vector<Mesh> &&meshes) {
-    for (auto &&M : meshes) emeshes.emplace_back(std::move(M));
-    init();
+  Surface_soup(std::vector<std::pair<Mesh, Constraints_map>> &&meshes,
+               const bool first_is_clipper = false) {
+    for (auto &&M : meshes) emeshes.emplace_back(std::move(M.first), M.second);
+    init(first_is_clipper);
   }
-  Surface_soup(std::vector<Mesh> &meshes) {
-    for (auto &&M : meshes) emeshes.emplace_back(M);
-    init();
+  Surface_soup(std::vector<std::pair<Mesh, Constraints_map>> &meshes,
+               const bool first_is_clipper = false) {
+    for (auto &&M : meshes) emeshes.emplace_back(M.first, M.second);
+    init(first_is_clipper);
   }
-  void init() {
+  auto _corefinement_parameters(const std::size_t i) {
+    return CGAL::parameters::edge_is_constrained_map(emeshes[i].ecm)
+        .vertex_point_map(emeshes[i].evpm);
+  }
+  void clip_with_first() {
+    if (emeshes.empty()) return;
+    auto &clipper = emeshes[0];
+    for (std::size_t i = 1; i < emeshes.size(); ++i) {
+      CGAL::Polygon_mesh_processing::clip(emeshes[i].mesh(), clipper.mesh(),
+                                          _corefinement_parameters(i),
+                                          _corefinement_parameters(0));
+    }
+  }
+  void init(const bool first_is_clipper) {
     boxes.reserve(emeshes.size());
     for (auto &&S : emeshes) boxes.emplace_back(S.bbox());
-    auto all_params = [&](auto i) {
-      return CGAL::parameters::edge_is_constrained_map(emeshes[i].ecm)
-          .vertex_point_map(emeshes[i].evpm);
-    };
     auto corefine_pair = [&](const Box &box_i, const Box &box_j) {
-      auto i = box_i.id();
-      auto j = box_j.id();
+      const auto offset = first_is_clipper ? 1 : 0;
+      auto i = box_i.id() + offset;
+      auto j = box_j.id() + offset;
       CGAL::Polygon_mesh_processing::corefine(
-          emeshes[i].mesh(), emeshes[j].mesh(), all_params(i), all_params(j));
+          emeshes[i].mesh(), emeshes[j].mesh(), _corefinement_parameters(i),
+          _corefinement_parameters(j));
     };
-    CGAL::box_self_intersection_d(boxes.begin(), boxes.end(), corefine_pair);
+    auto start = boxes.begin();
+    if (first_is_clipper) {
+      clip_with_first();
+      ++start;
+    }
+    CGAL::box_self_intersection_d(start, boxes.end(), corefine_pair);
     elements.collect(*this);
   }
   const EMesh &operator[](const std::size_t i) const { return emeshes[i]; }
