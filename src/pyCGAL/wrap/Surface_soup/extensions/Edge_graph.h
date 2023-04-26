@@ -35,7 +35,7 @@ struct Edge_graph {
   bool is_terminal(vertex_descriptor v) const {
     auto b = out_edges(v, graph).first;
     const auto &incidences = shared.edge_incidences;
-    return incidences[graph[*b]] != incidences[graph[*(++b)]];
+    return (incidences[graph[*b]] != incidences[graph[*std::next(b)]]);
   }
 
   auto point(vertex_descriptor v) const { return shared.point(graph[v]); }
