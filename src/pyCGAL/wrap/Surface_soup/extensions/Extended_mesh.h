@@ -76,6 +76,20 @@ struct Extended_mesh {
     }
     return n;
   }
+  void constrain_border_edges() {
+    auto &mesh = *tm;
+    for (auto &&e : mesh.edges()) {
+      if (mesh.is_border(e)) put(ecm, e, true);
+    }
+  }
+  std::size_t number_of_border_edges() const {
+    auto &mesh = *tm;
+    std::size_t n = 0;
+    for (auto &&e : mesh.edges()) {
+      if (mesh.is_border(e)) ++n;
+    }
+    return n;
+  }
 };
 
 }  // namespace Surface_soup

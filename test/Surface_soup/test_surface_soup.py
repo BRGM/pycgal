@@ -37,6 +37,7 @@ def test_surface_soup():
             "faces",
         )
         surface_mesh_to_vtp(mesh, f"mesh_{i:04d}")
-    intersections = soup.collect_intersections()
-    print(intersections)
-    assert len(intersections) == 1
+    # border edges and intersections
+    polylines = soup.collect_polylines()
+    print(polylines)
+    assert len(polylines) == 5

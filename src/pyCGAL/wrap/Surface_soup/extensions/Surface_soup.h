@@ -15,6 +15,7 @@ struct Surface_soup {
   using Mesh = typename Extended_mesh::Mesh;
   using Constraints_map =
       std::optional<typename Extended_mesh::Edge_constraints_map>;
+  using Mesh_with_constraints = std::pair<Mesh, Constraints_map>;
   struct Mesh_iterator : std::vector<EMesh>::iterator {
     using base = typename std::vector<EMesh>::iterator;
     Mesh &operator*() {
@@ -103,21 +104,23 @@ struct Surface_soup {
   std::vector<Extended_mesh> emeshes;
   std::vector<Box> boxes;
   Shared_elements elements;
-  Surface_soup(std::vector<std::pair<Mesh, Constraints_map>> &&meshes,
-               const bool first_is_clipper = false) {
+  Surface_soup(std::vector<Mesh_with_constraints> &&meshes,
+               const bool clip_with_first = false,
+               const bool add_borders_as_constraints = true) {
     for (auto &&M : meshes) emeshes.emplace_back(std::move(M.first), M.second);
-    init(first_is_clipper);
+    init(clip_with_first, add_borders_as_constraints);
   }
-  Surface_soup(std::vector<std::pair<Mesh, Constraints_map>> &meshes,
-               const bool first_is_clipper = false) {
+  Surface_soup(std::vector<Mesh_with_constraints> &meshes,
+               const bool clip_with_first = false,
+               const bool add_borders_as_constraints = true) {
     for (auto &&M : meshes) emeshes.emplace_back(M.first, M.second);
-    init(first_is_clipper);
+    init(clip_with_first, add_borders_as_constraints);
   }
   auto _corefinement_parameters(const std::size_t i) {
     return CGAL::parameters::edge_is_constrained_map(emeshes[i].ecm)
         .vertex_point_map(emeshes[i].evpm);
   }
-  void clip_with_first() {
+  void clip_with_first_surface() {
     if (emeshes.empty()) return;
     auto &clipper = emeshes[0];
     for (std::size_t i = 1; i < emeshes.size(); ++i) {
@@ -126,7 +129,15 @@ struct Surface_soup {
                                           _corefinement_parameters(0));
     }
   }
-  void init(const bool first_is_clipper) {
+  void init(const bool clip_with_first = false,
+            const bool add_borders_as_constraints = true) {
+    if (emeshes.empty()) return;
+    if (add_borders_as_constraints) {
+      assert((!clip_with_first) || emeshes[0].number_of_border_edges() == 0);
+      for (std::size_t i = clip_with_first ? 1 : 0; i < emeshes.size(); ++i) {
+        emeshes[i].constrain_border_edges();
+      }
+    }
     boxes.reserve(emeshes.size());
     for (auto &&S : emeshes) boxes.emplace_back(S.bbox());
     auto corefine_pair = [&](const Box &box_i, const Box &box_j) {
@@ -137,8 +148,8 @@ struct Surface_soup {
           _corefinement_parameters(j));
     };
     auto start = boxes.begin();
-    if (first_is_clipper) {
-      clip_with_first();
+    if (clip_with_first) {
+      clip_with_first_surface();
       ++start;
     }
     CGAL::box_self_intersection_d(start, boxes.end(), corefine_pair);

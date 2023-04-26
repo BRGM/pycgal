@@ -73,27 +73,41 @@ vrect = Surface_mesh(
 )
 tag_and_remesh(vrect)
 
-# an horizontal rectangle
+# an horizontal (non-traversing) rectangle
+# generate bug
+# hrect = Surface_mesh(
+#     [
+#         (-200, -200, 0),
+#         (80, -200, 0),
+#         (30, 200, 0),
+#         (-200, 200, 0),
+#     ],
+#     [[0, 1, 2, 3]],
+# )
 hrect = Surface_mesh(
     [
-        (-200, -200, 0),
-        (200, -200, 0),
-        (200, 200, 0),
-        (-200, 200, 0),
+        (-20, -30, 0),
+        (70, -30, 0),
+        (70, 80, 0),
+        (-20, 80, 0),
     ],
     [[0, 1, 2, 3]],
 )
 tag_and_remesh(hrect)
 
-soup = Surface_soup([(bounds, constraints), vrect, hrect], use_first_as_clipper=True)
+to_vtp(hrect, "hrect_before_clip")
+
+soup = Surface_soup((bounds, constraints), [vrect, hrect])
 
 soup_meshes = list(soup.meshes)
+
+to_vtp(soup_meshes[-1], "hrect_after_clip")
 
 # for i, mesh in enumerate(soup_meshes):
 #    to_vtp(mesh, f"mesh_{i:04d}")
 
 domain = Domain(soup_meshes[0], soup_meshes[1:])
-domain.add_features(soup.collect_intersections())
+domain.add_features(soup.collect_polylines())
 criteria = Mesh_criteria_3(edge_size=10, cell_size=10, facet_distance=0.01)
 c3t3 = make_mesh_3(domain, criteria)
 c3t3_to_vtu(
