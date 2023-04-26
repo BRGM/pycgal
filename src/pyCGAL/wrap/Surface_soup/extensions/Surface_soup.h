@@ -130,9 +130,8 @@ struct Surface_soup {
     boxes.reserve(emeshes.size());
     for (auto &&S : emeshes) boxes.emplace_back(S.bbox());
     auto corefine_pair = [&](const Box &box_i, const Box &box_j) {
-      const auto offset = first_is_clipper ? 1 : 0;
-      auto i = box_i.id() + offset;
-      auto j = box_j.id() + offset;
+      auto i = box_i.id();
+      auto j = box_j.id();
       CGAL::Polygon_mesh_processing::corefine(
           emeshes[i].mesh(), emeshes[j].mesh(), _corefinement_parameters(i),
           _corefinement_parameters(j));

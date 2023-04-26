@@ -8,10 +8,10 @@
 
 namespace pyCGAL {
 
-namespace detail = pyCGAL::wrap::Mesh_3::detail;
+namespace detail {
 
-template <typename Domain, typename C3t3>
-void wrap_element(detail::make_mesh_3<Domain, C3t3>, py::module& module) {
+template <typename C3t3, typename Domain>
+void wrap_make_mesh_api(py::module& module) {
   using Triangulation = typename C3t3::Triangulation;
   using Mesh_criteria = CGAL::Mesh_criteria_3<Triangulation>;
 
@@ -21,6 +21,22 @@ void wrap_element(detail::make_mesh_3<Domain, C3t3>, py::module& module) {
                                               CGAL::parameters::no_perturb(),
                                               CGAL::parameters::no_exude());
              });
+}
+
+template <typename C3t3, typename Domain, typename... Domains>
+void wrap_make_mesh_apis(py::module& module) {
+  wrap_make_mesh_api<C3t3, Domain>(module);
+  if constexpr (sizeof...(Domains) > 0)
+    wrap_make_mesh_apis<C3t3, Domains...>(module);
+}
+
+}  // namespace detail
+
+namespace wd = pyCGAL::wrap::Mesh_3::detail;
+
+template <typename C3t3, typename... Domains>
+void wrap_element(wd::make_mesh_3<C3t3, Domains...>, py::module& module) {
+  detail::wrap_make_mesh_apis<C3t3, Domains...>(module);
 }
 
 }  // namespace pyCGAL

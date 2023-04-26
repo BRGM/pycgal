@@ -4,7 +4,7 @@ from pycgal.Polygon_mesh_processing import (
     split_long_edges,
     triangulate_faces,
 )
-from pycgal.Mesh_3 import Polyhedral_mesh_domain_with_features_3 as Domain
+from pycgal.Mesh_3 import Polyhedral_complex_mesh_domain_3 as Domain
 from pycgal.Mesh_3 import Mesh_criteria_3, make_mesh_3
 from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Surface_soup import Surface_soup
@@ -13,6 +13,31 @@ from pycgal.utils import (
     surface_mesh_to_vtp as to_vtp,
     surface_mesh_edges_to_vtu as edges_to_vtu,
 )
+
+
+def tag_and_remesh(mesh, tag_edges=False, target_edge_size=10):
+    corners, created = mesh.add_vertex_property("v:is_corner", dtype="b", value=False)
+    assert created
+    corners.set(True)
+    constraints = None
+    if tag_edges:
+        constraints, created = bounds.add_edge_property(
+            "e:is_constrained", dtype="b", value=False
+        )
+        assert created
+        constraints.set(True)
+    triangulate_faces(mesh)
+    split_long_edges(
+        mesh, (4 / 3) * target_edge_size, edge_is_constrained_map=constraints
+    )
+    isotropic_remeshing(
+        mesh,
+        target_edge_size,
+        edge_is_constrained_map=constraints,
+        vertex_is_constrained_map=corners,
+    )
+    return constraints
+
 
 # describe polygon with upward normal
 polygon = [(0, 0), (100, -20), (110, 70), (-10, 60)]
@@ -32,31 +57,9 @@ for i in range(n):
     all_faces.append([(i + 1) % n, i, i + n, (i + 1) % n + n])
 
 bounds = Surface_mesh(vertices, all_faces)
+constraints = tag_and_remesh(bounds, tag_edges=True)
 
-constraints, created = bounds.add_edge_property(
-    "e:is_constrained", dtype="b", value=False
-)
-assert created
-constraints.set(True)
-corners, created = bounds.add_vertex_property("v:is_corner", dtype="b", value=False)
-assert created
-corners.set(True)
-
-target_edge_size = 10
-
-triangulate_faces(bounds)
-split_long_edges(
-    bounds, (4 / 3) * target_edge_size, edge_is_constrained_map=constraints
-)
-
-isotropic_remeshing(
-    bounds,
-    target_edge_size,
-    edge_is_constrained_map=constraints,
-    vertex_is_constrained_map=corners,
-)
-
-edges_to_vtu(bounds, "all_edges")
+# edges_to_vtu(bounds, "all_edges")
 
 # a vertical rectangle
 vrect = Surface_mesh(
@@ -68,32 +71,37 @@ vrect = Surface_mesh(
     ],
     [[0, 1, 2, 3]],
 )
-corners, created = vrect.add_vertex_property("v:is_corner", dtype="b", value=False)
-assert created
-corners.set(True)
-triangulate_faces(vrect)
-split_long_edges(vrect, (4 / 3) * target_edge_size)
-isotropic_remeshing(
-    vrect,
-    target_edge_size,
-    vertex_is_constrained_map=corners,
-)
+tag_and_remesh(vrect)
 
-soup = Surface_soup([(bounds, constraints), vrect], use_first_as_clipper=True)
+# an horizontal rectangle
+hrect = Surface_mesh(
+    [
+        (-200, -200, 0),
+        (200, -200, 0),
+        (200, 200, 0),
+        (-200, 200, 0),
+    ],
+    [[0, 1, 2, 3]],
+)
+tag_and_remesh(hrect)
+
+soup = Surface_soup([(bounds, constraints), vrect, hrect], use_first_as_clipper=True)
 
 soup_meshes = list(soup.meshes)
 
-for i, mesh in enumerate(soup_meshes):
-    to_vtp(mesh, f"mesh_{i:04d}")
+# for i, mesh in enumerate(soup_meshes):
+#    to_vtp(mesh, f"mesh_{i:04d}")
 
-domain = Domain(soup_meshes[1], soup_meshes[0])
+domain = Domain(soup_meshes[0], soup_meshes[1:])
 domain.add_features(soup.collect_intersections())
 criteria = Mesh_criteria_3(edge_size=10, cell_size=10, facet_distance=0.01)
 c3t3 = make_mesh_3(domain, criteria)
 c3t3_to_vtu(
     c3t3,
-    "a_clipped_fault",
+    "two_clipped_faults",
     with_curve_index=True,
     with_facet_index=True,
     with_subdomain_index=True,
 )
+
+print("done")

@@ -2,7 +2,7 @@
 
 namespace pyCGAL::wrap::Mesh_3::detail {
 
-template <typename Domain, typename C3t3>
+template <typename C3t3, typename... Domains>
 struct make_mesh_3 {};
 
 }  // namespace pyCGAL::wrap::Mesh_3::detail
