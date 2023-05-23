@@ -64,8 +64,8 @@ inline void dump_simplex(VMap& V, VIndex*& p, VHandle vh0, VHandle vh1,
   ++p;
 }
 
-template <typename C3t3, typename F, typename Range>
-inline auto c3t3_collect_to_array(const C3t3& c3t3, Range&& range, F&& f) {
+template <typename Range, typename F>
+inline auto collect_to_array(Range&& range, F&& f) {
   // CHECKME: We could use std::ranges::transform here
   using pv_type = std::decay_t<decltype(f(range.begin()))>;
   py::array_t<pv_type, py::array::c_style> properties{
@@ -78,9 +78,8 @@ inline auto c3t3_collect_to_array(const C3t3& c3t3, Range&& range, F&& f) {
   return properties;
 }
 
-template <typename C3t3, typename Range, typename F1, typename F2>
-inline auto c3t3_collect_to_array(const C3t3& c3t3, Range&& range, F1&& f1,
-                                  F2&& f2) {
+template <typename Range, typename F1, typename F2>
+inline auto collect_to_array(Range&& range, F1&& f1, F2&& f2) {
   // CHECKME: We could use std::ranges::transform here
   using pv_type = std::decay_t<decltype(f1(range.begin()))>;
   using pv_type2 = std::decay_t<decltype(f2(range.begin()))>;
@@ -98,29 +97,31 @@ inline auto c3t3_collect_to_array(const C3t3& c3t3, Range&& range, F1&& f1,
 }
 
 template <typename C3t3>
+inline auto triangulation_vertices(const C3t3& c3t3) {
+  const auto& tr = c3t3.triangulation();
+  return CGAL::make_range(tr.finite_vertices_begin(), tr.finite_vertices_end());
+}
+
+template <typename C3t3>
 inline auto c3t3_corners_indices_to_array(const C3t3& c3t3) {
   // we could use: std::mem_fn here
-  return c3t3_collect_to_array(
-      c3t3,
-      CGAL::make_range(c3t3.vertices_in_complex_begin(),
-                       c3t3.vertices_in_complex_end()),
-      [&c3t3](auto&& vh) { return c3t3.corner_index(vh); });
+  return collect_to_array(CGAL::make_range(c3t3.vertices_in_complex_begin(),
+                                           c3t3.vertices_in_complex_end()),
+                          [&c3t3](auto&& vh) { return c3t3.corner_index(vh); });
 }
 
 template <typename C3t3>
 inline auto c3t3_curves_indices_to_array(const C3t3& c3t3) {
   // we could use: std::mem_fn here
-  return c3t3_collect_to_array(
-      c3t3,
-      CGAL::make_range(c3t3.edges_in_complex_begin(),
-                       c3t3.edges_in_complex_end()),
-      [&c3t3](auto&& eh) { return c3t3.curve_index(*eh); });
+  return collect_to_array(CGAL::make_range(c3t3.edges_in_complex_begin(),
+                                           c3t3.edges_in_complex_end()),
+                          [&c3t3](auto&& eh) { return c3t3.curve_index(*eh); });
 }
 
 template <typename C3t3, typename... PMaps>
 inline auto c3t3_facets_indices_to_array(const C3t3& c3t3, PMaps&... pmaps) {
-  return c3t3_collect_to_array(
-      c3t3,
+  return collect_to_array(
+
       CGAL::make_range(c3t3.facets_in_complex_begin(),
                        c3t3.facets_in_complex_end()),
       [&pmaps](auto&& fit) { return get(pmaps, *fit); }...);
@@ -128,10 +129,9 @@ inline auto c3t3_facets_indices_to_array(const C3t3& c3t3, PMaps&... pmaps) {
 
 template <typename C3t3, typename PMap>
 inline auto c3t3_cells_indices_to_array(const C3t3& c3t3, PMap& pmap) {
-  return c3t3_collect_to_array(c3t3,
-                               CGAL::make_range(c3t3.cells_in_complex_begin(),
-                                                c3t3.cells_in_complex_end()),
-                               [&pmap](auto&& cit) { return get(pmap, cit); });
+  return collect_to_array(CGAL::make_range(c3t3.cells_in_complex_begin(),
+                                           c3t3.cells_in_complex_end()),
+                          [&pmap](auto&& cit) { return get(pmap, cit); });
 }
 
 }  // namespace detail
@@ -243,6 +243,78 @@ auto c3t3_to_arrays(const C3t3& c3t3, const bool return_corner_index,
   if (return_subdomain_index)
     result.append(detail::c3t3_cells_indices_to_array(c3t3, pmaps.cell_pmap));
 
+  return result;
+}
+
+template <typename C3t3, typename index_type = int>
+auto collect_all_corner_indices(const C3t3& c3t3) {
+  return detail::collect_to_array(
+      detail::triangulation_vertices(c3t3), [&c3t3](auto v) -> index_type {
+        return static_cast<index_type>(c3t3.corner_index(v));
+      });
+}
+
+// template <typename C3t3, typename index_type = int>
+// auto collect_vertices_index(const C3t3& c3t3) {
+//   return detail::collect_to_array(
+//       detail::triangulation_vertices(c3t3), [&c3t3](auto v) -> index_type {
+//         const auto i = c3t3.index(v);
+//         switch (c3t3.in_dimension(v)) {
+//         //case 0:
+//         //    return c3t3.corner_index(i);
+//           case 1:
+//             return c3t3.curve_index(i);
+//         }
+//         assert(false);
+//         return index_type{};
+//       });
+// }
+
+template <typename C3t3, typename dimension_type = int>
+auto collect_vertices_dimension(const C3t3& c3t3) {
+  return detail::collect_to_array(
+      detail::triangulation_vertices(c3t3), [&c3t3](auto v) -> dimension_type {
+        return static_cast<dimension_type>(c3t3.in_dimension(v));
+      });
+}
+
+template <typename C3t3, typename dimension_type = int>
+auto collect_tets_with_incident_facets(const C3t3& c3t3) {
+  using Triangulation = typename C3t3::Triangulation;
+  using Facet = typename Triangulation::Facet;
+  using Surface_patch_index = typename C3t3::Surface_patch_index;
+  const Triangulation& tr = c3t3.triangulation();
+  std::set<Surface_patch_index> incident_patches;
+  std::set<Facet> incident_facets;
+  py::list result;
+  std::size_t k = 0;
+  for (auto cit = c3t3.cells_in_complex_begin();
+       cit != c3t3.cells_in_complex_end(); ++cit, ++k) {
+    if (c3t3.has_incident_facets_in_complex(cit->vertex(0)) ||
+        c3t3.has_incident_facets_in_complex(cit->vertex(1)) ||
+        c3t3.has_incident_facets_in_complex(cit->vertex(2)) ||
+        c3t3.has_incident_facets_in_complex(cit->vertex(3))) {
+      incident_patches.clear();
+      incident_facets.clear();
+      // CHECKME: this could be optimized with a filtered insertion
+      for (int i = 0; i < 4; ++i) {
+        tr.finite_incident_facets(
+            cit->vertex(i),
+            std::inserter(incident_facets, incident_facets.end()));
+      }
+      for (auto&& f : incident_facets) {
+        if (c3t3.is_in_complex(f)) {
+          const auto i = c3t3.surface_patch_index(f);
+          if (i != 2) incident_patches.insert(i);
+        }
+      }
+      if (!incident_patches.empty()) {
+        py::list patch_indices;
+        for (auto&& i : incident_patches) patch_indices.append(i);
+        result.append(py::make_tuple(k, patch_indices));
+      }
+    }
+  }
   return result;
 }
 
