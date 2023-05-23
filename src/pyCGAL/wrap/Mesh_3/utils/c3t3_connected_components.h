@@ -33,8 +33,14 @@ auto connected_components_to_array(const C3t3& c3t3) {
        cit != c3t3.cells_in_complex_end(); ++cit, ++k) {
     for (int i = 0; i < 4; ++i) {
       Facet f{cit, i};
-      if (!c3t3.is_in_complex(f))
-        add_edge(k, gv[tr.mirror_facet(f).first], graph);
+      if (!c3t3.is_in_complex(f)) {
+        auto mf = tr.mirror_facet(f);
+        assert(!tr.is_infinite(f));
+        if (!tr.is_infinite(mf)) {
+          assert(gv.find(mf.first) != gv.end());
+          add_edge(k, gv[mf.first], graph);
+        }
+      }
     }
   }
 

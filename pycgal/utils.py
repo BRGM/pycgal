@@ -118,7 +118,7 @@ def c3t3_to_vtu(
     celldata = fetch_indices(with_subdomain_index)
     if with_connected_components:
         nc, component = c3t3.connected_components()
-        print(f"found {nc} connected components")
+        # print(f"found {nc} connected components")
         celldata["component"] = component
     vtkw.write_vtu(
         vtkw.vtu_doc(vertices, tets, celldata=celldata),
