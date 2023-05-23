@@ -120,7 +120,10 @@ def c3t3_to_vtu(
         nc, component = c3t3.connected_components()
         # print(f"found {nc} connected components")
         celldata["component"] = component
+    nbcpv = c3t3.number_of_connected_components_per_vertex()
+    packs = c3t3.pack_cells_along_facets()
+    celldata["packs"] = packs
     vtkw.write_vtu(
-        vtkw.vtu_doc(vertices, tets, celldata=celldata),
+        vtkw.vtu_doc(vertices, tets, pointdata={"nbcpv": nbcpv}, celldata=celldata),
         f"{basename}-tets",
     )
