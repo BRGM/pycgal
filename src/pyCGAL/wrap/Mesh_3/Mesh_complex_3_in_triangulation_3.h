@@ -19,6 +19,8 @@ typename WrapTraits<C3t3>::py_class wrap_class(WrapTraits<C3t3> wrap,
   pyclass.def("number_of_corners", &C3t3::number_of_corners);
   pyclass.def("number_of_edges", &C3t3::number_of_edges);
   pyclass.def("number_of_facets", &C3t3::number_of_facets);
+  pyclass.def("number_of_cells",
+              [](const C3t3& self) { return self.number_of_cells(); });
 
   pyclass.def(
       "as_arrays",
