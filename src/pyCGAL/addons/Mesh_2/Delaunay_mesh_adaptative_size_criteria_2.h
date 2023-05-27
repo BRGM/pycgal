@@ -20,9 +20,8 @@ class Delaunay_mesh_adaptative_size_criteria_2
   typedef CGAL::Delaunay_mesh_criteria_2<CDT> Base;
 
   Delaunay_mesh_adaptative_size_criteria_2()
-      : Base{0.125, Geom_traits()}, sizing_field{[](const Point_2& P) {
-          return 0;
-        }} {}
+      : Base{0.125, Geom_traits()},
+        sizing_field{[](const Point_2& P) { return 0; }} {}
 
   Delaunay_mesh_adaptative_size_criteria_2(
       const Sizing_field& field, const double aspect_bound = 0.125,
