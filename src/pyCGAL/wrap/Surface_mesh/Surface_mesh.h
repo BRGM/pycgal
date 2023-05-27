@@ -484,6 +484,14 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
       },
       py::arg("f"), py::arg("edge_is_constrained_map") = py::none());
 
+  pyclass.def(
+      "split_edge_constraints_into_polylines",
+      [](Surface_mesh& self, py::object constraints) {
+        return wrap::utils::split_edge_constraints_into_polylines(self,
+                                                                  constraints);
+      },
+      py::arg("constraints").none(false));
+
   module.def(
       "make_mesh",
       [process_mesh_output](wutils::Coordinates_array<Point>& vertices,

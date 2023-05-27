@@ -9,3 +9,4 @@
 #include "io.h"
 #include "make_mesh.h"
 #include "property_maps.h"
+#include "split_edge_constraints_into_polylines.h"
