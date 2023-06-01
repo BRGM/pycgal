@@ -72,6 +72,7 @@ def c3t3_to_vtu(
     with_facet_index=False,
     with_subdomain_index=False,
     with_connected_components=False,
+    pack_cells_along_facets=False,
 ):
     vertices, corners, edges, facets, tets, *indices = c3t3.as_arrays(
         return_corner_index=with_corner_index,
@@ -120,10 +121,9 @@ def c3t3_to_vtu(
         nc, component = c3t3.connected_components()
         # print(f"found {nc} connected components")
         celldata["component"] = component
-    nbcpv = c3t3.number_of_connected_components_per_vertex()
-    packs = c3t3.pack_cells_along_facets()
-    celldata["packs"] = packs
+    if pack_cells_along_facets:
+        celldata["packs"] = pack_cells_along_facets()
     vtkw.write_vtu(
-        vtkw.vtu_doc(vertices, tets, pointdata={"nbcpv": nbcpv}, celldata=celldata),
+        vtkw.vtu_doc(vertices, tets, celldata=celldata),
         f"{basename}-tets",
     )
