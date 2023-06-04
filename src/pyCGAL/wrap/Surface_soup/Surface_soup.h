@@ -2,6 +2,7 @@
 
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/Surface_mesh/Property_capsule.h>
+#include <pybind11/numpy.h>
 
 #include <vector>
 
@@ -97,6 +98,30 @@ wrap_class(WrapTraits<ext::Surface_soup::Surface_soup<EMesh>> wrap,
       py::keep_alive<0, 1>());
   cls.def("collect_polylines", [](Soup& self) {
     return ext::Surface_soup::collect_polylines(self.elements);
+  });
+  cls.def("as_brep", [](Soup& self) {
+    auto&& [vertices, facets, facet_index] = self.as_brep();
+    static_assert(sizeof(typename decltype(vertices)::value_type) ==
+                  3 * sizeof(double));
+    std::size_t vshape[2] = {vertices.size(), 3};
+    py::array_t<double, py::array::c_style> py_vertices{vshape};
+    std::copy(
+        reinterpret_cast<const double*>(vertices.data()),
+        reinterpret_cast<const double*>(vertices.data()) + 3 * vertices.size(),
+        py_vertices.mutable_data());
+    static_assert(sizeof(typename decltype(facets)::value_type) ==
+                  3 * sizeof(int));
+    std::size_t fshape[2] = {facets.size(), 3};
+    py::array_t<int, py::array::c_style> py_facets{fshape};
+    std::copy(facets.data()->data(), facets.data()->data() + 3 * facets.size(),
+              py_facets.mutable_data());
+    static_assert(
+        std::is_same_v<typename decltype(facet_index)::value_type, int>);
+    std::size_t fishape[1] = {facets.size()};
+    py::array_t<int, py::array::c_style> py_indices{fishape};
+    std::copy(facet_index.begin(), facet_index.end(),
+              py_indices.mutable_data());
+    return py::make_tuple(py_vertices, py_facets, py_indices);
   });
 
   return cls;

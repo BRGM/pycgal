@@ -162,6 +162,70 @@ struct Surface_soup {
   auto end() { return emeshes.end(); }
   auto meshes_begin() { return Mesh_iterator{emeshes.begin()}; }
   auto meshes_end() { return Mesh_iterator{emeshes.end()}; }
+  auto as_brep() {
+    using Point = typename Extended_mesh::Point;
+    using Vertex_index = typename Mesh::Vertex_index;
+    using Face_index = typename Mesh::Face_index;
+    using Shared_vertex_index = typename Extended_mesh::Shared_vertex_index;
+    using Triangle = std::array<Shared_vertex_index, 3>;
+    int component_offset = 0;
+    std::size_t nb_vertices = elements.number_of_vertices();
+    std::size_t nb_facets = 0;
+    for (auto &&em : emeshes) {
+      nb_vertices +=
+          em.mesh().number_of_vertices() - em.number_of_shared_vertices();
+      nb_facets += em.mesh().number_of_faces();
+    }
+    std::vector<Point> vertices;
+    vertices.resize(nb_vertices);
+    std::vector<Triangle> facets;
+    facets.resize(nb_facets);
+    std::vector<int> facet_index;
+    facet_index.resize(nb_facets);
+    Shared_vertex_index kv = 0;
+    std::size_t kf = 0;
+    int comp_offset = 0;
+    for (; kv < elements.number_of_vertices(); ++kv) {
+      vertices[kv] = elements.point(kv);
+    }
+    for (auto &&em : emeshes) {
+      auto &m = em.mesh();
+      auto [vid, vid_created] =
+          m.template add_property_map<Vertex_index, Shared_vertex_index>();
+      assert(vid_created);
+      auto [comp, comp_created] =
+          m.template add_property_map<Face_index, int>();
+      assert(comp_created);
+      for (auto &&v : m.vertices()) {
+        if (!em.is_shared(v)) {
+          vertices[kv] = m.point(v);
+          vid[v] = kv;
+          ++kv;
+        } else {
+          vid[v] = em.shared_id(v);
+        }
+      }
+      auto nbcomp = CGAL::Polygon_mesh_processing::connected_components(
+          m, comp, CGAL::parameters::edge_is_constrained_map(em.ecm));
+      assert(CGAL::is_triangle_mesh(m));
+      for (auto &&f : m.faces()) {
+        int i = 0;
+        for (auto &&v : CGAL::vertices_around_face(m.halfedge(f), m)) {
+          facets[kf][i] = vid[v];
+          ++i;
+        }
+        facet_index[kf] = comp_offset + comp[f];
+        ++kf;
+      }
+      comp_offset += nbcomp;
+      m.remove_property_map(vid);
+      m.remove_property_map(comp);
+    }
+    assert(kv == vertices.size());
+    assert(kf == facets.size());
+    assert(kf == facet_index.size());
+    return std::make_tuple(move(vertices), move(facets), move(facet_index));
+  }
 };
 
 }  // namespace Surface_soup
