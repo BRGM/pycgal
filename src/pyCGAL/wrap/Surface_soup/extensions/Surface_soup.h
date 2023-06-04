@@ -153,6 +153,8 @@ struct Surface_soup {
       ++start;
     }
     CGAL::box_self_intersection_d(start, boxes.end(), corefine_pair);
+    // the folowing is important as it will provide shared vertex ids
+    // from constrained edges (resulting from the corefinement)
     elements.collect(*this);
   }
   const EMesh &operator[](const std::size_t i) const { return emeshes[i]; }
