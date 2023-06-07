@@ -10,12 +10,11 @@ namespace Polygon_mesh_processing {
 
 namespace detail {
 
-// this is just a copy of
-// CGAL::Polygon_mesh_processing::internal::split_along_edges that will preserve
-// constrained edges property
-
-template <class TriangleMesh, class Ecm, class VPM>
-void split_along_edges(TriangleMesh& tm, Ecm ecm, VPM vpm) {
+template <class TriangleMesh, class Ecm, class VPM, class OptionalVertexTwin,
+          class OptionalEdgeTwin>
+void split_along_edges(TriangleMesh& tm, Ecm ecm, VPM vpm,
+                       OptionalVertexTwin& keep_vertex_twin,
+                       OptionalEdgeTwin& keep_edge_twin) {
   typedef boost::graph_traits<TriangleMesh> GT;
   typedef typename GT::face_descriptor face_descriptor;
   typedef typename GT::edge_descriptor edge_descriptor;
@@ -67,6 +66,7 @@ void split_along_edges(TriangleMesh& tm, Ecm ecm, VPM vpm) {
     vertex_descriptor vs = source(h, tm);
     // keep track of the constraint property
     ecm[new_edge] = true;
+    if (keep_edge_twin) put(*keep_edge_twin, new_edge, shared_edges[k]);
 
     // replace h with new_hedge
     set_next(new_hedge, next(h, tm), tm);
@@ -120,6 +120,7 @@ void split_along_edges(TriangleMesh& tm, Ecm ecm, VPM vpm) {
   for (const std::pair<halfedge_descriptor, vertex_descriptor>& p :
        vertices_to_duplicate) {
     vertex_descriptor nv = add_vertex(tm);
+    if (keep_vertex_twin) put(*keep_vertex_twin, nv, p.second);
     put(vpm, nv, get(vpm, p.second));
     for (halfedge_descriptor h : halfedges_around_target(p.first, tm))
       set_target(h, nv, tm);

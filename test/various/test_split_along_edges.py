@@ -57,8 +57,25 @@ def test_finite_fault(epsilon=1e-6, remesh_size_bound=0.1):
         if not mesh.is_border(e):
             edge_is_constrained[e] = True
 
-    # TODO: split along edges could return pairs of vertices / edges
-    split_along_edges(mesh, edge_is_constrained_map=edge_is_constrained)
+    # Split along edges
+    [vertices_twins_map, edges_twins_map] = split_along_edges(
+        mesh,
+        edge_is_constrained_map=edge_is_constrained,
+        return_vertex_twin=True,
+        return_edge_twin=True,
+    )
+
+    # Check elements twins
+    edge_twin, ok = mesh.add_edge_property("e:edge_twin", dtype="i", value=0)
+    assert ok
+    for key, value in edges_twins_map.items():
+        edge_twin[key] = 1
+        edge_twin[value] = 2
+    vertex_twin, ok = mesh.add_vertex_property("v:vertex_twin", dtype="i", value=0)
+    assert ok
+    for key, value in vertices_twins_map.items():
+        vertex_twin[key] = 1
+        vertex_twin[value] = 2
 
     # look for pair of consecutive halfedges around vertices to be moved
     constrained_vertices = []
