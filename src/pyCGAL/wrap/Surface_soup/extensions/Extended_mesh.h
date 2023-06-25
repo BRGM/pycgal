@@ -91,6 +91,18 @@ struct Extended_mesh {
     }
     return n;
   }
+  auto is_shared(Vertex_index v) const { return !is_null(svid[v]); }
+  auto shared_id(Vertex_index v) const {
+    assert(is_shared(v));
+    return svid[v];
+  }
+  auto number_of_shared_vertices() const {
+    std::size_t n = 0;
+    for (auto &&v : tm->vertices()) {
+      if (is_shared(v)) ++n;
+    }
+    return n;
+  }
 };
 
 }  // namespace Surface_soup
