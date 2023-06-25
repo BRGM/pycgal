@@ -38,11 +38,12 @@ struct Extended_mesh {
   }
   void init(std::optional<Edge_constraints_map> constraints) {
     evpm = {*tm, "v:exact_point"};
+    bool created = false;
+    std::tie(ecm, created) =
+        tm->template add_property_map<Edge_index, bool>("e:ecm", false);
     if (constraints) {
-      ecm = *constraints;
-    } else {
-      ecm =
-          tm->template add_property_map<Edge_index, bool>("e:ecm", false).first;
+      auto &other = *constraints;
+      for (auto &&e : tm->edges()) ecm[e] = other[e];
     }
     svid = tm->template add_property_map<Vertex_index, int>("v:svid",
                                                             null_shared_vertex)
