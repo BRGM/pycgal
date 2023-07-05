@@ -61,19 +61,16 @@ auto collect_facet_cells(const C3t3& c3t3) {
 template <typename C3t3>
 auto pack_cells_along_facets(const C3t3& c3t3) {
   using Vertex_handle = typename C3t3::Vertex_handle;
-  using Triangulation = typename C3t3::Triangulation;
-  using Vertex_handle = typename C3t3::Vertex_handle;
   using Cell_handle = typename C3t3::Cell_handle;
-  using Facet = typename Triangulation::Facet;
 
-  const Triangulation& tr = c3t3.triangulation();
-  auto vertices = collect_facets_vertices(c3t3);
+  const auto vertices = collect_facets_vertices(c3t3);
 
   std::vector<Cell_handle> cells;
   std::vector<Cell_handle> v_cells;
   std::vector<int> v_comps_ids;
   std::vector<std::vector<std::vector<Cell_handle>>> v_comps{
       vertices.size()};  // connected components around v
+  // Compute local connected components around each vertex
   int maxn = 0;
   for (std::size_t i = 0; i != vertices.size(); ++i) {
     const auto n = collect_connected_cells_and_components(c3t3, vertices[i],
@@ -103,6 +100,7 @@ auto pack_cells_along_facets(const C3t3& c3t3) {
   //        so that the rank of a cell is never searched for
   std::vector<std::vector<int>> local_ranks;
   local_ranks.resize(maxn);
+  // Compute "global" connected components around discontinuities
   for (auto&& local_components : v_comps) {
     const auto nc = local_components.size();
     for (auto&& ranks : local_ranks) ranks.clear();
@@ -117,6 +115,7 @@ auto pack_cells_along_facets(const C3t3& c3t3) {
       ++pranks;
     }
     for (auto&& comp : local_ranks) {
+      // Add edges between all cells of the local component
       for (std::size_t i = 0; i != comp.size(); ++i) {
         for (std::size_t j = i + 1; j != comp.size(); ++j) {
           add_edge(comp[i], comp[j], graph);
