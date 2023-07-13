@@ -122,7 +122,7 @@ def c3t3_to_vtu(
         # print(f"found {nc} connected components")
         celldata["component"] = component
     if pack_cells_along_facets:
-        celldata["packs"] = pack_cells_along_facets()
+        celldata["packs"] = c3t3.pack_cells_along_facets()
     vtkw.write_vtu(
         vtkw.vtu_doc(vertices, tets, celldata=celldata),
         f"{basename}-tets",

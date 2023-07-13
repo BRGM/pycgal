@@ -117,4 +117,5 @@ c3t3_to_vtu(
     with_facet_index=True,
     with_subdomain_index=True,
     with_connected_components=True,
+    pack_cells_along_facets=True,
 )
