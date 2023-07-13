@@ -37,7 +37,7 @@ auto split_edge_constraints_into_polylines(Surface_mesh& mesh,
   auto is_constrained_edge_option =
       convert_to_property_flag<Edge_index>(constraints, mesh);
   if (!is_constrained_edge_option) {
-    throw std::runtime_error("Could not conert object to edge map.");
+    throw std::runtime_error("Could not convert object to edge map.");
   }
   const auto& is_constrained_edge = *is_constrained_edge_option;
 
