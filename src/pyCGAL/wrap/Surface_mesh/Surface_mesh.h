@@ -10,6 +10,9 @@
 #include <pyCGAL/wrap/utils/wrap_index.h>
 #include <pyCGAL/wrap/utils/wrap_stl_container.h>
 
+// FIXME: this header should be moved elsewhere
+#include <pyCGAL/wrap/Polygon_mesh_processing/utils/property_helpers.h>
+
 #include <memory>
 
 #include "utils/Surface_mesh.h"
@@ -491,6 +494,25 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
                                                                   constraints);
       },
       py::arg("constraints").none(false));
+
+  pyclass.def(
+      "pack_cells_along_edges",
+      [](Surface_mesh& self, py::object edge_is_constrained,
+         py::str pack_property_name) {
+        using Edge_index = typename Surface_mesh::Edge_index;
+
+        auto is_constrained_edge_option =
+            wutils::convert_to_property_flag<Edge_index>(edge_is_constrained,
+                                                         self, true);
+        if (!is_constrained_edge_option) {
+          throw std::runtime_error("Could not convert object to edge map.");
+        }
+
+        wutils::pack_cells_along_edges(self, *is_constrained_edge_option,
+                                       pack_property_name);
+      },
+      py::arg("edge_is_constrained").none(false),
+      py::arg("pack_property_name").none(false));
 
   module.def(
       "make_mesh",
