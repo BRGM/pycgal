@@ -29,11 +29,15 @@ int collect_connected_cells_and_components(
     std::vector<int>& components,
     const typename Surface_mesh::template Property_map<
         typename Surface_mesh::Edge_index, bool>& edge_is_constrained) {
+  typename Surface_mesh::Face_index null_face = mesh.null_face();
   int comp_id = 0;
   for (auto&& h : CGAL::halfedges_around_source(v, mesh)) {
+    typename Surface_mesh::Face_index f = mesh.face(h);
+    if (f == null_face) continue; // Do not add null_face to a component
     components.push_back(comp_id);
-    cells.push_back(mesh.face(h));
-    if (edge_is_constrained[mesh.edge(h)]) {
+    cells.push_back(f);
+    typename Surface_mesh::Edge_index e = mesh.edge(h);
+    if (edge_is_constrained[e] || is_border(e, mesh)) {
       ++comp_id;
     }
   }
@@ -85,12 +89,12 @@ void pack_cells_along_edges(Surface_mesh& mesh,
   std::sort(begin(cells), end(cells));
   cells.erase(std::unique(begin(cells), end(cells)), end(cells));
 
+  assert(std::is_sorted(begin(cells), end(cells)));
+
   // using std::vector to store vertices and edges
   using Graph =
       boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>;
   Graph graph{size(cells)};
-
-  assert(std::is_sorted(begin(cells), end(cells)));
 
   // FIXME: could be speed up by a map between rank with repetition and rank
   // without
