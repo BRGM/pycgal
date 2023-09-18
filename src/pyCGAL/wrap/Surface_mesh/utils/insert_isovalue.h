@@ -7,6 +7,36 @@
 
 namespace pyCGAL::wrap::utils {
 
+// NB: it's ok to copy (pass) property maps because they are lightweight
+
+namespace {
+
+template <typename Surface_mesh>
+using Vertex_flag = typename Surface_mesh::template Property_map<
+    typename Surface_mesh::Vertex_index, bool>;
+
+template <typename Surface_mesh>
+struct Void_property_copier {
+  using Edge_index = typename Surface_mesh::Edge_index;
+  void operator()(Edge_index, Edge_index) {}
+};
+
+template <typename Surface_mesh, typename Insertions,
+          typename Property_copier = Void_property_copier<Surface_mesh>>
+void _insert_points(Surface_mesh& sm, const Insertions& insertions,
+                    Vertex_flag<Surface_mesh> f_zero,
+                    Property_copier&& property_copier = {}) {
+  for (auto&& [e, I] : insertions) {
+    auto h = CGAL::Euler::split_edge(sm.halfedge(e), sm);
+    property_copier(e, sm.edge(h));
+    auto v = sm.target(h);
+    sm.point(v) = I;
+    f_zero[v] = true;
+  }
+}
+
+}  // namespace
+
 template <typename Surface_mesh, typename F>
 void insert_isovalue(Surface_mesh& sm, F&& f,
                      std::optional<typename Surface_mesh::template Property_map<
@@ -44,18 +74,14 @@ void insert_isovalue(Surface_mesh& sm, F&& f,
     }
   }
 
-  for (auto&& [e, I] : insertions) {
-    auto h = CGAL::Euler::split_edge(sm.halfedge(e), sm);
-    if (optional_constrained_edges && (*optional_constrained_edges)[e]) {
-      (*optional_constrained_edges)[sm.edge(h)] = true;
-    }
-    auto v = sm.target(h);
-    sm.point(v) = I;
-    f_zero[v] = true;
-  }
-
-  // collect constrained edges
   if (optional_constrained_edges) {
+    auto& is_constrained = *optional_constrained_edges;
+    _insert_points(
+        sm, insertions, f_zero,
+        [&sm, is_constrained](const Edge_index& e1, const Edge_index& e2) {
+          is_constrained[e2] = is_constrained[e1];
+        });
+    // collect constrained edges
     CGAL::Polygon_mesh_processing::triangulate_faces(sm);
     auto& constrained_edges = *optional_constrained_edges;
     for (auto&& e : sm.edges()) {
@@ -63,6 +89,8 @@ void insert_isovalue(Surface_mesh& sm, F&& f,
         constrained_edges[e] = true;
       }
     }
+  } else {
+    _insert_points(sm, insertions, f_zero);
   }
 
   sm.remove_property_map(fv);
