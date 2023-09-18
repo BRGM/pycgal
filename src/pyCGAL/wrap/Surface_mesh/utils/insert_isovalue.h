@@ -46,6 +46,9 @@ void insert_isovalue(Surface_mesh& sm, F&& f,
 
   for (auto&& [e, I] : insertions) {
     auto h = CGAL::Euler::split_edge(sm.halfedge(e), sm);
+    if (optional_constrained_edges && (*optional_constrained_edges)[e]) {
+      (*optional_constrained_edges)[sm.edge(h)] = true;
+    }
     auto v = sm.target(h);
     sm.point(v) = I;
     f_zero[v] = true;
