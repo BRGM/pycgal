@@ -63,25 +63,14 @@ void _insert_points(Surface_mesh& sm, const Insertions& insertions,
   }
 }
 
-template <typename Surface_mesh>
-void _collect_constrained_edges(Surface_mesh& sm,
-                                const Vertex_flag<Surface_mesh> f_zero,
-                                Edge_flag<Surface_mesh> is_constrained) {
-  CGAL::Polygon_mesh_processing::triangulate_faces(sm);
-  for (auto&& e : sm.edges()) {
-    if (f_zero[sm.vertex(e, 0)] && f_zero[sm.vertex(e, 1)]) {
-      is_constrained[e] = true;
-    }
-  }
-}
-
 }  // namespace
 
-template <typename Surface_mesh, typename F>
+template <typename Edge_property_type = bool, typename Surface_mesh, typename F>
 void insert_isovalue(Surface_mesh& sm, F&& f,
-                     std::optional<typename Surface_mesh::template Property_map<
-                         typename Surface_mesh::Edge_index, bool>>
-                         optional_constrained_edges = {}) {
+                     typename Surface_mesh::template Property_map<
+                         typename Surface_mesh::Edge_index, Edge_property_type>
+                         edge_property,
+                     Edge_property_type iso_edge_value) {
   using Point = typename Surface_mesh::Point;
   using Vertex_index = typename Surface_mesh::Vertex_index;
   using Edge_index = typename Surface_mesh::Edge_index;
@@ -105,16 +94,18 @@ void insert_isovalue(Surface_mesh& sm, F&& f,
 
   _build_insertion_points(sm, fv, f_zero, insertions);
 
-  if (optional_constrained_edges) {
-    auto& is_constrained = *optional_constrained_edges;
-    _insert_points(
-        sm, insertions, f_zero,
-        [&sm, is_constrained](const Edge_index& e1, const Edge_index& e2) {
-          is_constrained[e2] = is_constrained[e1];
-        });
-    _collect_constrained_edges(sm, f_zero, is_constrained);
-  } else {
-    _insert_points(sm, insertions, f_zero);
+  _insert_points(
+      sm, insertions, f_zero,
+      [&sm, edge_property](const Edge_index& e1, const Edge_index& e2) {
+        edge_property[e2] = edge_property[e1];
+      });
+
+  CGAL::Polygon_mesh_processing::triangulate_faces(sm);
+  for (auto&& e : sm.edges()) {
+    if (f_zero[sm.vertex(e, 0)] && f_zero[sm.vertex(e, 1)]) {
+      assert(edge_property[e] == Edge_property_type{});
+      edge_property[e] = iso_edge_value;
+    }
   }
 
   sm.remove_property_map(fv);

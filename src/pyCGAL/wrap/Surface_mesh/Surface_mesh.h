@@ -467,25 +467,47 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
       [](Surface_mesh& self, py::function& f,
          py::object edge_is_constrained_map) {
         using Edge_index = typename Surface_mesh::Edge_index;
-        using Edge_mask =
+        using Edge_flag =
             typename Surface_mesh::template Property_map<Edge_index, bool>;
-        std::optional<Edge_mask> constrained_edges;
-        if (!edge_is_constrained_map.is_none()) {
-          try {
-            constrained_edges = py::cast<Edge_mask>(edge_is_constrained_map);
-          } catch (py::cast_error) {
-            std::string name{py::cast<std::string>(edge_is_constrained_map)};
-            auto&& [pmap, created] =
-                self.template add_property_map<Edge_index, bool>(name, false);
-            assert(created);
-            constrained_edges = pmap;
-          }
+        Edge_flag is_constrained;
+        try {
+          is_constrained = py::cast<Edge_flag>(edge_is_constrained_map);
+        } catch (py::cast_error) {
+          std::string name{py::cast<std::string>(edge_is_constrained_map)};
+          auto&& [pmap, created] =
+              self.template add_property_map<Edge_index, bool>(name, false);
+          assert(created);
+          is_constrained = pmap;
         }
         wrap::utils::insert_isovalue(
             self, [f](const Point& P) { return py::cast<double>(f(P)); },
-            constrained_edges);
+            is_constrained, true);
       },
-      py::arg("f"), py::arg("edge_is_constrained_map") = py::none());
+      py::arg("f").none(false), py::arg("edge_is_constrained_map").none(false));
+
+  pyclass.def(
+      "insert_isovalue",
+      [](Surface_mesh& self, py::function& f, py::object edge_rank_map,
+         int rank) {
+        using Edge_index = typename Surface_mesh::Edge_index;
+        using Edge_map =
+            typename Surface_mesh::template Property_map<Edge_index, int>;
+        Edge_map rank_map;
+        try {
+          rank_map = py::cast<Edge_map>(edge_rank_map);
+        } catch (py::cast_error) {
+          std::string name{py::cast<std::string>(edge_rank_map)};
+          auto&& [pmap, created] =
+              self.template add_property_map<Edge_index, int>(name, 0);
+          assert(created);
+          rank_map = pmap;
+        }
+        wrap::utils::insert_isovalue(
+            self, [f](const Point& P) { return py::cast<double>(f(P)); },
+            rank_map, rank);
+      },
+      py::arg("f").none(false), py::arg("edge_rank_map").none(false),
+      py::arg("rank"));
 
   pyclass.def(
       "split_edge_constraints_into_polylines",
