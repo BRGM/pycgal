@@ -9,7 +9,7 @@ namespace pyCGAL::wrap::utils {
 
 // NB: it's ok to copy (pass) property maps because they are lightweight
 
-namespace {
+namespace detail {
 
 template <typename Surface_mesh>
 using Vertex_flag = typename Surface_mesh::template Property_map<
@@ -63,7 +63,7 @@ void _insert_points(Surface_mesh& sm, const Insertions& insertions,
   }
 }
 
-}  // namespace
+}  // namespace detail
 
 template <typename Edge_property_type = bool, typename Surface_mesh, typename F>
 void insert_isovalue(Surface_mesh& sm, F&& f,
@@ -92,9 +92,9 @@ void insert_isovalue(Surface_mesh& sm, F&& f,
 
   std::vector<Insertion_point> insertions;
 
-  _build_insertion_points(sm, fv, f_zero, insertions);
+  detail::_build_insertion_points(sm, fv, f_zero, insertions);
 
-  _insert_points(
+  detail::_insert_points(
       sm, insertions, f_zero,
       [&sm, edge_property](const Edge_index& e1, const Edge_index& e2) {
         edge_property[e2] = edge_property[e1];
