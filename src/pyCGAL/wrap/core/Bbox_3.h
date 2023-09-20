@@ -27,6 +27,10 @@ typename WrapTraits<CGAL::Bbox_3>::py_class wrap_class(WrapTraits<CGAL::Bbox_3>,
   pyclass.def(py::self + py::self);
   pyclass.def(py::self += py::self);
   pyclass.def("dilate", &Bbox_3::dilate);
+  pyclass.def("as_tuple", [](const Bbox_3& self) {
+    return py::make_tuple(self.xmin(), self.ymin(), self.zmin(), self.xmax(),
+                          self.ymax(), self.zmax());
+  });
   pyclass.def("__str__", [](const Bbox_3& self) {
     py::str s("Bbox_3: {} < x < {}, {} < y < {}, {} < z < {}");
     return s.format(self.xmin(), self.xmax(), self.ymin(), self.ymax(),
