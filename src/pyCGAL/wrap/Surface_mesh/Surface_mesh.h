@@ -5,6 +5,7 @@
 #ifdef CGAL_USE_VTK
 #include <CGAL/IO/VTK.h>
 #endif
+#include <CGAL/Bbox_3.h>
 #include <CGAL/Surface_mesh.h>
 #include <pyCGAL/typedefs.h>
 #include <pyCGAL/wrap/utils/wrap_index.h>
@@ -170,6 +171,24 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
   pyclass.def(
       py::init(py::overload_cast<wutils::Coordinates_array<Point>&, py::list>(
           wutils::make_mesh<Surface_mesh>)));
+  pyclass.def(py::init([](const CGAL::Bbox_3& box) {
+    auto p = std::make_unique<Surface_mesh>();
+    auto A = p->add_vertex(Point(box.xmin(), box.ymin(), box.zmin()));
+    auto B = p->add_vertex(Point(box.xmax(), box.ymin(), box.zmin()));
+    auto C = p->add_vertex(Point(box.xmax(), box.ymax(), box.zmin()));
+    auto D = p->add_vertex(Point(box.xmin(), box.ymax(), box.zmin()));
+    auto E = p->add_vertex(Point(box.xmin(), box.ymin(), box.zmax()));
+    auto F = p->add_vertex(Point(box.xmax(), box.ymin(), box.zmax()));
+    auto G = p->add_vertex(Point(box.xmax(), box.ymax(), box.zmax()));
+    auto H = p->add_vertex(Point(box.xmin(), box.ymax(), box.zmax()));
+    p->add_face(A, D, C, B);
+    p->add_face(E, F, G, H);
+    p->add_face(A, B, F, E);
+    p->add_face(B, C, G, F);
+    p->add_face(C, D, H, G);
+    p->add_face(D, A, E, H);
+    return p;
+  }));
 
   pyclass.def("number_of_vertices", &Surface_mesh::number_of_vertices);
   pyclass.def("number_of_halfedges", &Surface_mesh::number_of_halfedges);
