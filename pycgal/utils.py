@@ -127,3 +127,31 @@ def c3t3_to_vtu(
         vtkw.vtu_doc(vertices, tets, celldata=celldata),
         f"{basename}-tets",
     )
+
+
+def flag_surface_mesh_corners(mesh, vflag="v:is_vertex", maximum_angle=100.0):
+    from .Epick import approximate_angle
+    from .Polygon_mesh_processing import extract_boundary_cycles
+
+    is_vertex, created = mesh.add_vertex_property(vflag, dtype="b")
+    assert created
+
+    def inspect_edges(hp, hn):
+        A = mesh[mesh.source(hp)]
+        B = mesh[mesh.target(hp)]
+        C = mesh[mesh.target(hn)]
+        # CHECKME: is abs necessary?
+        if abs(approximate_angle(A, B, C)) < maximum_angle:
+            is_vertex[mesh.target(hp)] = True
+
+    cycles = extract_boundary_cycles(mesh)
+    for seed in cycles:
+        h0 = seed
+        h1 = mesh.next(h0)
+        while h1 != seed:
+            inspect_edges(h0, h1)
+            h0 = h1
+            h1 = mesh.next(h1)
+        inspect_edges(h0, h1)
+
+    return is_vertex
