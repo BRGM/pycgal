@@ -21,7 +21,7 @@ auto collect_edges_vertices(const Surface_mesh& mesh,
   vertices.shrink_to_fit();
   return vertices;
 }
-
+/** \returns the number of components */
 template <typename Surface_mesh>
 int collect_connected_cells_and_components(
     const Surface_mesh& mesh, const typename Surface_mesh::Vertex_index v,
@@ -52,6 +52,7 @@ int collect_connected_cells_and_components(
   if (comp_id == 0) {
     return 1;
   }
+  // we numbered components starting at 1
   for (auto& component : components) {
     if (component == comp_id) {
       component = 0;
