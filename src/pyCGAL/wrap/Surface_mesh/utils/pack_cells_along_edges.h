@@ -29,15 +29,23 @@ int collect_connected_cells_and_components(
     std::vector<int>& components,
     const typename Surface_mesh::template Property_map<
         typename Surface_mesh::Edge_index, bool>& edge_is_constrained) {
-  typename Surface_mesh::Face_index null_face = mesh.null_face();
+  // at least one edge must be constrained otherwise the algorithm will fail on
+  // borders possibly detecting 2 components
+  assert([&]() {
+    for (auto&& h : CGAL::halfedges_around_source(v, mesh)) {
+      if (edge_is_constrained[mesh.edge(h)]) return true;
+    }
+    return false;
+  }());
   int comp_id = 0;
   for (auto&& h : CGAL::halfedges_around_source(v, mesh)) {
-    typename Surface_mesh::Face_index f = mesh.face(h);
-    if (f == null_face) continue; // Do not add null_face to a component
+    if (mesh.is_border(h)) {
+      ++comp_id;
+      continue;
+    }
     components.push_back(comp_id);
-    cells.push_back(f);
-    typename Surface_mesh::Edge_index e = mesh.edge(h);
-    if (edge_is_constrained[e] || is_border(e, mesh)) {
+    cells.push_back(mesh.face(h));
+    if (edge_is_constrained[mesh.edge(h)]) {
       ++comp_id;
     }
   }
