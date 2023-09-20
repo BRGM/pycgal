@@ -495,7 +495,7 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
           std::string name{py::cast<std::string>(edge_is_constrained_map)};
           auto&& [pmap, created] =
               self.template add_property_map<Edge_index, bool>(name, false);
-          assert(created);
+          // assert(created); // there's no real reason to force creation
           is_constrained = pmap;
         }
         wrap::utils::insert_isovalue(
