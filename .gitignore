@@ -51,3 +51,5 @@ src/pyCGAL/packages/*/*.cpp
 # numpy
 *.npy
 *.npz
+
+pycgal/_version.py
