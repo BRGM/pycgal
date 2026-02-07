@@ -47,6 +47,7 @@ src/pyCGAL/packages/*/*.cpp
 *.png
 *.off
 *.vtu
+*.vtp
 
 # numpy
 *.npy
