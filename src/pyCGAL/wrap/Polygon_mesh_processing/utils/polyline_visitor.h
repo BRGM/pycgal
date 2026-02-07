@@ -44,11 +44,9 @@ struct Polyline_visitor : Default_visitor<Surface_mesh> {
   void set_pid_map(std::string name) {
     assert(sm1 && sm2);
     assert(!pmaps);
-    auto map1 =
-        sm1->template property_map<Edge_index, Polyline_id>(name);
+    auto map1 = sm1->template property_map<Edge_index, Polyline_id>(name);
     if (!map1) throw std::runtime_error("Polyline id map must exist !");
-    auto map2 =
-        sm2->template property_map<Edge_index, Polyline_id>(name);
+    auto map2 = sm2->template property_map<Edge_index, Polyline_id>(name);
     if (!map2) throw std::runtime_error("Polyline id map must exist !");
     pmaps.emplace(*map1, *map2);
   }

@@ -30,7 +30,7 @@ struct Exact_vertex_point_map {
 
   // exterior references
   Exact_point_map exact_point_map;
-  Mesh *tm_ptr;  // this must not be invalidated
+  Mesh* tm_ptr;  // this must not be invalidated
 
   // Converters
   CGAL::Cartesian_converter<K, EK> to_exact;
@@ -38,22 +38,22 @@ struct Exact_vertex_point_map {
 
   Exact_vertex_point_map() : tm_ptr{nullptr} {}
 
-  Exact_vertex_point_map(Mesh &tm, const std::string &name = {}) : tm_ptr{&tm} {
+  Exact_vertex_point_map(Mesh& tm, const std::string& name = {}) : tm_ptr{&tm} {
     auto res = tm.template add_property_map<Vertex_index, Exact_point_3>(name);
     assert(res.second);
     exact_point_map = res.first;
-    for (auto &&v : vertices(tm)) {
+    for (auto&& v : vertices(tm)) {
       exact_point_map[v] = to_exact(tm.point(v));
     }
   }
 
-  friend reference get(const Exact_vertex_point_map &map, key_type k) {
+  friend reference get(const Exact_vertex_point_map& map, key_type k) {
     CGAL_precondition(map.tm_ptr != nullptr);
     return map.exact_point_map[k];
   }
 
-  friend void put(const Exact_vertex_point_map &map, key_type k,
-                  const EK::Point_3 &p) {
+  friend void put(const Exact_vertex_point_map& map, key_type k,
+                  const EK::Point_3& p) {
     CGAL_precondition(map.tm_ptr != nullptr);
     map.exact_point_map[k] = p;
     // create the input point from the exact one

@@ -18,15 +18,15 @@ struct Surface_soup {
   using Mesh_with_constraints = std::pair<Mesh, Constraints_map>;
   struct Mesh_iterator : std::vector<EMesh>::iterator {
     using base = typename std::vector<EMesh>::iterator;
-    Mesh &operator*() {
-      base &it = *this;
+    Mesh& operator*() {
+      base& it = *this;
       return it->mesh();
     }
   };
   struct Shared_elements {
     using Point = typename Extended_mesh::Point;
     using Exact_point = typename Extended_mesh::Exact_point;
-    Surface_soup *soup = nullptr;
+    Surface_soup* soup = nullptr;
     using Mesh_index = std::size_t;
     using Vertex_index = typename Mesh::Vertex_index;
     using Edge_index = typename Mesh::Edge_index;
@@ -46,7 +46,7 @@ struct Surface_soup {
     std::vector<std::vector<Original_vertex_info>> original_vertices_per_id;
     std::vector<std::vector<Mesh_index>> edge_incidences;
 
-    Point point(const Original_vertex_info &info) const {
+    Point point(const Original_vertex_info& info) const {
       assert(soup);
       return (*soup)[info.mesh].point(info.v);
     }
@@ -55,7 +55,7 @@ struct Surface_soup {
       return point(original_vertices_per_id[v][0]);
     }
     auto number_of_vertices() const { return original_vertices_per_id.size(); }
-    Shared_vertex_index collect_new_vertex(const Exact_point &P) {
+    Shared_vertex_index collect_new_vertex(const Exact_point& P) {
       assert(vertex_id.size() == original_vertices_per_id.size());
       auto insert_res = vertex_id.insert({P, original_vertices_per_id.size()});
       if (insert_res.second) original_vertices_per_id.emplace_back();
@@ -64,7 +64,7 @@ struct Surface_soup {
     Shared_vertex_index shared_vertex(const Mesh_index i,
                                       const Vertex_index v) {
       assert(soup);
-      auto &emesh = (*soup)[i];
+      auto& emesh = (*soup)[i];
       auto sv = emesh.shared_vertex_index(v);
       if (emesh.is_null(sv)) {
         sv = collect_new_vertex(emesh.exact_point(v));
@@ -76,7 +76,7 @@ struct Surface_soup {
     Shared_edge_index collect_new_edge(const Mesh_index i, const Edge_index e) {
       assert(soup);
       assert(edge_id.size() == edge_incidences.size());
-      auto &mesh = (*soup)[i].mesh();
+      auto& mesh = (*soup)[i].mesh();
       const auto a = shared_vertex(i, source(e, mesh));
       const auto b = shared_vertex(i, target(e, mesh));
       auto insert_res =
@@ -86,17 +86,17 @@ struct Surface_soup {
       edge_incidences[se].push_back(i);
       return se;
     }
-    void collect(Surface_soup &a_soup) {
+    void collect(Surface_soup& a_soup) {
       assert(soup == nullptr);
       soup = &a_soup;
       Mesh_index i = 0;
-      for (auto &&emesh : *soup) {
-        for (auto &&e : emesh.edges()) {
+      for (auto&& emesh : *soup) {
+        for (auto&& e : emesh.edges()) {
           if (emesh.is_constrained(e)) collect_new_edge(i, e);
         }
         ++i;
       }
-      for (auto &&incidences : edge_incidences) {
+      for (auto&& incidences : edge_incidences) {
         std::sort(incidences.begin(), incidences.end());
       }
     }
@@ -104,16 +104,16 @@ struct Surface_soup {
   std::vector<Extended_mesh> emeshes;
   std::vector<Box> boxes;
   Shared_elements elements;
-  Surface_soup(std::vector<Mesh_with_constraints> &&meshes,
+  Surface_soup(std::vector<Mesh_with_constraints>&& meshes,
                const bool clip_with_first = false,
                const bool add_borders_as_constraints = true) {
-    for (auto &&M : meshes) emeshes.emplace_back(std::move(M.first), M.second);
+    for (auto&& M : meshes) emeshes.emplace_back(std::move(M.first), M.second);
     init(clip_with_first, add_borders_as_constraints);
   }
-  Surface_soup(std::vector<Mesh_with_constraints> &meshes,
+  Surface_soup(std::vector<Mesh_with_constraints>& meshes,
                const bool clip_with_first = false,
                const bool add_borders_as_constraints = true) {
-    for (auto &&M : meshes) emeshes.emplace_back(M.first, M.second);
+    for (auto&& M : meshes) emeshes.emplace_back(M.first, M.second);
     init(clip_with_first, add_borders_as_constraints);
   }
   auto _corefinement_parameters(const std::size_t i) {
@@ -122,7 +122,7 @@ struct Surface_soup {
   }
   void clip_with_first_surface() {
     if (emeshes.empty()) return;
-    auto &clipper = emeshes[0];
+    auto& clipper = emeshes[0];
     for (std::size_t i = 1; i < emeshes.size(); ++i) {
       CGAL::Polygon_mesh_processing::clip(emeshes[i].mesh(), clipper.mesh(),
                                           _corefinement_parameters(i),
@@ -139,8 +139,8 @@ struct Surface_soup {
       }
     }
     boxes.reserve(emeshes.size());
-    for (auto &&S : emeshes) boxes.emplace_back(S.bbox());
-    auto corefine_pair = [&](const Box &box_i, const Box &box_j) {
+    for (auto&& S : emeshes) boxes.emplace_back(S.bbox());
+    auto corefine_pair = [&](const Box& box_i, const Box& box_j) {
       auto i = box_i.id();
       auto j = box_j.id();
       CGAL::Polygon_mesh_processing::corefine(
@@ -157,7 +157,7 @@ struct Surface_soup {
     // from constrained edges (resulting from the corefinement)
     elements.collect(*this);
   }
-  const EMesh &operator[](const std::size_t i) const { return emeshes[i]; }
+  const EMesh& operator[](const std::size_t i) const { return emeshes[i]; }
   auto begin() { return emeshes.begin(); }
   auto end() { return emeshes.end(); }
   auto meshes_begin() { return Mesh_iterator{emeshes.begin()}; }
@@ -171,7 +171,7 @@ struct Surface_soup {
     int component_offset = 0;
     std::size_t nb_vertices = elements.number_of_vertices();
     std::size_t nb_facets = 0;
-    for (auto &&em : emeshes) {
+    for (auto&& em : emeshes) {
       nb_vertices +=
           em.mesh().number_of_vertices() - em.number_of_shared_vertices();
       nb_facets += em.mesh().number_of_faces();
@@ -188,15 +188,15 @@ struct Surface_soup {
     for (; kv < elements.number_of_vertices(); ++kv) {
       vertices[kv] = elements.point(kv);
     }
-    for (auto &&em : emeshes) {
-      auto &m = em.mesh();
+    for (auto&& em : emeshes) {
+      auto& m = em.mesh();
       auto [vid, vid_created] =
           m.template add_property_map<Vertex_index, Shared_vertex_index>();
       assert(vid_created);
       auto [comp, comp_created] =
           m.template add_property_map<Face_index, int>();
       assert(comp_created);
-      for (auto &&v : m.vertices()) {
+      for (auto&& v : m.vertices()) {
         if (!em.is_shared(v)) {
           vertices[kv] = m.point(v);
           vid[v] = kv;
@@ -208,9 +208,9 @@ struct Surface_soup {
       auto nbcomp = CGAL::Polygon_mesh_processing::connected_components(
           m, comp, CGAL::parameters::edge_is_constrained_map(em.ecm));
       assert(CGAL::is_triangle_mesh(m));
-      for (auto &&f : m.faces()) {
+      for (auto&& f : m.faces()) {
         int i = 0;
-        for (auto &&v : CGAL::vertices_around_face(m.halfedge(f), m)) {
+        for (auto&& v : CGAL::vertices_around_face(m.halfedge(f), m)) {
           facets[kf][i] = vid[v];
           ++i;
         }

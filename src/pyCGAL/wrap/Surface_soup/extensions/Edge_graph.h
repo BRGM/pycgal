@@ -17,16 +17,16 @@ struct Edge_graph {
   using vertex_descriptor = typename Graph::vertex_descriptor;
 
   Graph graph;
-  const ShElts &shared;
+  const ShElts& shared;
 
-  Edge_graph(const ShElts &elts) : shared{elts} {
+  Edge_graph(const ShElts& elts) : shared{elts} {
     std::vector<vertex_descriptor> graph_vertices;
     const auto n = shared.number_of_vertices();
     graph_vertices.reserve(n);
     for (int i = 0; i != n; ++i) {
       graph_vertices.emplace_back(add_vertex(i, graph));
     }
-    for (auto &&[extremities, e] : shared.edge_id) {
+    for (auto&& [extremities, e] : shared.edge_id) {
       add_edge(graph_vertices[extremities.first],
                graph_vertices[extremities.second], e, graph);
     }
@@ -34,7 +34,7 @@ struct Edge_graph {
 
   bool is_terminal(vertex_descriptor v) const {
     auto b = out_edges(v, graph).first;
-    const auto &incidences = shared.edge_incidences;
+    const auto& incidences = shared.edge_incidences;
     return (incidences[graph[*b]] != incidences[graph[*std::next(b)]]);
   }
 

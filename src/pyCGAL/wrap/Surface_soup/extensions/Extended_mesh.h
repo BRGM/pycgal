@@ -27,12 +27,12 @@ struct Extended_mesh {
   Edge_constraints_map ecm;
   Exact_vertex_point_map evpm;
   Shared_vertex_id_map svid;
-  Extended_mesh(const Mesh &M,
+  Extended_mesh(const Mesh& M,
                 std::optional<Edge_constraints_map> constraints = {})
       : tm{std::make_shared<Mesh>(M)} {
     init(constraints);
   }
-  Extended_mesh(Mesh &&M, std::optional<Edge_constraints_map> constraints = {})
+  Extended_mesh(Mesh&& M, std::optional<Edge_constraints_map> constraints = {})
       : tm{std::make_shared<Mesh>(std::forward<Mesh>(M))} {
     init(constraints);
   }
@@ -42,15 +42,15 @@ struct Extended_mesh {
     std::tie(ecm, created) =
         tm->template add_property_map<Edge_index, bool>("e:ecm", false);
     if (constraints) {
-      auto &other = *constraints;
-      for (auto &&e : tm->edges()) ecm[e] = other[e];
+      auto& other = *constraints;
+      for (auto&& e : tm->edges()) ecm[e] = other[e];
     }
     svid = tm->template add_property_map<Vertex_index, int>("v:svid",
                                                             null_shared_vertex)
                .first;
   }
-  const Point &point(const Vertex_index v) const { return tm->point(v); }
-  const Exact_point &exact_point(const Vertex_index v) const {
+  const Point& point(const Vertex_index v) const { return tm->point(v); }
+  const Exact_point& exact_point(const Vertex_index v) const {
     return get(evpm, v);
   }
   bool is_constrained(const Edge_index e) const { return get(ecm, e); }
@@ -66,27 +66,27 @@ struct Extended_mesh {
   bool is_null(const Shared_vertex_index sv) const {
     return sv == null_shared_vertex;
   }
-  const Mesh &mesh() const { return *tm; }
-  Mesh &mesh() { return *tm; }
+  const Mesh& mesh() const { return *tm; }
+  Mesh& mesh() { return *tm; }
   auto bbox() const { return CGAL::Polygon_mesh_processing::bbox(*tm); }
   auto edges() const { return tm->edges(); }
   auto number_of_constrained_edges() const {
     std::size_t n = 0;
-    for (auto &&e : edges()) {
+    for (auto&& e : edges()) {
       if (is_constrained(e)) ++n;
     }
     return n;
   }
   void constrain_border_edges() {
-    auto &mesh = *tm;
-    for (auto &&e : mesh.edges()) {
+    auto& mesh = *tm;
+    for (auto&& e : mesh.edges()) {
       if (mesh.is_border(e)) put(ecm, e, true);
     }
   }
   std::size_t number_of_border_edges() const {
-    auto &mesh = *tm;
+    auto& mesh = *tm;
     std::size_t n = 0;
-    for (auto &&e : mesh.edges()) {
+    for (auto&& e : mesh.edges()) {
       if (mesh.is_border(e)) ++n;
     }
     return n;
@@ -98,7 +98,7 @@ struct Extended_mesh {
   }
   auto number_of_shared_vertices() const {
     std::size_t n = 0;
-    for (auto &&v : tm->vertices()) {
+    for (auto&& v : tm->vertices()) {
       if (is_shared(v)) ++n;
     }
     return n;

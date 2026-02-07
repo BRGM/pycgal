@@ -10,10 +10,12 @@ template <typename C3T3, bool rebind = false, bool no_patch = false>
 struct C3t3_pmaps {
   // FIXME: enums were introduced in CGAL 6
   //        is the conversion bool -> enum correct?
-  using Generator = CGAL::SMDS_3::Medit_pmap_generator<C3T3,
-  rebind ? CGAL::SMDS_3::RENUMBER_SUBDOMAINS : CGAL::SMDS_3::USE_SUBDOMAIN_INDICES
-  ,
-  no_patch ? CGAL::SMDS_3::USE_CELL_INDICES : CGAL::SMDS_3::RENUMBER_SURFACE_PATCH_INDICES>;
+  using Generator = CGAL::SMDS_3::Medit_pmap_generator<
+      C3T3,
+      rebind ? CGAL::SMDS_3::RENUMBER_SUBDOMAINS
+             : CGAL::SMDS_3::USE_SUBDOMAIN_INDICES,
+      no_patch ? CGAL::SMDS_3::USE_CELL_INDICES
+               : CGAL::SMDS_3::RENUMBER_SURFACE_PATCH_INDICES>;
   typename Generator::Cell_pmap cell_pmap;
   typename Generator::Facet_pmap facet_pmap;
   typename Generator::Facet_pmap_twice facet_pmap_twice;

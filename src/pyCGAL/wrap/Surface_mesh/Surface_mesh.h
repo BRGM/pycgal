@@ -238,7 +238,7 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
 
   pyclass.def("has_garbage", &Surface_mesh::has_garbage);
   pyclass.def("collect_garbage",
-              (void(Surface_mesh::*)()) & Surface_mesh::collect_garbage);
+              (void (Surface_mesh::*)())&Surface_mesh::collect_garbage);
 
   pyclass.def("__iadd__", [](Surface_mesh& self, const Surface_mesh& other) {
     self += other;
@@ -324,10 +324,10 @@ typename WrapTraits<CGAL::Surface_mesh<Point>>::py_class wrap_class(
                               &Surface_mesh::is_valid, py::const_));
   pyclass.def("is_valid", py::overload_cast<Halfedge_index, bool>(
                               &Surface_mesh::is_valid, py::const_));
-  pyclass.def("is_valid", py::overload_cast<Edge_index, bool>(&Surface_mesh::is_valid,
-                                                        py::const_));
-  pyclass.def("is_valid", py::overload_cast<Face_index, bool>(&Surface_mesh::is_valid,
-                                                        py::const_));
+  pyclass.def("is_valid", py::overload_cast<Edge_index, bool>(
+                              &Surface_mesh::is_valid, py::const_));
+  pyclass.def("is_valid", py::overload_cast<Face_index, bool>(
+                              &Surface_mesh::is_valid, py::const_));
 
   pyclass.def("is_border",
               py::overload_cast<Vertex_index, bool>(&Surface_mesh::is_border,

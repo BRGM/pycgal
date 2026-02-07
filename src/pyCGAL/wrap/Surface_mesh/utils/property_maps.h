@@ -338,7 +338,7 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   py::iterator make_iterator() {
     return std::visit(
         [](auto&& alternative) -> py::iterator {
-            return py::make_iterator(alternative.begin(), alternative.end());
+          return py::make_iterator(alternative.begin(), alternative.end());
         },
         map);
   }
