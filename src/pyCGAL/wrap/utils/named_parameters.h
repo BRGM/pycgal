@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CGAL/boost/graph/Named_function_parameters.h>
+// #include <CGAL/boost/graph/Named_function_parameters.h>
 
 #include <cassert>
 #include <optional>

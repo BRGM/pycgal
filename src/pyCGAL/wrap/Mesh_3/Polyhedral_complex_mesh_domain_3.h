@@ -45,18 +45,19 @@ typename WrapTraits<Domain>::py_class wrap_class(WrapTraits<Domain> wrap,
           } catch (py::cast_error e) {
             throw std::runtime_error("Could not convert edge map name!");
           }
-          auto [edge_is_constrained, found] =
+          auto edge_is_constrained =
               outer_shell.template property_map<Edge_index, bool>(mapname);
           // FIXME: the constraints map could be optional
-          if (!found)
+          if (!edge_is_constrained)
             throw std::runtime_error("Could not convert edge map name!");
+          const auto& is_constrained = *edge_is_constrained;
           std::vector<Surface_mesh> components;
           CGAL::Polygon_mesh_processing::split_connected_components(
               outer_shell, components,
-              CGAL::parameters::edge_is_constrained_map(edge_is_constrained));
+              CGAL::parameters::edge_is_constrained_map(is_constrained));
           std::size_t n = 0;
           for (auto&& e : outer_shell.edges()) {
-            if (edge_is_constrained[e]) ++n;
+            if (is_constrained[e]) ++n;
           }
           std::cerr << "Found " << n << " constrained edges and "
                     << components.size()
@@ -68,18 +69,19 @@ typename WrapTraits<Domain>::py_class wrap_class(WrapTraits<Domain> wrap,
           }
           for (auto&& S : inner_surfaces) {
             Surface_mesh& mesh = S.cast<Surface_mesh&>();
-            std::tie(edge_is_constrained, found) =
+            auto edge_is_constrained =
                 mesh.template property_map<Edge_index, bool>(mapname);
             // FIXME: the constraints map could be optional
-            if (!found)
+            if (!edge_is_constrained)
               throw std::runtime_error("Could not convert edge map name!");
             components.clear();
+            const auto& is_constrained = *edge_is_constrained;
             CGAL::Polygon_mesh_processing::split_connected_components(
                 mesh, components,
-                CGAL::parameters::edge_is_constrained_map(edge_is_constrained));
+                CGAL::parameters::edge_is_constrained_map(is_constrained));
             n = 0;
             for (auto&& e : mesh.edges()) {
-              if (edge_is_constrained[e]) ++n;
+              if (is_constrained[e]) ++n;
             }
             std::cerr << "Found " << n << " constrained edges and "
                       << components.size() << " connected components on mesh."

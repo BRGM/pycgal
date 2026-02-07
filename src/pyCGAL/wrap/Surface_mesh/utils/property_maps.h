@@ -337,8 +337,8 @@ struct Pmap_holder<Surface_mesh, Index, std::tuple<Ts...>> {
   }
   py::iterator make_iterator() {
     return std::visit(
-        [](auto alternative) {
-          return py::make_iterator(alternative.begin(), alternative.end());
+        [](auto&& alternative) -> py::iterator {
+            return py::make_iterator(alternative.begin(), alternative.end());
         },
         map);
   }
@@ -522,7 +522,7 @@ struct Find_property<Traits, std::tuple<T, Ts...>> {
                       const std::string& name) {
     using Index = typename Traits::index;
     auto tmp = mesh.template property_map<Index, T>(name);
-    if (tmp.second) return Result{typename Traits::holder{tmp.first}};
+    if (tmp) return Result{typename Traits::holder{*tmp}};
     return Find_property<Traits, std::tuple<Ts...>>::check(mesh, name);
   }
 };

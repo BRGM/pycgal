@@ -209,14 +209,15 @@ template <typename T, typename... Ts>
 struct Collect_property<T, Ts...> {
   template <typename Index, typename Surface_mesh>
   static py::object search(const Surface_mesh& mesh, const std::string& name) {
-    auto [map, exists] = mesh.template property_map<Index, T>(name);
-    if (!exists)
+    auto map = mesh.template property_map<Index, T>(name);
+    if (!map)
       return Collect_property<Ts...>::template search<Index>(mesh, name);
     const py::ssize_t n = number_of_valid_indices<Index>(mesh);
     auto a = py::array_t<T, py::array::c_style>{n};
     auto p = a.mutable_data(0);
+    const auto& view = *map;
     for (auto&& i : valid_indices<Index>(mesh)) {
-      *p = map[i];
+      *p = view[i];
       ++p;
     }
     return a;

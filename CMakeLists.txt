@@ -5,7 +5,7 @@ project(pycgal CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PYCGAL_CGAL_VERSION 5.4.4)
+set(PYCGAL_CGAL_VERSION 6.1.1)
 set(PYCGAL_PYBIND11_VERSION 2.10.4)
 
 set(CGAL_HEADER_ONLY ON)
@@ -53,8 +53,8 @@ if(NOT CGAL_FOUND) # else fetch it from github
     NO_DEFAULT_PATH
   )
 endif()
-include(${CGAL_USE_FILE})
 
+set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 ${PYCGAL_PYBIND11_VERSION} QUIET) # try locally
 if(NOT pybind11_FOUND) # else fetch it from github
   message(STATUS "Could NOT find pybind11>=${PYCGAL_PYBIND11_VERSION}.")
