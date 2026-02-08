@@ -1,6 +1,3 @@
-import numpy as np
-
-from pycgal.Epick import Point_3, Vector_3
 from pycgal.Surface_mesh import Surface_mesh
 from pycgal.utils import (
     surface_mesh_to_vtp as to_vtp,

@@ -8,23 +8,14 @@ repos:
     -   id: trailing-whitespace
     -   id: check-merge-conflict
     -   id: mixed-line-ending
--   repo: https://github.com/myint/autoflake
-    rev: v1.4
-    hooks:
-    -   id: autoflake
-        files: \.py$
-        # --remove-all-unused-imports is not used until issue #14 is solved
-        args: ["--in-place", "--expand-star-imports", "--remove-unused-variables"]
-# isort interferes with black
-# -   repo: https://github.com/PyCQA/isort
-#     rev: 5.6.4
-#     hooks:
-#     -   id: isort
-#         args: ["--sl"]
--   repo: https://github.com/psf/black
-    rev: 22.3.0
-    hooks:
-    -   id: black
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.15.0
+  hooks:
+    # Run the linter.
+    - id: ruff-check
+    # Run the formatter.
+    - id: ruff-format
 -   repo: https://github.com/doublify/pre-commit-clang-format
     rev: 62302476d0da01515660132d76902359bed0f782 # no tag as of 02/12/2020
     hooks:

@@ -1,11 +1,8 @@
-import numpy as np
-
-from pycgal.Epick import Point_3, squared_distance, midpoint, barycenter
+from pycgal.Epick import Point_3, barycenter
 from pycgal.Surface_mesh import Surface_mesh, locate
 
 # Euler operations on Surface_mesh objects are directly available from Surface_mesh package
 from pycgal.Surface_mesh import (
-    fill_hole,
     collapse_edge,
     split_edge,
     join_vertex,

@@ -53,11 +53,11 @@ def test_vector_of_point_3():
     v.reserve(100)
     print(f"size: {v.size()} capacity: {v.capacity()}")
     n = v.size()
-    l = list(v)
+    lv = list(v)
     v.clear()
     assert v.is_empty
-    assert len(l) == n
-    for P in l:
+    assert len(lv) == n
+    for P in lv:
         print(P)
     a = np.arange(6, dtype="i")
     a.shape = -1, 3

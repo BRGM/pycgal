@@ -17,7 +17,7 @@ def test_meshes(simple_mesh):
         print(
             f"mesh with {mesh.number_of_vertices()} vertices and {mesh.number_of_faces()} faces"
         )
-        print(f"Vertices:")
+        print("Vertices:")
         for v in mesh.vertices():
             print(f"{v} at {mesh.point(v)}")
         print(mesh.as_arrays())
@@ -97,9 +97,12 @@ def test_access_points(squares_2x2):
 
 
 def test_simple_square():
-    add_corners = lambda mesh: [
-        mesh.add_vertex(Point_3(x, y, 0)) for x, y in ((0, 0), (0, 1), (1, 1), (0, 1))
-    ]
+    def add_corners(mesh):
+        return [
+            mesh.add_vertex(Point_3(x, y, 0))
+            for x, y in ((0, 0), (0, 1), (1, 1), (0, 1))
+        ]
+
     mesh = Surface_mesh()
     corners = add_corners(mesh)
     mesh.add_face(corners)

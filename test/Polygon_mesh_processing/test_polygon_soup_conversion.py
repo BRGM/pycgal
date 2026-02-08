@@ -1,5 +1,4 @@
 import numpy as np
-from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Polygon_mesh_processing import Polygon_soup
 from pycgal.Polygon_mesh_processing import polygon_soup_to_polygon_mesh
 from pycgal.Polygon_mesh_processing import polygon_mesh_to_polygon_soup

@@ -1,4 +1,3 @@
-import numpy as np
 from pycgal.Polygon_mesh_processing import do_intersect
 from pycgal.Surface_mesh import Surface_mesh
 

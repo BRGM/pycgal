@@ -1,4 +1,3 @@
-import numpy as np
 from pycgal.Polygon_mesh_processing import (
     isotropic_remeshing,
     split_long_edges,
@@ -11,7 +10,6 @@ from pycgal.Surface_soup import Surface_soup
 from pycgal.utils import (
     c3t3_to_vtu,
     surface_mesh_to_vtp as to_vtp,
-    surface_mesh_edges_to_vtu as edges_to_vtu,
 )
 
 

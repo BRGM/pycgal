@@ -1,4 +1,3 @@
-from pycgal.core import Bbox_3  # import this to display bounding box
 from pycgal.Polygon_mesh_processing import bbox
 from pycgal.Surface_mesh import Surface_mesh
 

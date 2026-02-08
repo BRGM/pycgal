@@ -11,6 +11,7 @@ from pycgal.utils import (
 
 assert pycgal.__version__ >= "0.3.15a4"
 
+
 # will *cut* a mesh with thickness epsilon
 def test_finite_fault(epsilon=1e-6, remesh_size_bound=0.1):
 
@@ -134,9 +135,7 @@ def test_finite_fault(epsilon=1e-6, remesh_size_bound=0.1):
     def dummy(P):
         x = P.x
         y = P.y
-        z = (np.sign(x - y) + 0.5 * np.sign(x + y)) * max(
-            0, 0.5**2 - (x**2 + y**2)
-        )
+        z = (np.sign(x - y) + 0.5 * np.sign(x + y)) * max(0, 0.5**2 - (x**2 + y**2))
         return Point_3(x, y, z)
 
     for v in mesh.vertices():

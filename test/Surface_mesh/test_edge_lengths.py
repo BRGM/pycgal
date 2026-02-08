@@ -14,5 +14,5 @@ def test_edge_lengths(simple_mesh):
         B = mesh.point(mesh.vertex(e, 1))
         AB = sqrt(squared_distance(A, B))
         d[AB] += 1
-    for l, n in d.items():
-        print(f"{n} edges have length {l}")
+    for el, n in d.items():
+        print(f"{n} edges have length {el}")

@@ -1,6 +1,5 @@
 import numpy as np
 
-from pycgal.Epick import Point_3
 from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Polygon_mesh_processing import triangulate_faces
 
@@ -9,7 +8,6 @@ from pycgal.Mesh_3 import Polyhedral_mesh_domain_with_features_3 as Domain
 from pycgal.Mesh_3 import Mesh_criteria_3, make_mesh_3
 from pycgal.utils import c3t3_to_vtu
 from pycgal.Surface_soup import Surface_soup
-from pycgal.utils import surface_mesh_to_vtp
 
 # a cube
 vertices = np.array(

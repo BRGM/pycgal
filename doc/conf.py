@@ -4,7 +4,6 @@
 # list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
-import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 

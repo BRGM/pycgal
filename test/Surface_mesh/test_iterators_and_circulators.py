@@ -1,6 +1,3 @@
-import numpy as np
-import pytest
-
 from pycgal.Surface_mesh import (
     Surface_mesh,
     halfedges_around_face,

@@ -1,6 +1,3 @@
-import numpy as np
-
-from pycgal.Epick import Point_3
 from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Mesh_3 import Polyhedron_3 as Polyhedron
 

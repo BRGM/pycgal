@@ -1,4 +1,3 @@
-import numpy as np
 from pycgal.Surface_mesh import Surface_mesh
 from pycgal.Surface_soup import Surface_soup
 from pycgal.utils import surface_mesh_to_vtp

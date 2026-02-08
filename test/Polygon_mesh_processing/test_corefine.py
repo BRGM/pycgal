@@ -14,7 +14,7 @@ def test_corefine(simple_mesh):
     )
     corefine(tm1, tm2)
     print(
-        f"... after corefine:\n"
+        "... after corefine:\n"
         + f"TM1 with {tm1.number_of_vertices()} vertices and {tm1.number_of_faces()} faces\n"
         + f"TM2 with {tm2.number_of_vertices()} vertices and {tm2.number_of_faces()} faces"
     )
