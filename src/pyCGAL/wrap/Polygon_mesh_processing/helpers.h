@@ -18,7 +18,9 @@ void wrap_element(detail::helpers<PolygonMesh>, py::module& module) {
   module.def("is_outward_oriented",
              &CGAL::Polygon_mesh_processing::is_outward_oriented<PolygonMesh>);
   module.def("is_quad_mesh", &CGAL::is_quad_mesh<PolygonMesh>);
-  module.def("bbox", &CGAL::Polygon_mesh_processing::bbox<PolygonMesh>);
+  module.def("bbox", [](const PolygonMesh& mesh) {
+    return CGAL::Polygon_mesh_processing::bbox(mesh);
+  });
 }
 
 }  // namespace pyCGAL
