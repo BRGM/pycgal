@@ -54,3 +54,7 @@ src/pyCGAL/packages/*/*.cpp
 *.npz
 
 pycgal/_version.py
+
+# explicitely add source files that are not generated
+# so that they are added to sdist by scikit-build-core
+!src/pyCGAL/packages/Mesh_2/Constrained_Delaunay_triangulations.cpp
