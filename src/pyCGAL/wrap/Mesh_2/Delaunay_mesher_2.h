@@ -24,7 +24,7 @@ wrap_class(WrapTraits<CGAL::Delaunay_mesher_2<ConstrainedDelaunayTriangulation,
   pyclass.def("refine_mesh", &Mesher::refine_mesh);
 
   module.def("refine_Delaunay_mesh_2", [](CDT& cdt, const Criteria& criteria) {
-    CGAL::refine_Delaunay_mesh_2(cdt, criteria);
+    CGAL::refine_Delaunay_mesh_2(cdt, CGAL::parameters::criteria(criteria));
   });
 
   return pyclass;
