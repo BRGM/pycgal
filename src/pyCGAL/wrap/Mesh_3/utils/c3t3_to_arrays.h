@@ -131,7 +131,7 @@ template <typename C3t3, typename PMap>
 inline auto c3t3_cells_indices_to_array(const C3t3& c3t3, PMap& pmap) {
   return collect_to_array(CGAL::make_range(c3t3.cells_in_complex_begin(),
                                            c3t3.cells_in_complex_end()),
-                          [&pmap](auto&& cit) { return get(pmap, cit); });
+                          [&pmap](auto&& cit) { return get(pmap, *cit); });
 }
 
 }  // namespace detail
