@@ -4,6 +4,7 @@ include:
   - project: ${GITLAB_CI_TEMPLATES}
     ref: ${GITLAB_CI_TEMPLATES_VERSION}
     file:
+      - 'gitlab-ci/default.yml'
       - 'gitlab-ci/workflow.yml'
       - 'gitlab-ci/check.yml'
       - 'gitlab-ci/build.yml'
