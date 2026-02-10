@@ -54,6 +54,17 @@ if(NOT CGAL_FOUND) # else fetch it from github
   )
 endif()
 
+file(GLOB patches cgal-patches/${PYCGAL_CGAL_VERSION}/patch-*)
+if(patches)
+  message(STATUS "Applying patches to ${CGAL_DIR}")
+  foreach(patch ${patches})
+    message(STATUS "Applying patch: ${patch}")
+    execute_process(
+      COMMAND patch -N -p 1 -i ${patch} WORKING_DIRECTORY ${CGAL_DIR}
+    )
+  endforeach()
+endif()
+
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 ${PYCGAL_PYBIND11_VERSION} QUIET) # try locally
 if(NOT pybind11_FOUND) # else fetch it from github
