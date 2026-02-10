@@ -62,7 +62,7 @@ auto split_edge_constraints_into_polylines(Surface_mesh& mesh,
   assert(vid_created);
   std::vector<Vertex_index> vertices;
   vertices.resize(nb_kept);
-  std::size_t i = 0;
+  typename Vertex_index::size_type i = 0;
   for (auto&& v : mesh.vertices()) {
     if (keep[v]) {
       vertices[i] = v;
