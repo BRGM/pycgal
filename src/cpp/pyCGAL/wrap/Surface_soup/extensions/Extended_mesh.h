@@ -17,8 +17,9 @@ struct Extended_mesh {
   using Edge_constraints_map =
       typename Mesh::template Property_map<Edge_index, bool>;
   using Exact_vertex_point_map = detail::Exact_vertex_point_map<Mesh>;
-  using Shared_vertex_index = int;
-  static constexpr Shared_vertex_index null_shared_vertex = -1;
+  using Shared_vertex_index = typename Mesh_t::Vertex_index::size_type;
+  static constexpr Shared_vertex_index null_shared_vertex =
+      std::numeric_limits<Shared_vertex_index>::max();
   using Shared_vertex_id_map =
       typename Mesh::template Property_map<Vertex_index, Shared_vertex_index>;
   using Point = typename Exact_vertex_point_map::Point_3;
@@ -45,8 +46,8 @@ struct Extended_mesh {
       auto& other = *constraints;
       for (auto&& e : tm->edges()) ecm[e] = other[e];
     }
-    svid = tm->template add_property_map<Vertex_index, int>("v:svid",
-                                                            null_shared_vertex)
+    svid = tm->template add_property_map<Vertex_index, Shared_vertex_index>(
+                 "v:svid", null_shared_vertex)
                .first;
   }
   const Point& point(const Vertex_index v) const { return tm->point(v); }
