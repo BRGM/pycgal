@@ -53,7 +53,7 @@ src/pyCGAL/packages/*/*.cpp
 *.npy
 *.npz
 
-pycgal/_version.py
+src/pycgal/_version.py
 
 # explicitely add source files that are not generated
 # so that they are added to sdist by scikit-build-core
