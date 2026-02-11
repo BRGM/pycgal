@@ -46,9 +46,15 @@ function(ship_library SHIPPED_LIBRARY LIBRARY_INSTALL_DESTINATION)
     message(FATAL_ERROR "Library cannot be shipped on current platform!")
   endif()
   message(STATUS "          shipping: ${SHIPPED_LIBRARY}")
+  if(NOT SKBUILD)
+    message(
+      FATAL_ERROR
+        "The build must be driven by scikit-build-core to ship libraries."
+    )
+  endif()
   install(
     FILES ${SHIPPED_LIBRARY}
-    DESTINATION ${LIBRARY_INSTALL_DESTINATION}
+    DESTINATION ${SKBUILD_PLATLIB_DIR}
     RENAME ${SHIPPED_LIBRARY_NAME}
   )
 endfunction()
