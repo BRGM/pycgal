@@ -1,3 +1,3 @@
 numpy
 verstr>=0.1.2
-vtkwriters
+vtkwriters>=0.0.12
