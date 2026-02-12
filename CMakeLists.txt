@@ -54,7 +54,12 @@ if(NOT CGAL_FOUND) # else fetch it from github
   )
 endif()
 
-file(GLOB patches cgal-patches/${PYCGAL_CGAL_VERSION}/patch-*)
+# CGAL layout is different in repository and releases
+if(IS_DIRECTORY ${CGAL_DIR}/.git)
+  file(GLOB patches cgal-patches/${PYCGAL_CGAL_VERSION}/git/patch-*)
+else()
+  file(GLOB patches cgal-patches/${PYCGAL_CGAL_VERSION}/release/patch-*)
+endif()
 if(patches)
   message(STATUS "Applying patches to ${CGAL_DIR}")
   foreach(patch ${patches})
