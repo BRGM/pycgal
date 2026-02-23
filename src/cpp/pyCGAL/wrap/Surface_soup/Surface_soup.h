@@ -95,7 +95,7 @@ wrap_class(WrapTraits<ext::Surface_soup::Surface_soup<EMesh>> wrap,
       [](Soup& self) {
         return py::make_iterator(self.meshes_begin(), self.meshes_end());
       },
-      py::keep_alive<0, 1>());
+      py::return_value_policy::reference_internal);
   cls.def("collect_polylines", [](Soup& self) {
     return ext::Surface_soup::collect_polylines(self.elements);
   });
