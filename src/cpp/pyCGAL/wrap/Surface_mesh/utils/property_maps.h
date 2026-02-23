@@ -602,7 +602,7 @@ void wrap_property_map(py::module& module, py::class_<Surface_mesh>& pymesh,
 
   pymesh.def(("add_" + location_name + "_property").c_str(),
              [](Surface_mesh& mesh, const std::string& name, const char dtype,
-                py::object value) {
+                py::object value) -> py::tuple {
                switch (dtype) {
                  case 'b':
                    return add_property_map<traits, bool>(mesh, name, value);
