@@ -11,6 +11,7 @@ include:
       - 'gitlab-ci/deploy.yml'
       - 'gitlab-ci/test.yml'
       - 'gitlab-ci/documentation.yml'
+      - 'gitlab-ci/mirror.yml'
 
 variables:
   TARGET_PYTHON_PACKAGE_NAME: pycgal
