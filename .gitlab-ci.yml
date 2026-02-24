@@ -1,28 +1,9 @@
-image: ${CI_BUILD_IMAGE}
-
 include:
   - project: ${GITLAB_CI_TEMPLATES}
     ref: ${GITLAB_CI_TEMPLATES_VERSION}
     file:
-      - 'gitlab-ci/default.yml'
-      - 'gitlab-ci/workflow.yml'
-      - 'gitlab-ci/check.yml'
-      - 'gitlab-ci/build.yml'
-      - 'gitlab-ci/deploy.yml'
-      - 'gitlab-ci/test.yml'
-      - 'gitlab-ci/documentation.yml'
-      - 'gitlab-ci/mirror.yml'
+      - 'gitlab-ci/default-skbc-pipeline.yml'
 
 variables:
   TARGET_PYTHON_PACKAGE_NAME: pycgal
-  CI_BUILD_TYPE: Release
-  CMAKE_GENERATOR: "Ninja"
-  CMAKE_BUILD_PARALLEL_LEVEL: 4
   ADDITIONAL_BUILD_FLAGS: "-Ccmake.define.PYCGAL_SHIPS_GMP_AND_MPFR=ON"
-
-stages:
-  - check
-  - build
-  - test
-  - documentation
-  - deploy
