@@ -36,3 +36,6 @@ pycgal = "src/pycgal"
 
 [tool.setuptools_scm]
 write_to = "src/pycgal/_version.py"
+
+[tool.pytest.ini_options]
+testpaths = "test"

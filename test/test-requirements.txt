@@ -1,3 +1,0 @@
-numpy
-verstr>=0.1.2
-vtkwriters>=0.0.12
